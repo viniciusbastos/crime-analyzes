@@ -1,0 +1,19 @@
+{
+  "crime_analysis_dashboard": "Painel de Análise de Crimes",
+  "data_upload": "Upload de Dados",
+  "filters": "Filtros",
+  "export": "Exportar",
+  "loading": "Carregando...",
+  "error_fetching_data": "Erro ao buscar dados.",
+  "main_dashboard": "Painel Principal",
+  "temporal_analysis": "Análise Temporal",
+  "spatial_analysis": "Análise Espacial",
+  "data": "Dados",
+  "settings": "Configurações",
+  "dashboard": "Painel",
+  "statistics": "Estatísticas",
+  "crime_map": "Mapa de Crimes",
+  "charts": "Gráficos",
+  "navigation": "Navegação",
+  "crime_analysis_version": "Análise de Crimes v1.0"
+}

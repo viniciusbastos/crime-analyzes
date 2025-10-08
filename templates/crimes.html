@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Crimes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>All Crimes</h1>
+            <a href="/">Back to Dashboard</a>
+        </header>
+        <div class="crime-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Crime Type</th>
+                        <th>Date/Time</th>
+                        <th>Address</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for crime in crimes %}
+                    <tr>
+                        <td>{{ crime.id }}</td>
+                        <td>{{ crime.crime_type }}</td>
+                        <td>{{ crime.date_time }}</td>
+                        <td>{{ crime.address }}</td>
+                        <td>{{ crime.latitude }}</td>
+                        <td>{{ crime.longitude }}</td>
+                        <td>{{ crime.severity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

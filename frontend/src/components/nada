@@ -1,0 +1,12 @@
+ 
+improve my dashboard. The dashboard should include:
+
+Improve overall visual 
+implement a side bar 
+“Only use TailwindCSS for styling, build with React functional components. Do not use Material UI or other CSS frameworks.”
+
+Style everything using Tailwind utility classes for modern aesthetics. Prioritize responsiveness and clean design. You can use chart libraries compatible with Tailwind (like Recharts or Chart.js) for visualizations.
+
+implement dark visual  
+
+

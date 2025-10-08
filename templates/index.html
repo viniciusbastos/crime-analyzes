@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Analysis Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crime Analysis Dashboard</h1>
+            <a href="/crimes">View All Crimes</a>
+            <div class="filters">
+                <select id="crimeTypeFilter">
+                    <option value="">All Crime Types</option>
+                </select>
+                <input type="date" id="startDate" placeholder="Start Date">
+                <input type="date" id="endDate" placeholder="End Date">
+                <button id="applyFilters">Apply Filters</button>
+                <button id="resetFilters">Reset</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="sidebar">
+                <div class="stats-panel">
+                    <h3>Statistics</h3>
+                    <div id="statsContent">
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+
+                <div class="export-panel">
+                    <h3>Export Data</h3>
+                    <button id="exportJson">Export JSON</button>
+                    <button id="exportCsv">Export CSV</button>
+                    <button id="exportExcel">Export Excel</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <h3>Temporal Analysis</h3>
+                        <canvas id="temporalChart"></canvas>
+                    </div>
+                    <div class="chart-panel">
+                        <h3>Monthly Analysis</h3>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                    <div class="chart-panel">
+                        <h3>Crime Types Distribution</h3>
+                        <canvas id="crimeTypesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>Upload Crime Data</h3>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" required>
+                <button type="submit">Upload and Process</button>
+            </form>
+            <div id="uploadStatus"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

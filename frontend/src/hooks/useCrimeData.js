@@ -1,0 +1,349 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+
+// Custom hook for API calls with React Query
+const api = axios.create({
+  baseURL: "/api",
+});
+
+// Query Keys
+export const QUERY_KEYS = {
+  heatmap: "heatmap",
+  density: "density",
+  summary: "summary",
+  temporal: "temporal",
+  spatial: "spatial",
+  yearOverYear: "yearOverYear",
+  growthRates: "growthRates",
+  movingAverages: "movingAverages",
+  weeklyMovingAverages: "weeklyMovingAverages",
+  forecast: "forecast",
+  cities: "cities",
+  crimes: "crimes",
+  crimeTypes: "crimeTypes",
+};
+
+// Helper function to create query key with filters
+const createQueryKey = (baseKey, filters) => [baseKey, filters];
+
+// Custom hooks for each endpoint
+export const useHeatmapData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.heatmap, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/heatmap?${params}`);
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: true,
+  });
+};
+
+export const useDensityData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.density, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/density?${params}`);
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useSummaryData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.summary, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/summary?${params}`);
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useTemporalData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.temporal, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/temporal?${params}`);
+      return response.data;
+    },
+    staleTime: 15 * 60 * 1000, // 15 minutes
+  });
+};
+
+export const useSpatialData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.spatial, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/spatial?${params}`);
+      return response.data;
+    },
+    staleTime: 15 * 60 * 1000, // 15 minutes
+  });
+};
+
+export const useYearOverYearData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.yearOverYear, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/trends/year-over-year?${params}`);
+      console.log("Year over Year Response:", response.data);
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+export const useGrowthRatesData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.growthRates, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/trends/growth-rates?${params}`);
+      console.log("Growth Rates Response:", response.data);
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+export const useMovingAveragesData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.movingAverages, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/trends/moving-averages?${params}`);
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+export const useWeeklyMovingAveragesData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.weeklyMovingAverages, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/trends/weekly-moving-averages?${params}`);
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+export const useForecastData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.forecast, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/trends/forecast?${params}`);
+      return response.data;
+    },
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+};
+
+export const useCityData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey(QUERY_KEYS.cities, filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/cities?${params}`);
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useSemesterComparison = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey("semesterComparison", filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/semester-comparison?${params}`);
+      return response.data;
+    },
+    staleTime: 15 * 60 * 1000, // 15 minutes
+  });
+};
+
+export const useCrimeTypes = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.crimeTypes],
+    queryFn: async () => {
+      const response = await api.get("/crimes?limit=10000");
+      const types = [
+        ...new Set(response.data.map((crime) => crime.crime_type)),
+      ].sort();
+      return types;
+    },
+    staleTime: 60 * 60 * 1000, // 1 hour - crime types don't change often
+  });
+};
+
+// Combined hook for all data - this replaces the loadInitialData function
+export const useCrimeDataSets = (filters = {}) => {
+  const heatmapQuery = useHeatmapData(filters);
+  const densityQuery = useDensityData(filters);
+  const summaryQuery = useSummaryData(filters);
+  const temporalQuery = useTemporalData(filters);
+  const spatialQuery = useSpatialData(filters);
+  const yearOverYearQuery = useYearOverYearData(filters);
+  const growthRatesQuery = useGrowthRatesData(filters);
+  const movingAveragesQuery = useMovingAveragesData(filters);
+  const weeklyMovingAveragesQuery = useWeeklyMovingAveragesData(filters);
+  const forecastQuery = useForecastData(filters);
+  const cityQuery = useCityData(filters);
+  const semesterComparisonQuery = useSemesterComparison(filters);
+  const crimeTypesQuery = useCrimeTypes();
+
+  const isLoading = [
+    heatmapQuery,
+    densityQuery,
+    summaryQuery,
+    temporalQuery,
+    spatialQuery,
+    yearOverYearQuery,
+    growthRatesQuery,
+    movingAveragesQuery,
+    weeklyMovingAveragesQuery,
+    forecastQuery,
+    cityQuery,
+    semesterComparisonQuery,
+    crimeTypesQuery,
+  ].some((query) => query.isLoading);
+
+  const isError = [
+    heatmapQuery,
+    densityQuery,
+    summaryQuery,
+    temporalQuery,
+    spatialQuery,
+    yearOverYearQuery,
+    growthRatesQuery,
+    movingAveragesQuery,
+    weeklyMovingAveragesQuery,
+    forecastQuery,
+    cityQuery,
+    semesterComparisonQuery,
+    crimeTypesQuery,
+  ].some((query) => query.isError);
+
+  return {
+    // Data
+    heatmapData: heatmapQuery.data || [],
+    densityData: densityQuery.data,
+    summaryData: summaryQuery.data,
+    temporalData: temporalQuery.data,
+    spatialData: spatialQuery.data,
+    yearOverYearData: yearOverYearQuery.data,
+    growthRatesData: growthRatesQuery.data,
+    movingAveragesData: movingAveragesQuery.data,
+    weeklyMovingAveragesData: weeklyMovingAveragesQuery.data,
+    forecastData: forecastQuery.data,
+    cityData: cityQuery.data,
+    semesterComparisonData: semesterComparisonQuery.data,
+    crimeTypes: crimeTypesQuery.data || [],
+
+    // Loading states
+    isLoading,
+    isError,
+
+    // Individual loading states for fine-grained control
+    loadingStates: {
+      heatmap: heatmapQuery.isLoading,
+      density: densityQuery.isLoading,
+      summary: summaryQuery.isLoading,
+      temporal: temporalQuery.isLoading,
+      spatial: spatialQuery.isLoading,
+      yearOverYear: yearOverYearQuery.isLoading,
+      growthRates: growthRatesQuery.isLoading,
+      movingAverages: movingAveragesQuery.isLoading,
+      weeklyMovingAverages: weeklyMovingAveragesQuery.isLoading,
+      forecast: forecastQuery.isLoading,
+      cities: cityQuery.isLoading,
+      semesterComparison: semesterComparisonQuery.isLoading,
+      crimeTypes: crimeTypesQuery.isLoading,
+    },
+
+    // Refetch functions
+    refetchAll: () => {
+      heatmapQuery.refetch();
+      densityQuery.refetch();
+      summaryQuery.refetch();
+      temporalQuery.refetch();
+      spatialQuery.refetch();
+      yearOverYearQuery.refetch();
+      growthRatesQuery.refetch();
+      movingAveragesQuery.refetch();
+      weeklyMovingAveragesQuery.refetch();
+      forecastQuery.refetch();
+      cityQuery.refetch();
+      semesterComparisonQuery.refetch();
+      crimeTypesQuery.refetch();
+    },
+  };
+};
+
+// Mutation hooks for data modifications
+export const useClearCache = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await api.post("/cache/clear");
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate all queries to refresh data
+      queryClient.invalidateQueries();
+    },
+  });
+};
+
+export const useUploadData = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData) => {
+      const response = await api.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate all queries to refresh with new data
+      queryClient.invalidateQueries();
+    },
+  });
+};
+
+// Hook to invalidate specific queries when filters change
+export const useInvalidateQueries = () => {
+  const queryClient = useQueryClient();
+
+  return {
+    invalidateAll: () => queryClient.invalidateQueries(),
+    invalidateByFilters: () => {
+      // Invalidate all queries that depend on filters
+      Object.values(QUERY_KEYS).forEach((key) => {
+        if (key !== "crimeTypes") {
+          // crimeTypes doesn't depend on filters
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+      });
+    },
+    invalidateSpecific: (queryKey) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+    },
+  };
+};

@@ -1,0 +1,559 @@
+import React, { useState, useEffect } from "react";
+import { useTheme } from "./ThemeContext";
+
+const CollapsibleFilterBar = ({
+  filters,
+  crimeTypes,
+  onApplyFilters,
+  onResetFilters,
+}) => {
+  const { isDark } = useTheme();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  // City filter options will be populated from API
+  const [cities, setCities] = React.useState([]);
+
+  // Load city options on component mount
+  React.useEffect(() => {
+    const loadCityOptions = async () => {
+      try {
+        const citiesResponse = await fetch("/api/locations/cities");
+        if (citiesResponse.ok) {
+          const citiesData = await citiesResponse.json();
+          setCities(citiesData.map((city) => ({ label: city, value: city })));
+        }
+      } catch (error) {
+        console.error("Error loading city options:", error);
+      }
+    };
+
+    loadCityOptions();
+  }, []);
+
+  const handleFilterChange = (newFilters) => {
+    setLocalFilters(newFilters);
+  };
+
+  const handleApply = () => {
+    onApplyFilters(localFilters);
+  };
+
+  const handleReset = () => {
+    setLocalFilters({});
+    onResetFilters();
+  };
+
+  const quickDateRanges = [
+    { label: "Last 7 days", value: "7d" },
+    { label: "Last 30 days", value: "30d" },
+    { label: "Last 3 months", value: "3m" },
+    { label: "Last 6 months", value: "6m" },
+    { label: "Last year", value: "1y" },
+    { label: "All time", value: "all" },
+  ];
+
+  const timeRanges = [
+    { label: "All Hours", value: "" },
+    { label: "Early Morning (00:00-06:00)", value: "00-06" },
+    { label: "Morning (06:00-12:00)", value: "06-12" },
+    { label: "Afternoon (12:00-18:00)", value: "12-18" },
+    { label: "Evening (18:00-24:00)", value: "18-24" },
+  ];
+
+  const daysOfWeek = [
+    { label: "All Days", value: "" },
+    { label: "Weekdays", value: "weekdays" },
+    { label: "Weekends", value: "weekends" },
+    { label: "Monday", value: "monday" },
+    { label: "Tuesday", value: "tuesday" },
+    { label: "Wednesday", value: "wednesday" },
+    { label: "Thursday", value: "thursday" },
+    { label: "Friday", value: "friday" },
+    { label: "Saturday", value: "saturday" },
+    { label: "Sunday", value: "sunday" },
+  ];
+
+  const months = [
+    { label: "All Months", value: "" },
+    { label: "January", value: "01" },
+    { label: "February", value: "02" },
+    { label: "March", value: "03" },
+    { label: "April", value: "04" },
+    { label: "May", value: "05" },
+    { label: "June", value: "06" },
+    { label: "July", value: "07" },
+    { label: "August", value: "08" },
+    { label: "September", value: "09" },
+    { label: "October", value: "10" },
+    { label: "November", value: "11" },
+    { label: "December", value: "12" },
+  ];
+
+  const handleQuickDateSelect = (range) => {
+    const today = new Date();
+    let startDate = null;
+
+    switch (range) {
+      case "7d":
+        startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "3m":
+        startDate = new Date(
+          today.getFullYear(),
+          today.getMonth() - 3,
+          today.getDate()
+        );
+        break;
+      case "6m":
+        startDate = new Date(
+          today.getFullYear(),
+          today.getMonth() - 6,
+          today.getDate()
+        );
+        break;
+      case "1y":
+        startDate = new Date(
+          today.getFullYear() - 1,
+          today.getMonth(),
+          today.getDate()
+        );
+        break;
+      case "all":
+        startDate = null;
+        break;
+      default:
+        return;
+    }
+
+    const startDateStr = startDate ? startDate.toISOString().split("T")[0] : "";
+    const endDateStr = today.toISOString().split("T")[0];
+
+    handleFilterChange({
+      ...localFilters,
+      start_date: startDateStr,
+      end_date: endDateStr,
+      quick_date: range,
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return Object.values(filters).some((value) => value && value !== "");
+  };
+
+  return (
+    <div
+      className={`w-full mb-6 rounded-lg shadow-lg border transition-all duration-300 ${
+        isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      }`}
+    >
+      {/* Collapsed Filter Bar */}
+      <div
+        className={`p-4 cursor-pointer transition-colors ${
+          isDark ? "hover:bg-gray-750" : "hover:bg-gray-50"
+        }`}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">🔍</span>
+              <h3
+                className={`text-lg font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Filters & Search
+              </h3>
+            </div>
+
+            {/* Quick Filter Tags */}
+            <div className="flex flex-wrap gap-2">
+              {filters.crime_type && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-blue-900 text-blue-200"
+                      : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  Crime: {filters.crime_type}
+                </span>
+              )}
+              {filters.quick_date && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-green-900 text-green-200"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
+                  {
+                    quickDateRanges.find((r) => r.value === filters.quick_date)
+                      ?.label
+                  }
+                </span>
+              )}
+              {filters.time_range && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-purple-900 text-purple-200"
+                      : "bg-purple-100 text-purple-800"
+                  }`}
+                >
+                  {
+                    timeRanges.find((r) => r.value === filters.time_range)
+                      ?.label
+                  }
+                </span>
+              )}
+              {filters.day_of_week && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-orange-900 text-orange-200"
+                      : "bg-orange-100 text-orange-800"
+                  }`}
+                >
+                  {
+                    daysOfWeek.find((d) => d.value === filters.day_of_week)
+                      ?.label
+                  }
+                </span>
+              )}
+              {filters.month && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-teal-900 text-teal-200"
+                      : "bg-teal-100 text-teal-800"
+                  }`}
+                >
+                  {months.find((m) => m.value === filters.month)?.label}
+                </span>
+              )}
+              {filters.city && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-indigo-900 text-indigo-200"
+                      : "bg-indigo-100 text-indigo-800"
+                  }`}
+                >
+                  🏙️ {filters.city}
+                </span>
+              )}
+              {!hasActiveFilters() && (
+                <span
+                  className={`px-2 py-1 text-xs ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  No filters applied
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {hasActiveFilters() && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReset();
+                }}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  isDark
+                    ? "bg-red-900 text-red-200 hover:bg-red-800"
+                    : "bg-red-100 text-red-800 hover:bg-red-200"
+                }`}
+              >
+                Clear All
+              </button>
+            )}
+            <span
+              className={`text-sm font-medium ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
+              {isExpanded ? "Hide Advanced" : "Show Advanced"}
+            </span>
+            <span
+              className={`transform transition-transform duration-200 ${
+                isExpanded ? "rotate-180" : ""
+              } ${isDark ? "text-gray-300" : "text-gray-600"}`}
+            >
+              ▼
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Expanded Filter Panel */}
+      {isExpanded && (
+        <div
+          className={`border-t p-6 transition-all duration-300 ${
+            isDark
+              ? "border-gray-700 bg-gray-750"
+              : "border-gray-200 bg-gray-50"
+          }`}
+        >
+          <div className="mb-6">
+            <h4
+              className={`text-md font-semibold mb-3 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              🚀 Quick Date Ranges
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {quickDateRanges.map((range) => (
+                <button
+                  key={range.value}
+                  onClick={() => handleQuickDateSelect(range.value)}
+                  className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 transform hover:scale-105 ${
+                    localFilters.quick_date === range.value
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
+                      : isDark
+                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 shadow-sm"
+                  }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+            {/* Crime Type Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                🚨 Crime Type
+              </label>
+              <select
+                value={localFilters.crime_type || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, crime_type: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                <option value="">All Crime Types</option>
+                {crimeTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Time Range Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                🕒 Time of Day
+              </label>
+              <select
+                value={localFilters.time_range || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, time_range: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                {timeRanges.map((range) => (
+                  <option key={range.value} value={range.value}>
+                    {range.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Day of Week Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                📅 Day of Week
+              </label>
+              <select
+                value={localFilters.day_of_week || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, day_of_week: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                {daysOfWeek.map((day) => (
+                  <option key={day.value} value={day.value}>
+                    {day.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Month Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                🗓️ Month
+              </label>
+              <select
+                value={localFilters.month || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, month: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                {months.map((month) => (
+                  <option key={month.value} value={month.value}>
+                    {month.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Start Date */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                📅 Start Date
+              </label>
+              <input
+                type="date"
+                value={localFilters.start_date || ""}
+                onChange={(e) =>
+                  handleFilterChange({
+                    ...localFilters,
+                    start_date: e.target.value,
+                    quick_date: "",
+                  })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              />
+            </div>
+
+            {/* End Date */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                📅 End Date
+              </label>
+              <input
+                type="date"
+                value={localFilters.end_date || ""}
+                onChange={(e) =>
+                  handleFilterChange({
+                    ...localFilters,
+                    end_date: e.target.value,
+                    quick_date: "",
+                  })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              />
+            </div>
+
+            {/* City Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                🏙️ City
+              </label>
+              <select
+                value={localFilters.city || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, city: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                <option value="">All Cities</option>
+                {cities.map((city) => (
+                  <option key={city.value} value={city.value}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleApply}
+              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg transform hover:scale-105"
+            >
+              ✨ Apply Filters
+            </button>
+            <button
+              onClick={handleReset}
+              className={`px-6 py-2 rounded-lg transition-all duration-200 font-medium shadow-lg transform hover:scale-105 ${
+                isDark
+                  ? "bg-gray-600 text-white hover:bg-gray-500"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              🔄 Reset All
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CollapsibleFilterBar;

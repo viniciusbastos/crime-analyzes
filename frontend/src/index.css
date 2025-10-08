@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.leaflet-heatmap-layer {
+  opacity: 0.6;
+  filter: blur(2px); /* Additional blur effect */
+  mix-blend-mode: multiply; /* Blend mode for overlapping layers */
+  transition: opacity 0.3s ease; /* Smooth opacity transitions */
+}
+
+/* Hover effects */
+.leaflet-heatmap-layer:hover {
+  opacity: 0.9;
+}

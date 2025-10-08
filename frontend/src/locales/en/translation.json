@@ -1,0 +1,19 @@
+{
+  "crime_analysis_dashboard": "Crime Analysis Dashboard",
+  "data_upload": "Data Upload",
+  "filters": "Filters",
+  "export": "Export",
+  "loading": "Loading...",
+  "error_fetching_data": "Error fetching data.",
+  "main_dashboard": "Main Dashboard",
+  "temporal_analysis": "Temporal Analysis",
+  "spatial_analysis": "Spatial Analysis",
+  "data": "Data",
+  "settings": "Settings",
+  "dashboard": "Dashboard",
+  "statistics": "Statistics",
+  "crime_map": "Crime Map",
+  "charts": "Charts",
+  "navigation": "Navigation",
+  "crime_analysis_version": "Crime Analysis v1.0"
+}
