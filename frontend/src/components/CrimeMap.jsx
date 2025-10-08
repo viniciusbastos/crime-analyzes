@@ -3,7 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 // Fix for default markers in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -95,6 +96,7 @@ const ContourLayer = ({ densityData, visible }) => {
 // Cluster markers component
 const ClusterMarkers = ({ data }) => {
   const map = useMap();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -108,7 +110,7 @@ const ClusterMarkers = ({ data }) => {
           fillOpacity: 0.8
         }).addTo(map);
 
-        marker.bindPopup(`<b>Cluster ${cluster.cluster_id}</b><br>Crime Count: ${cluster.crime_count}`);
+        marker.bindPopup(`<b>${t('cluster')} ${cluster.cluster_id}</b><br>${t('crime_count')}: ${cluster.crime_count}`);
         return marker;
       });
 
@@ -118,7 +120,7 @@ const ClusterMarkers = ({ data }) => {
         });
       };
     }
-  }, [map, data]);
+  }, [map, data, t]);
 
   return null;
 };
@@ -133,6 +135,7 @@ const CrimeMap = ({
   onToggleContours,
 }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div className={`rounded-lg shadow p-6 mb-6 ${
@@ -140,7 +143,7 @@ const CrimeMap = ({
     } border`}>
       <div className="flex justify-between items-center mb-4">
         <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-          Crime Density Map
+          {t('crime_density_map')}
         </h3>
         <div className="flex gap-2">
           <button
@@ -153,7 +156,7 @@ const CrimeMap = ({
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            {showContours ? "Hide" : "Show"} Contours
+            {showContours ? t('hide_contours') : t('show_contours')} 
           </button>
         </div>
       </div>
@@ -181,7 +184,7 @@ const CrimeMap = ({
       </div>
       {densityData && densityData.contour_levels && (
         <div className={`mt-4 flex flex-wrap gap-2 text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-          <span className="font-medium">Density Levels:</span>
+          <span className="font-medium">{t('density_levels')}:</span>
           {densityData.contour_levels.map((level) => (
             <div key={level.level} className="flex items-center gap-1">
               <div
@@ -198,7 +201,7 @@ const CrimeMap = ({
                 }}
               ></div>
               <span>
-                {level.percentage}% ({level.level_value} crimes)
+                {level.percentage}% ({level.level_value} {t('crimes')})
               </span>
             </div>
           ))}

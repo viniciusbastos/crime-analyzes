@@ -1,10 +1,12 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const ForecastChart = ({ data }) => {
   console.log("Forecast data", data);
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -45,7 +47,7 @@ const ForecastChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Crime Forecast (Next 3 Months)
+        {t("crime_forecast_next_3_months")}
       </h3>
       {data && data?.forecast?.length > 0 && (
         <Line
@@ -53,7 +55,7 @@ const ForecastChart = ({ data }) => {
             labels: data.forecast.map((item) => item.period),
             datasets: [
               {
-                label: "Forecast",
+                label: t("forecast"),
                 data: data.forecast.map((item) => item.combined_forecast),
                 borderColor: "rgb(255, 99, 132)",
                 backgroundColor: "rgba(255, 99, 132, 0.1)",
@@ -61,7 +63,7 @@ const ForecastChart = ({ data }) => {
                 borderDash: [5, 5],
               },
               {
-                label: "Confidence Upper",
+                label: t("confidence_upper"),
                 data: data.forecast.map(
                   (item) => item.confidence_interval.upper
                 ),
@@ -73,7 +75,7 @@ const ForecastChart = ({ data }) => {
                 pointRadius: 0,
               },
               {
-                label: "Confidence Lower",
+                label: t("confidence_lower"),
                 data: data.forecast.map(
                   (item) => item.confidence_interval.lower
                 ),

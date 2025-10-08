@@ -1,9 +1,11 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const HourlyWeekendChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -44,7 +46,7 @@ const HourlyWeekendChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Weekend Hourly Pattern
+        {t("weekend_hourly_pattern")}
       </h3>
       {data && Array.isArray(data) && data.length > 0 && (
         <Line
@@ -52,7 +54,7 @@ const HourlyWeekendChart = ({ data }) => {
             labels: data.map((h) => `${h.hour}:00`),
             datasets: [
               {
-                label: "Weekend Crimes",
+                label: t("weekend_crimes"),
                 data: data.map((h) => h.count),
                 borderColor: "rgb(255, 99, 132)",
                 backgroundColor: "rgba(255, 99, 132, 0.1)",

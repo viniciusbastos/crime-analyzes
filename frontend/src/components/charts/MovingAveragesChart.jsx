@@ -1,9 +1,11 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const MovingAveragesChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -46,7 +48,7 @@ const MovingAveragesChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Crime Trends with Moving Averages
+        {t("crime_trends_with_moving_averages")}
       </h3>
       {data && data.monthly_trends && data.monthly_trends.length > 0 && (
         <Line
@@ -54,14 +56,14 @@ const MovingAveragesChart = ({ data }) => {
             labels: data.monthly_trends.map((item) => item.year_month),
             datasets: [
               {
-                label: "Actual Crimes",
+                label: t("actual_crimes"),
                 data: data.monthly_trends.map((item) => item.count),
                 borderColor: "rgb(75, 192, 192)",
                 backgroundColor: "rgba(75, 192, 192, 0.1)",
                 tension: 0.1,
               },
               {
-                label: "3-Month MA",
+                label: t("3_month_ma"),
                 data: data.monthly_trends.map((item) => item.ma_3),
                 borderColor: "rgb(255, 99, 132)",
                 backgroundColor: "rgba(255, 99, 132, 0.1)",
@@ -69,7 +71,7 @@ const MovingAveragesChart = ({ data }) => {
                 borderDash: [5, 5],
               },
               {
-                label: "6-Month MA",
+                label: t("6_month_ma"),
                 data: data.monthly_trends.map((item) => item.ma_6),
                 borderColor: "rgb(255, 205, 86)",
                 backgroundColor: "rgba(255, 205, 86, 0.1)",

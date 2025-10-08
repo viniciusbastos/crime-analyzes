@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const DateRangeStat = ({ summaryData, isDark }) => {
+  const { t } = useTranslation();
   if (!summaryData?.date_range) return null;
 
   const { start, end } = summaryData.date_range;
@@ -8,7 +10,7 @@ const DateRangeStat = ({ summaryData, isDark }) => {
   return (
     <div className={isDark ? "text-gray-300" : "text-gray-700"}>
       <strong className={isDark ? "text-white" : "text-gray-900"}>
-        Date Range:
+        {t("date_range")}
       </strong>{" "}
       {start && end ? (
         <>
@@ -16,7 +18,7 @@ const DateRangeStat = ({ summaryData, isDark }) => {
           {new Date(end).toLocaleDateString()}
         </>
       ) : (
-        "Loading..."
+        t("loading")
       )}
     </div>
   );

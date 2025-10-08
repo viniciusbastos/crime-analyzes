@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTheme } from './ThemeContext';
+import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ activeSection, onSectionChange }) => {
@@ -13,12 +13,12 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
     { id: 'statistics', label: t('statistics'), icon: '📈' },
     { id: 'map', label: t('crime_map'), icon: '🗺️' },
     { id: 'charts', label: t('charts'), icon: '📊' },
-    { id: 'chat', label: 'AI Assistant', icon: '🤖' },
+    { id: 'chat', label: t('ai_assistant'), icon: '🤖' },
     { id: 'filters', label: t('filters'), icon: '🔍' },
     { id: 'upload', label: t('data_upload'), icon: '📤' },
     { id: 'export', label: t('export'), icon: '📥' },
-    { id: 'crimes', label: 'Crime Records', icon: '📋' },
-    { id: 'cache', label: 'Cache Status', icon: '🚀' },
+    { id: 'crimes', label: t('crime_records'), icon: '📋' },
+    { id: 'cache', label: t('cache_status'), icon: '🚀' },
   ];
 
   return (

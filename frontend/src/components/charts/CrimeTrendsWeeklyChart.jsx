@@ -1,9 +1,11 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const CrimeTrendsWeeklyChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -46,7 +48,7 @@ const CrimeTrendsWeeklyChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Crime Trends with Moving Averages (Weekly)
+        {t("crime_trends_with_moving_averages_weekly")}
       </h3>
       {data && data.weekly_trends && data.weekly_trends.length > 0 && (
         <Line
@@ -54,14 +56,14 @@ const CrimeTrendsWeeklyChart = ({ data }) => {
             labels: data.weekly_trends.map((item) => item.date),
             datasets: [
               {
-                label: "Actual Crimes",
+                label: t("actual_crimes"),
                 data: data.weekly_trends.map((item) => item.count),
                 borderColor: "rgb(75, 192, 192)",
                 backgroundColor: "rgba(75, 192, 192, 0.1)",
                 tension: 0.1,
               },
               {
-                label: "7-Day MA",
+                label: t("7_day_ma"),
                 data: data.weekly_trends.map((item) => item.ma_7),
                 borderColor: "rgb(255, 99, 132)",
                 backgroundColor: "rgba(255, 99, 132, 0.1)",
@@ -69,7 +71,7 @@ const CrimeTrendsWeeklyChart = ({ data }) => {
                 borderDash: [5, 5],
               },
               {
-                label: "15-Day MA",
+                label: t("15_day_ma"),
                 data: data.weekly_trends.map((item) => item.ma_15),
                 borderColor: "rgb(255, 205, 86)",
                 backgroundColor: "rgba(255, 205, 86, 0.1)",
@@ -77,7 +79,7 @@ const CrimeTrendsWeeklyChart = ({ data }) => {
                 borderDash: [10, 5],
               },
               {
-                label: "30-Day MA",
+                label: t("30_day_ma"),
                 data: data.weekly_trends.map((item) => item.ma_30),
                 borderColor: "rgb(153, 102, 255)",
                 backgroundColor: "rgba(153, 102, 255, 0.1)",

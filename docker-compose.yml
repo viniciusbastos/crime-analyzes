@@ -11,7 +11,7 @@ services:
       - "5433:5433"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d crime_analysis"]
       interval: 10s
@@ -26,9 +26,9 @@ services:
       - redis_data:/data
 
   web:
-    build: .
+    build: ./backend
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/crime_analysis
       - REDIS_URL=redis://redis:6379/0
@@ -38,8 +38,17 @@ services:
       redis:
         condition: service_started
     volumes:
-      - .:/app
+      - ./backend:/app
       - /app/venv
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - web
 
 volumes:
   postgres_data:

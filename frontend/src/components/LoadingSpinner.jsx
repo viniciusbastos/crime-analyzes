@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from './ThemeContext';
+import { useTheme } from '../hooks/useTheme';
 
 const LoadingSpinner = ({ size = 'md', message = 'Loading...' }) => {
   const { isDark } = useTheme();

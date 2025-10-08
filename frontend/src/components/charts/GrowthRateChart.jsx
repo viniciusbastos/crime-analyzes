@@ -1,11 +1,13 @@
 import React, { useRef } from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import { useChartExport } from "../../hooks/useChartExport";
+import { useTranslation } from "react-i18next";
 
 const GrowthRateChart = ({ data }) => {
   const chartRef = useRef(null);
   const { exportChartAsPNG, exportChartAsJPG } = useChartExport();
+  const { t } = useTranslation();
   // Parse data if it's a string
   let parsedData = data;
   if (typeof data === "string") {
@@ -66,7 +68,7 @@ const GrowthRateChart = ({ data }) => {
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          Growth Rate Analysis
+          {t("growth_rate_analysis")}
         </h3>
         <div className="flex gap-2">
           <button
@@ -93,7 +95,7 @@ const GrowthRateChart = ({ data }) => {
               labels: parsedData.monthly_counts.map((item) => item.year_month),
               datasets: [
                 {
-                  label: "MoM Growth %",
+                  label: t("mom_growth_percent"),
                   data: parsedData.monthly_counts.map(
                     (item) => item.mom_growth
                   ),
@@ -102,7 +104,7 @@ const GrowthRateChart = ({ data }) => {
                   tension: 0.1,
                 },
                 {
-                  label: "YoY Growth %",
+                  label: t("yoy_growth_percent"),
                   data: parsedData.monthly_counts.map(
                     (item) => item.yoy_growth
                   ),

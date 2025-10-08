@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const MonthlyGrowthStat = ({ growthRatesData, isDark }) => {
+  const { t } = useTranslation();
   if (!growthRatesData?.growth_rates?.average_mom_growth) return null;
 
   const growth = growthRatesData.growth_rates.average_mom_growth;
@@ -14,7 +16,7 @@ const MonthlyGrowthStat = ({ growthRatesData, isDark }) => {
   return (
     <div className={isDark ? "text-gray-300" : "text-gray-700"}>
       <strong className={isDark ? "text-white" : "text-gray-900"}>
-        Avg Monthly Growth:
+        {t("avg_monthly_growth")}
       </strong>{" "}
       <span className={color}>
         {growth > 0 ? "+" : ""}

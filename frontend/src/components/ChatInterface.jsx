@@ -1,14 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import HourlyChart from "./charts/HourlyChart";
+import MonthlyChart from "./charts/MonthlyChart";
+import CrimeTypesChart from "./charts/CrimeTypesChart";
+import YearOverYearChart from "./charts/YearOverYearChart";
+import CityInfoChart from "./charts/CityInfoChart";
+import { useTranslation } from "react-i18next";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const ChatInterface = ({ filters }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: "assistant",
-      content:
-        "Hello! I'm your crime analysis assistant. I can help you analyze crime patterns, trends, and provide insights based on your data. What would you like to know?",
+      content: t("chat_greeting"),
       timestamp: new Date(),
       thinking: null,
     },
@@ -58,15 +66,17 @@ const ChatInterface = ({ filters }) => {
 
       const data = await response.json();
 
+      // Parse chart suggestions from response
+      const chartSuggestion = parseChartSuggestion(data.response);
+
       const assistantMessage = {
         id: Date.now() + 1,
         type: "assistant",
-        content:
-          data.response ||
-          "I apologize, but I couldn't generate a response. Please try again.",
+        content: data.response || t("chat_error_generic"),
         thinking: data.thinking,
         timestamp: new Date(),
         error: data.error,
+        chartSuggestion: chartSuggestion,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -75,14 +85,42 @@ const ChatInterface = ({ filters }) => {
       const errorMessage = {
         id: Date.now() + 1,
         type: "assistant",
-        content:
-          "I'm sorry, I encountered an error while processing your request. Please check your connection and try again.",
+        content: t("chat_error_processing"),
         timestamp: new Date(),
         error: true,
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const parseChartSuggestion = (responseText) => {
+    const chartMatch = responseText?.match(/\[CHART:(\w+)\]/);
+    return chartMatch ? chartMatch[1] : null;
+  };
+
+  const renderChart = (chartType) => {
+    if (!chartType) return null;
+
+    const commonProps = {
+      className: "mt-4 max-w-full",
+      height: 300,
+    };
+
+    switch (chartType) {
+      case "hourly_chart":
+        return <HourlyChart {...commonProps} />;
+      case "monthly_chart":
+        return <MonthlyChart {...commonProps} />;
+      case "crime_types_chart":
+        return <CrimeTypesChart {...commonProps} />;
+      case "year_over_year_chart":
+        return <YearOverYearChart {...commonProps} />;
+      case "city_chart":
+        return <CityInfoChart {...commonProps} />;
+      default:
+        return null;
     }
   };
 
@@ -114,10 +152,10 @@ const ChatInterface = ({ filters }) => {
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          Crime Analysis Assistant
+          {t("ai_assistant")}
         </h2>
         <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-          Ask questions about your crime data and get AI-powered insights
+          {t("chat_tagline")}
         </p>
       </div>
 
@@ -157,7 +195,7 @@ const ChatInterface = ({ filters }) => {
                     }`}
                   >
                     <span>🧠</span>
-                    <span>Thinking Process</span>
+                    <span>{t("thinking_process")}</span>
                     <span>{expandedThinking[message.id] ? "▲" : "▼"}</span>
                   </button>
                   {expandedThinking[message.id] && (
@@ -173,7 +211,23 @@ const ChatInterface = ({ filters }) => {
                   )}
                 </div>
               )}
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {message.content?.replace(/\[CHART:\w+\]/, "") ||
+                    message.content}
+                </ReactMarkdown>
+              </div>
+
+              {/* Render chart if suggested */}
+              {message.chartSuggestion && message.type === "assistant" && (
+                <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                  <p className="text-xs mb-2 text-gray-600 dark:text-gray-300">
+                    📊 {t("suggested_visualization")}:
+                  </p>
+                  {renderChart(message.chartSuggestion)}
+                </div>
+              )}
+
               <p
                 className={`text-xs mt-1 ${
                   message.type === "user"
@@ -211,7 +265,7 @@ const ChatInterface = ({ filters }) => {
                   ></div>
                 </div>
                 <span className="text-sm text-gray-500">
-                  Analyzing your data...
+                  {t("analyzing_your_data")}...
                 </span>
               </div>
             </div>
@@ -232,7 +286,7 @@ const ChatInterface = ({ filters }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about crime trends, patterns, or analysis..."
+            placeholder={t("chat_placeholder")}
             className={`flex-1 px-3 py-2 border rounded-md resize-none ${
               isDark
                 ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
@@ -250,7 +304,7 @@ const ChatInterface = ({ filters }) => {
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
-            {isLoading ? "..." : "Send"}
+            {isLoading ? "..." : t("send")}
           </button>
         </div>
 
@@ -259,10 +313,7 @@ const ChatInterface = ({ filters }) => {
             isDark ? "text-gray-400" : "text-gray-600"
           }`}
         >
-          <p>
-            💡 Try asking: "What's the trend in crime rates?" or "When do most
-            crimes happen?"
-          </p>
+          <p>💡 {t("chat_tip")}</p>
         </div>
       </div>
     </div>

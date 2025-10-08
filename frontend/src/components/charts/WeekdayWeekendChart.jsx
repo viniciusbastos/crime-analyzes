@@ -1,9 +1,11 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const WeekdayWeekendChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -44,7 +46,7 @@ const WeekdayWeekendChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Weekday vs Weekend
+        {t("weekday_vs_weekend_chart")}
       </h3>
       {data && Array.isArray(data) && data.length > 0 && (
         <Bar
@@ -52,16 +54,13 @@ const WeekdayWeekendChart = ({ data }) => {
             labels: data.map((item) => item.period),
             datasets: [
               {
-                label: "Total Crimes",
+                label: t("total_crimes_label"),
                 data: data.map((item) => item.count),
                 backgroundColor: [
                   "rgba(54, 162, 235, 0.6)", // Weekday - blue
                   "rgba(255, 99, 132, 0.6)", // Weekend - red
                 ],
-                borderColor: [
-                  "rgba(54, 162, 235, 1)",
-                  "rgba(255, 99, 132, 1)",
-                ],
+                borderColor: ["rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 1)"],
                 borderWidth: 1,
               },
             ],

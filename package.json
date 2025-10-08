@@ -14,5 +14,12 @@
   "type": "commonjs",
   "devDependencies": {
     "tailwindcss": "^4.1.13"
+  },
+  "dependencies": {
+    "@rnmapbox/maps": "^10.1.45",
+    "expo-location": "^19.0.7",
+    "react-dom": "^19.1.0",
+    "react-native-web": "^0.21.1",
+    "react-native-worklets": "^0.6.0"
   }
 }

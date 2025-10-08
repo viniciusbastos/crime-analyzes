@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const CityInfoChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -114,9 +116,9 @@ const CityInfoChart = ({ data }) => {
           .style("z-index", 1000)
           .style("color", isDark ? "#f3f4f6" : "#111827").html(`
             <div style="font-weight: 600; margin-bottom: 4px;">${cityData.city} - ${d.year}</div>
-            <div>Crimes: ${d.count}</div>
-            <div>Total for city: ${cityData.total_crimes}</div>
-            <div>City percentage: ${cityData.percentage}%</div>
+            <div>${t('crimes_label')}: ${d.count}</div>
+            <div>${t('total_for_city')}: ${cityData.total_crimes}</div>
+            <div>${t('city_percentage')}: ${cityData.percentage}%</div>
           `);
 
         tooltip
@@ -157,7 +159,7 @@ const CityInfoChart = ({ data }) => {
       .style("font-size", "12px")
       .style("font-weight", "500")
       .style("fill", isDark ? "#e5e7eb" : "#374151")
-      .text("Number of Crimes");
+      .text(t("number_of_crimes"));
 
     // X axis label
     svg
@@ -168,7 +170,7 @@ const CityInfoChart = ({ data }) => {
       .style("font-size", "12px")
       .style("font-weight", "500")
       .style("fill", isDark ? "#e5e7eb" : "#374151")
-      .text("Cities");
+      .text(t("cities"));
 
     // Legend
     const legend = svg
@@ -204,7 +206,7 @@ const CityInfoChart = ({ data }) => {
       .style("font-size", "16px")
       .style("font-weight", "600")
       .style("fill", isDark ? "#f3f4f6" : "#111827")
-      .text("Crime Distribution by City and Year");
+      .text(t("crime_distribution_by_city_and_year"));
   }, [data, dimensions, isDark]);
 
   if (!data || !data.length) {
@@ -219,14 +221,14 @@ const CityInfoChart = ({ data }) => {
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          City Information
+          {t("city_information")}
         </h3>
         <div
           className={`text-center py-8 ${
             isDark ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          No city data available
+          {t("no_city_data_available")}
         </div>
       </div>
     );
@@ -243,7 +245,7 @@ const CityInfoChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        City Information
+        {t("city_information")}
       </h3>
       <div className="overflow-x-auto">
         <svg ref={svgRef} className="w-full h-96"></svg>
@@ -252,7 +254,7 @@ const CityInfoChart = ({ data }) => {
         className={`mt-4 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
       >
         <p>
-          Total cities: {data.length} | Total crimes:{" "}
+          {t("total_cities")}: {data.length} | {t("total_crimes")}:{" "}
           {data.reduce((sum, city) => sum + city.total_crimes, 0)}
         </p>
       </div>

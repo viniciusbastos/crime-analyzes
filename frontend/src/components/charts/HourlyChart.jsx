@@ -1,9 +1,11 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const HourlyChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -46,7 +48,7 @@ const HourlyChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Crimes by Hour
+        {t("crimes_by_hour")}
       </h3>
       {data && (
         <Line
@@ -54,7 +56,7 @@ const HourlyChart = ({ data }) => {
             labels: data.map((h) => `${h.hour}:00`),
             datasets: [
               {
-                label: "Crimes by Hour",
+                label: t("crimes_by_hour"),
                 data: data.map((h) => h.count),
                 borderColor: "rgb(75, 192, 192)",
                 tension: 0.1,

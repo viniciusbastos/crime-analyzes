@@ -1,9 +1,11 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const MonthlyChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -125,7 +127,7 @@ const MonthlyChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Monthly Crime Trends by Year
+        {t("monthly_crime_trends_by_year")}
       </h3>
       {chartData ? (
         <Bar data={chartData} options={chartOptions} />
@@ -135,7 +137,7 @@ const MonthlyChart = ({ data }) => {
             isDark ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          No monthly data available
+          {t("no_monthly_data_available")}
         </div>
       )}
 
@@ -146,9 +148,7 @@ const MonthlyChart = ({ data }) => {
           }`}
         >
           <p>
-            Stacked bars showing monthly crime counts for each year. Each color
-            represents a different year, with darker colors for more recent
-            years.
+            {t("stacked_bars_description")}
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
             {chartData.datasets.map((dataset) => (
@@ -159,7 +159,7 @@ const MonthlyChart = ({ data }) => {
                 ></div>
                 <span>
                   {dataset.label}:{" "}
-                  {dataset.data.reduce((sum, val) => sum + val, 0)} total crimes
+                  {dataset.data.reduce((sum, val) => sum + val, 0)} {t("total_crimes_count")}
                 </span>
               </div>
             ))}

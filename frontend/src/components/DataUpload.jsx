@@ -1,39 +1,49 @@
 import React from "react";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import { useAuth } from "../hooks/useAuth";
+import { useUploadData } from "../hooks/useCrimeData";
+import { useTranslation } from "react-i18next";
 
 const DataUpload = ({ onUpload, uploadStatus }) => {
   const { isDark } = useTheme();
+  const { role } = useAuth();
+  const { t } = useTranslation();
+  const uploadMutation = useUploadData();
+
+  if (role !== 'admin') {
+    return (
+      <div className={`rounded-lg shadow p-6 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border`}>
+        <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          {t('upload_crime_data')}
+        </h3>
+        <p className={`text-red-500 ${isDark ? 'text-red-400' : ''}`}>
+          {t('access_denied_admin_role_required')}
+        </p>
+      </div>
+    );
+  }
   const handleFileUpload = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     const fileInput = event.target.querySelector('input[type="file"]');
 
     if (!fileInput || !fileInput.files[0]) {
-      onUpload("Please select a file", "error");
+      onUpload(t('please_select_a_file'), "error");
       return;
     }
 
     formData.append("file", fileInput.files[0]);
-    onUpload("Uploading and processing...", "loading");
+    onUpload(t('uploading_and_processing'), "loading");
 
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        onUpload(result.message, "success");
-        // Reload data after successful upload
+    uploadMutation.mutate(formData, {
+      onSuccess: (data) => {
+        onUpload(data.message, "success");
         setTimeout(() => window.location.reload(), 1000);
-      } else {
-        onUpload(result.error || "Upload failed", "error");
-      }
-    } catch {
-      onUpload("Network error occurred", "error");
-    }
+      },
+      onError: (error) => {
+        onUpload(error.response?.data?.error || t('upload_failed'), "error");
+      },
+    });
   };
 
   return (
@@ -41,7 +51,7 @@ const DataUpload = ({ onUpload, uploadStatus }) => {
       isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
     } border`}>
       <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-        Upload Crime Data
+        {t('upload_crime_data')}
       </h3>
       <form onSubmit={handleFileUpload} className="flex gap-4 items-center">
         <input
@@ -59,7 +69,7 @@ const DataUpload = ({ onUpload, uploadStatus }) => {
           type="submit"
           className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
         >
-          Upload and Process
+          {t('upload_and_process')}
         </button>
       </form>
       {uploadStatus && (

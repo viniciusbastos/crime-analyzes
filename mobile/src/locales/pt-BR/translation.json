@@ -1,0 +1,79 @@
+{
+  "auth": {
+    "login": "Entrar",
+    "register": "Registrar",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome",
+    "confirmPassword": "Confirmar Senha",
+    "rememberMe": "Lembrar-me",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPassword": "Redefinir Senha",
+    "emailPlaceholder": "Digite seu e-mail",
+    "passwordPlaceholder": "Digite sua senha",
+    "namePlaceholder": "Digite seu nome",
+    "confirmPasswordPlaceholder": "Confirme sua senha",
+    "noAccount": "Não tem conta? Registrar",
+    "haveAccount": "Já tem conta? Entrar",
+    "backToLogin": "Voltar ao Login",
+    "fillAllFields": "Por favor, preencha todos os campos",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+    "emailRequired": "E-mail é obrigatório",
+    "loginFailed": "Falha no login",
+    "registrationFailed": "Falha no registro",
+    "registrationSuccess": "Registro realizado com sucesso",
+    "forgotPasswordFailed": "Falha ao enviar e-mail de redefinição",
+    "forgotPasswordInstructions": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha.",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "navigation": {
+    "dashboard": "Painel",
+    "statistics": "Estatísticas",
+    "map": "Mapa",
+    "charts": "Gráficos",
+    "chat": "Chat"
+  },
+  "dashboard": {
+    "title": "Painel de Análise Criminal",
+    "welcome": "Bem-vindo ao seu painel de análise criminal"
+  },
+  "statistics": {
+    "title": "Estatísticas"
+  },
+  "map": {
+    "title": "Mapa Criminal",
+    "loadError": "Erro ao carregar dados do mapa",
+    "noData": "Nenhum dado de crime disponível para exibir no mapa"
+  },
+  "charts": {
+    "title": "Gráficos e Análises"
+  },
+  "chat": {
+    "title": "Assistente de Análise Criminal",
+    "subtitle": "Faça perguntas sobre seus dados criminais",
+    "welcome": "Olá! Sou seu assistente de análise criminal. Posso ajudar a analisar padrões de crimes, tendências e fornecer insights baseados nos seus dados. O que você gostaria de saber?",
+    "placeholder": "Pergunte sobre tendências criminais, padrões...",
+    "analyzing": "Analisando seus dados...",
+    "error": "Desculpe, mas não consegui gerar uma resposta. Tente novamente.",
+    "connectionError": "Desculpe, encontrei um erro ao processar sua solicitação. Verifique sua conexão e tente novamente.",
+    "hint": "💡 Tente perguntar: \"Qual é a tendência nas taxas de criminalidade?\""
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "retry": "Tentar novamente",
+    "cancel": "Cancelar",
+    "ok": "OK",
+    "save": "Salvar",
+    "delete": "Excluir"
+  },
+  "permissions": {
+    "location": {
+      "title": "Permissão de Localização",
+      "message": "Este aplicativo precisa de acesso à localização para mostrar dados criminais no mapa."
+    }
+  }
+}

@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const TrendDirectionStat = ({ movingAveragesData, isDark }) => {
+  const { t } = useTranslation();
   if (!movingAveragesData?.trend_indicators?.direction) return null;
 
   const direction = movingAveragesData.trend_indicators.direction;
@@ -14,7 +16,7 @@ const TrendDirectionStat = ({ movingAveragesData, isDark }) => {
   return (
     <div className={isDark ? "text-gray-300" : "text-gray-700"}>
       <strong className={isDark ? "text-white" : "text-gray-900"}>
-        Trend Direction:
+        {t("trend_direction")}
       </strong>{" "}
       <span className={`capitalize ${color}`}>
         {direction.replace("_", " ")}

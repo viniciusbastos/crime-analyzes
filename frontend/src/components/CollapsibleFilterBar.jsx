@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const CollapsibleFilterBar = ({
   filters,
@@ -8,6 +9,7 @@ const CollapsibleFilterBar = ({
   onResetFilters,
 }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [localFilters, setLocalFilters] = useState(filters);
 
@@ -28,12 +30,12 @@ const CollapsibleFilterBar = ({
           setCities(citiesData.map((city) => ({ label: city, value: city })));
         }
       } catch (error) {
-        console.error("Error loading city options:", error);
+        console.error(t('error_loading_city_options'), error);
       }
     };
 
     loadCityOptions();
-  }, []);
+  }, [t]);
 
   const handleFilterChange = (newFilters) => {
     setLocalFilters(newFilters);
@@ -49,49 +51,49 @@ const CollapsibleFilterBar = ({
   };
 
   const quickDateRanges = [
-    { label: "Last 7 days", value: "7d" },
-    { label: "Last 30 days", value: "30d" },
-    { label: "Last 3 months", value: "3m" },
-    { label: "Last 6 months", value: "6m" },
-    { label: "Last year", value: "1y" },
-    { label: "All time", value: "all" },
+    { label: t('last_7_days'), value: "7d" },
+    { label: t('last_30_days'), value: "30d" },
+    { label: t('last_3_months'), value: "3m" },
+    { label: t('last_6_months'), value: "6m" },
+    { label: t('last_year'), value: "1y" },
+    { label: t('all_time'), value: "all" },
   ];
 
   const timeRanges = [
-    { label: "All Hours", value: "" },
-    { label: "Early Morning (00:00-06:00)", value: "00-06" },
-    { label: "Morning (06:00-12:00)", value: "06-12" },
-    { label: "Afternoon (12:00-18:00)", value: "12-18" },
-    { label: "Evening (18:00-24:00)", value: "18-24" },
+    { label: t('all_hours'), value: "" },
+    { label: t('early_morning'), value: "00-06" },
+    { label: t('morning'), value: "06-12" },
+    { label: t('afternoon'), value: "12-18" },
+    { label: t('evening'), value: "18-24" },
   ];
 
   const daysOfWeek = [
-    { label: "All Days", value: "" },
-    { label: "Weekdays", value: "weekdays" },
-    { label: "Weekends", value: "weekends" },
-    { label: "Monday", value: "monday" },
-    { label: "Tuesday", value: "tuesday" },
-    { label: "Wednesday", value: "wednesday" },
-    { label: "Thursday", value: "thursday" },
-    { label: "Friday", value: "friday" },
-    { label: "Saturday", value: "saturday" },
-    { label: "Sunday", value: "sunday" },
+    { label: t('all_days'), value: "" },
+    { label: t('weekdays'), value: "weekdays" },
+    { label: t('weekends'), value: "weekends" },
+    { label: t('monday'), value: "monday" },
+    { label: t('tuesday'), value: "tuesday" },
+    { label: t('wednesday'), value: "wednesday" },
+    { label: t('thursday'), value: "thursday" },
+    { label: t('friday'), value: "friday" },
+    { label: t('saturday'), value: "saturday" },
+    { label: t('sunday'), value: "sunday" },
   ];
 
   const months = [
-    { label: "All Months", value: "" },
-    { label: "January", value: "01" },
-    { label: "February", value: "02" },
-    { label: "March", value: "03" },
-    { label: "April", value: "04" },
-    { label: "May", value: "05" },
-    { label: "June", value: "06" },
-    { label: "July", value: "07" },
-    { label: "August", value: "08" },
-    { label: "September", value: "09" },
-    { label: "October", value: "10" },
-    { label: "November", value: "11" },
-    { label: "December", value: "12" },
+    { label: t('all_months'), value: "" },
+    { label: t('january'), value: "01" },
+    { label: t('february'), value: "02" },
+    { label: t('march'), value: "03" },
+    { label: t('april'), value: "04" },
+    { label: t('may'), value: "05" },
+    { label: t('june'), value: "06" },
+    { label: t('july'), value: "07" },
+    { label: t('august'), value: "08" },
+    { label: t('september'), value: "09" },
+    { label: t('october'), value: "10" },
+    { label: t('november'), value: "11" },
+    { label: t('december'), value: "12" },
   ];
 
   const handleQuickDateSelect = (range) => {
@@ -170,7 +172,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Filters & Search
+                {t('filters_and_search')}
               </h3>
             </div>
 
@@ -184,7 +186,18 @@ const CollapsibleFilterBar = ({
                       : "bg-blue-100 text-blue-800"
                   }`}
                 >
-                  Crime: {filters.crime_type}
+                  {t('crime')}: {filters.crime_type}
+                </span>
+              )}
+              {filters.category_parent && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-red-900 text-red-200"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {t('category')}: {filters.category_parent}
                 </span>
               )}
               {filters.quick_date && (
@@ -257,7 +270,7 @@ const CollapsibleFilterBar = ({
                     isDark ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  No filters applied
+                  {t('no_filters_applied')}
                 </span>
               )}
             </div>
@@ -276,7 +289,7 @@ const CollapsibleFilterBar = ({
                     : "bg-red-100 text-red-800 hover:bg-red-200"
                 }`}
               >
-                Clear All
+                {t('clear_all')}
               </button>
             )}
             <span
@@ -284,7 +297,7 @@ const CollapsibleFilterBar = ({
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              {isExpanded ? "Hide Advanced" : "Show Advanced"}
+              {isExpanded ? t('hide_advanced') : t('show_advanced')}
             </span>
             <span
               className={`transform transition-transform duration-200 ${
@@ -312,7 +325,7 @@ const CollapsibleFilterBar = ({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              🚀 Quick Date Ranges
+              🚀 {t('quick_date_ranges')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {quickDateRanges.map((range) => (
@@ -341,7 +354,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                🚨 Crime Type
+                🚨 {t('crime_type')}
               </label>
               <select
                 value={localFilters.crime_type || ""}
@@ -354,12 +367,38 @@ const CollapsibleFilterBar = ({
                     : "bg-white border-gray-300 focus:border-blue-500"
                 }`}
               >
-                <option value="">All Crime Types</option>
+                <option value="">{t('all_crime_types')}</option>
                 {crimeTypes.map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            {/* Category Parent Filter */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                📂 {t('category_parent')}
+              </label>
+              <select
+                value={localFilters.category_parent || ""}
+                onChange={(e) =>
+                  handleFilterChange({ ...localFilters, category_parent: e.target.value })
+                }
+                className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                    : "bg-white border-gray-300 focus:border-blue-500"
+                }`}
+              >
+                <option value="">{t('all_categories')}</option>
+                <option value="CVLI">{t('cvli')}</option>
+                <option value="CVP">{t('cvp')}</option>
               </select>
             </div>
 
@@ -370,7 +409,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                🕒 Time of Day
+                🕒 {t('time_of_day')}
               </label>
               <select
                 value={localFilters.time_range || ""}
@@ -398,7 +437,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                📅 Day of Week
+                📅 {t('day_of_week')}
               </label>
               <select
                 value={localFilters.day_of_week || ""}
@@ -426,7 +465,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                🗓️ Month
+                🗓️ {t('month')}
               </label>
               <select
                 value={localFilters.month || ""}
@@ -454,7 +493,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                📅 Start Date
+                📅 {t('start_date')}
               </label>
               <input
                 type="date"
@@ -481,7 +520,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                📅 End Date
+                📅 {t('end_date')}
               </label>
               <input
                 type="date"
@@ -508,7 +547,7 @@ const CollapsibleFilterBar = ({
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                🏙️ City
+                🏙️ {t('city')}
               </label>
               <select
                 value={localFilters.city || ""}
@@ -521,7 +560,7 @@ const CollapsibleFilterBar = ({
                     : "bg-white border-gray-300 focus:border-blue-500"
                 }`}
               >
-                <option value="">All Cities</option>
+                <option value="">{t('all_cities')}</option>
                 {cities.map((city) => (
                   <option key={city.value} value={city.value}>
                     {city.label}
@@ -537,7 +576,7 @@ const CollapsibleFilterBar = ({
               onClick={handleApply}
               className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg transform hover:scale-105"
             >
-              ✨ Apply Filters
+              ✨ {t('apply_filters')}
             </button>
             <button
               onClick={handleReset}
@@ -547,7 +586,7 @@ const CollapsibleFilterBar = ({
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              🔄 Reset All
+              🔄 {t('reset_all')}
             </button>
           </div>
         </div>

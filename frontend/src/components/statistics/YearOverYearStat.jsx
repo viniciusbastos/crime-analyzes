@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const YearOverYearStat = ({ yearOverYearData, isDark }) => {
+  const { t } = useTranslation();
   if (!yearOverYearData?.year_over_year?.length) return null;
 
   const latest = yearOverYearData.year_over_year.slice(-1)[0];
@@ -15,7 +17,7 @@ const YearOverYearStat = ({ yearOverYearData, isDark }) => {
   return (
     <div className={isDark ? "text-gray-300" : "text-gray-700"}>
       <strong className={isDark ? "text-white" : "text-gray-900"}>
-        Latest Year-over-Year Change:
+        {t("latest_year_over_year_change")}
       </strong>{" "}
       <span className={color}>
         {change > 0 ? "+" : ""}

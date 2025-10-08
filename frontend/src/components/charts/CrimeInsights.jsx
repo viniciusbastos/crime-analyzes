@@ -1,11 +1,13 @@
 import React, { useRef } from "react";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import { useChartExport } from "../../hooks/useChartExport";
+import { useTranslation } from "react-i18next";
 
 const CrimeInsights = ({ temporalData }) => {
   const chartRef = useRef(null);
   const { exportChartAsPNG, exportChartAsJPG } = useChartExport();
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -20,18 +22,18 @@ const CrimeInsights = ({ temporalData }) => {
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          Crime Insights
+          {t("crime_insights")}
         </h3>
         <div className="flex gap-2">
           <button
-            onClick={() => exportChartAsPNG(chartRef, 'crime-insights')}
+            onClick={() => exportChartAsPNG(chartRef, "crime-insights")}
             className="chart-export-button px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             title="Export as PNG"
           >
             📷 PNG
           </button>
           <button
-            onClick={() => exportChartAsJPG(chartRef, 'crime-insights')}
+            onClick={() => exportChartAsJPG(chartRef, "crime-insights")}
             className="chart-export-button px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
             title="Export as JPG"
           >
@@ -53,7 +55,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-blue-200" : "text-blue-800"
                 }`}
               >
-                Weekday vs Weekend
+                {t("weekday_vs_weekend")}
               </h4>
               <p
                 className={`text-sm ${
@@ -76,9 +78,9 @@ const CrimeInsights = ({ temporalData }) => {
                     total > 0 ? ((weekend / total) * 100).toFixed(1) : 0;
 
                   if (weekday > weekend) {
-                    return `${weekdayPercent}% of crimes occur on weekdays vs ${weekendPercent}% on weekends`;
+                    return t("crimes_on_weekdays_vs_weekends", { weekdayPercent, weekendPercent });
                   } else {
-                    return `${weekendPercent}% of crimes occur on weekends vs ${weekdayPercent}% on weekdays`;
+                    return t("crimes_on_weekends_vs_weekdays", { weekendPercent, weekdayPercent });
                   }
                 })()}
               </p>
@@ -94,7 +96,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-green-200" : "text-green-800"
                 }`}
               >
-                Peak Hours
+                {t("peak_hours")}
               </h4>
               <p
                 className={`text-sm ${
@@ -111,7 +113,7 @@ const CrimeInsights = ({ temporalData }) => {
                     { hour: 0, count: 0 }
                   );
 
-                  return `Weekday peak: ${weekdayPeak.hour}:00 (${weekdayPeak.count} crimes) | Weekend peak: ${weekendPeak.hour}:00 (${weekendPeak.count} crimes)`;
+                  return `${t('weekday_peak')}: ${weekdayPeak.hour}:00 (${weekdayPeak.count} ${t('crimes_label').toLowerCase()}) | ${t('weekend_peak')}: ${weekendPeak.hour}:00 (${weekendPeak.count} ${t('crimes_label').toLowerCase()})`;
                 })()}
               </p>
             </div>
@@ -126,7 +128,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-purple-200" : "text-purple-800"
                 }`}
               >
-                Crime Trends Analysis
+                {t("crime_trends_analysis")}
               </h4>
               <p
                 className={`text-sm ${
@@ -145,20 +147,18 @@ const CrimeInsights = ({ temporalData }) => {
                   const total = weekday + weekend;
 
                   if (total === 0)
-                    return "Insufficient data for trend analysis";
+                    return t("no_crime_data_available_for_analysis");
 
                   const weekdayRate = weekday / 5; // 5 weekdays
                   const weekendRate = weekend / 2; // 2 weekend days
                   const ratio = weekendRate / weekdayRate;
 
                   if (ratio > 1.2) {
-                    return `High weekend activity (${(ratio * 100).toFixed(
-                      0
-                    )}% more crimes per day on weekends). Consider increased patrols during weekends.`;
+                    return t("high_weekend_activity", { ratio: (ratio * 100).toFixed(0) });
                   } else if (ratio < 0.8) {
-                    return `Higher weekday activity. Focus security measures on business hours and weekdays.`;
+                    return t("higher_weekday_activity");
                   } else {
-                    return `Balanced crime distribution between weekdays and weekends.`;
+                    return t("balanced_crime_distribution");
                   }
                 })()}
               </p>
@@ -174,7 +174,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-orange-200" : "text-orange-800"
                 }`}
               >
-                Risk Assessment
+                {t("risk_assessment")}
               </h4>
               <p
                 className={`text-sm ${
@@ -194,13 +194,13 @@ const CrimeInsights = ({ temporalData }) => {
                   const peakHour = Math.max(weekdayPeak.hour, weekendPeak.hour);
 
                   if (peakHour >= 22 || peakHour <= 4) {
-                    return `High risk during late night/early morning hours (${peakHour}:00). Enhanced lighting and patrols recommended after dark.`;
+                    return t("high_risk_late_night", { peakHour });
                   } else if (peakHour >= 17 && peakHour <= 21) {
-                    return `Evening hours show increased activity. Consider extended business security measures.`;
+                    return t("evening_hours_increased_activity");
                   } else if (peakHour >= 8 && peakHour <= 17) {
-                    return `Daytime peaks suggest opportunity crimes. Focus on workplace and commercial area security.`;
+                    return t("daytime_peaks_opportunity_crimes");
                   } else {
-                    return `Crime patterns vary by time. Monitor all periods for optimal safety.`;
+                    return t("crime_patterns_vary");
                   }
                 })()}
               </p>
@@ -216,7 +216,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-red-200" : "text-red-800"
                 }`}
               >
-                Safety Recommendations
+                {t("safety_recommendations")}
               </h4>
               <ul
                 className={`text-sm list-disc list-inside space-y-1 ${
@@ -235,7 +235,7 @@ const CrimeInsights = ({ temporalData }) => {
                     )?.count || 0;
 
                   if (weekend > weekday * 0.6) {
-                    recommendations.push("Increase weekend security presence");
+                    recommendations.push(t("increase_weekend_security"));
                   }
 
                   const weekdayPeak = temporalData.hourly_weekday?.reduce(
@@ -248,17 +248,15 @@ const CrimeInsights = ({ temporalData }) => {
                   );
 
                   if (weekdayPeak.hour >= 17 || weekendPeak.hour >= 17) {
-                    recommendations.push(
-                      "Enhance evening lighting in high-traffic areas"
-                    );
+                    recommendations.push(t("enhance_evening_lighting"));
                   }
 
                   if (weekdayPeak.hour <= 6 || weekendPeak.hour <= 6) {
-                    recommendations.push("Improve early morning surveillance");
+                    recommendations.push(t("improve_early_morning_surveillance"));
                   }
 
                   if (recommendations.length === 0) {
-                    recommendations.push("Maintain current security measures");
+                    recommendations.push(t("maintain_current_security"));
                   }
 
                   return recommendations.map((rec, index) => (
@@ -278,7 +276,7 @@ const CrimeInsights = ({ temporalData }) => {
                   isDark ? "text-teal-200" : "text-teal-800"
                 }`}
               >
-                Crime Pattern Summary
+                {t("crime_pattern_summary")}
               </h4>
               <p
                 className={`text-sm ${
@@ -297,7 +295,7 @@ const CrimeInsights = ({ temporalData }) => {
                   const total = weekday + weekend;
 
                   if (total === 0)
-                    return "No crime data available for analysis";
+                    return t("no_crime_data_available_for_analysis");
 
                   const weekdayPercent = ((weekday / total) * 100).toFixed(1);
                   const weekendPercent = ((weekend / total) * 100).toFixed(1);
@@ -311,7 +309,12 @@ const CrimeInsights = ({ temporalData }) => {
                     { hour: 0, count: 0 }
                   );
 
-                  return `Overall, ${weekdayPercent}% of crimes occur on weekdays and ${weekendPercent}% on weekends. Peak activity times are ${weekdayPeak.hour}:00 on weekdays and ${weekendPeak.hour}:00 on weekends. This data helps inform resource allocation and prevention strategies.`;
+                  return t("overall_crime_distribution", {
+                    weekdayPercent,
+                    weekendPercent,
+                    weekdayPeak: weekdayPeak.hour,
+                    weekendPeak: weekendPeak.hour
+                  });
                 })()}
               </p>
             </div>

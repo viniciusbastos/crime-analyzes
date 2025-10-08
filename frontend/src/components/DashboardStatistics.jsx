@@ -1,8 +1,10 @@
 import React from "react";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const { yearOverYearData, growthRatesData, movingAveragesData } =
     trendData || {};
@@ -127,11 +129,11 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
     const volatility = growthRatesData.growth_rates.volatility;
 
     // Handle extreme volatility values
-    if (volatility > 100) return { level: "Extreme", color: "purple" };
-    if (volatility > 75) return { level: "Critical", color: "red" };
-    if (volatility > 50) return { level: "High", color: "red" };
-    if (volatility > 25) return { level: "Medium", color: "orange" };
-    return { level: "Low", color: "green" };
+    if (volatility > 100) return { level: t('extreme'), color: "purple" };
+    if (volatility > 75) return { level: t('critical'), color: "red" };
+    if (volatility > 50) return { level: t('high'), color: "red" };
+    if (volatility > 25) return { level: t('medium'), color: "orange" };
+    return { level: t('low'), color: "green" };
   };
 
   return (
@@ -141,39 +143,39 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        📊 Crime Analytics Dashboard
+        📊 {t('crime_analysis_dashboard')}
       </h2>
 
       {/* Key Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Crimes"
+          title={t('total_crimes_stat')}
           value={summaryData?.total_crimes?.toLocaleString() || "0"}
-          subtitle="All recorded incidents"
+          subtitle={t('all_recorded_incidents')}
           icon="🚨"
           color="red"
         />
 
         <StatCard
-          title="Weekend Activity"
+          title={t('weekend_activity')}
           value={`${calculateWeekendPercentage() || 0}%`}
-          subtitle="Crimes occurring on weekends"
+          subtitle={t('crimes_occurring_on_weekends')}
           icon="📅"
           color="purple"
         />
 
         <StatCard
-          title="Night Crimes"
+          title={t('night_crimes')}
           value={`${calculateHighRiskHours() || 0}%`}
-          subtitle="22:00 - 04:00 time window"
+          subtitle={t('night_crimes_subtitle')}
           icon="🌙"
           color="orange"
         />
 
         <StatCard
-          title="Top Crime Type"
+          title={t('top_crime_type')}
           value={`${getTopCrimeTypePercentage() || 0}%`}
-          subtitle={summaryData?.crime_types?.[0]?.crime_type || "Loading..."}
+          subtitle={summaryData?.crime_types?.[0]?.crime_type || t('loading')}
           icon="📋"
           color="teal"
         />
@@ -182,23 +184,23 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
       {/* Trends Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
-          title="Monthly Growth"
+          title={t('monthly_growth')}
           value={`${getAverageGrowthTrend()?.toFixed(1) || 0}%`}
-          subtitle="Average month-over-month change"
+          subtitle={t('average_month_over_month_change')}
           trend={getAverageGrowthTrend()}
           icon="📈"
           color="blue"
         />
 
         <StatCard
-          title="Trend Direction"
+          title={t('trend_direction_stat')}
           value={
             movingAveragesData?.trend_indicators?.direction?.replace(
               "_",
               " "
-            ) || "Stable"
+            ) || t('stable')
           }
-          subtitle="Current crime trend pattern"
+          subtitle={t('current_crime_trend_pattern')}
           icon="🎯"
           color={
             movingAveragesData?.trend_indicators?.direction === "increasing"
@@ -210,11 +212,11 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
         />
 
         <StatCard
-          title="Volatility"
-          value={getVolatilityLevel()?.level || "Unknown"}
-          subtitle={`${
+          title={t('volatility')}
+          value={getVolatilityLevel()?.level || t('unknown')}
+          subtitle={`${t('volatility_index')} ${
             growthRatesData?.growth_rates?.volatility?.toFixed(1) || 0
-          } volatility index`}
+          }`}
           icon="📊"
           color={getVolatilityLevel()?.color || "blue"}
         />
@@ -235,7 +237,7 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              📅 Year-over-Year Analysis
+              📅 {t('year_over_year_analysis')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {yearOverYearData.year_over_year.slice(-3).map((yearData) => (
@@ -269,7 +271,7 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
                       isDark ? "text-gray-300" : "text-gray-600"
                     }`}
                   >
-                    {yearData.current_count} crimes
+                    {yearData.current_count} {t('crimes')}
                   </div>
                 </div>
               ))}
@@ -291,7 +293,7 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            🎯 Crime Type Distribution
+            🎯 {t('crime_type_distribution')}
           </h3>
           <div className="space-y-3">
             {summaryData.crime_types.slice(0, 5).map((type, index) => {
@@ -343,7 +345,7 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
                         isDark ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {type.count.toLocaleString()} incidents
+                      {type.count.toLocaleString()} {t('incidents')}
                     </div>
                   </div>
                 </div>

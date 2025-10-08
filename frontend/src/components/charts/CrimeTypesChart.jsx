@@ -1,9 +1,11 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const CrimeTypesChart = ({ data }) => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -20,7 +22,7 @@ const CrimeTypesChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Crime Types Distribution
+        {t("crime_types_distribution")}
       </h3>
       {data && (
         <Doughnut

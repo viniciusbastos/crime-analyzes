@@ -6,6 +6,20 @@ const api = axios.create({
   baseURL: "/api",
 });
 
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Query Keys
 export const QUERY_KEYS = {
   heatmap: "heatmap",
@@ -21,6 +35,7 @@ export const QUERY_KEYS = {
   cities: "cities",
   crimes: "crimes",
   crimeTypes: "crimeTypes",
+  lastUpload: "lastUpload",
 };
 
 // Helper function to create query key with filters
@@ -33,6 +48,19 @@ export const useHeatmapData = (filters = {}) => {
     queryFn: async () => {
       const params = new URLSearchParams(filters);
       const response = await api.get(`/heatmap?${params}`);
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: true,
+  });
+};
+
+export const useGeoJsonData = (filters = {}) => {
+  return useQuery({
+    queryKey: createQueryKey("geoJson", filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters);
+      const response = await api.get(`/heatmap/geojson?${params}`);
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -188,6 +216,17 @@ export const useCrimeTypes = () => {
   });
 };
 
+export const useLastUpload = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.lastUpload],
+    queryFn: async () => {
+      const response = await api.get("/last-upload");
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - refresh relatively often
+  });
+};
+
 // Combined hook for all data - this replaces the loadInitialData function
 export const useCrimeDataSets = (filters = {}) => {
   const heatmapQuery = useHeatmapData(filters);
@@ -323,6 +362,8 @@ export const useUploadData = () => {
     onSuccess: () => {
       // Invalidate all queries to refresh with new data
       queryClient.invalidateQueries();
+      // Specifically invalidate last upload query
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.lastUpload] });
     },
   });
 };

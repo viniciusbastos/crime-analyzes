@@ -1,0 +1,95 @@
+LONGITUDE,LATITUDE,DATA,HORA,DELITO,BAIRRO DO FATO,LOGRADOURO DO FATO,DELEGACIA,OPM 2024,AISP,RISP,REGIAO,INV,SEXO,IDADE,ANO,MES,DIA,DIA DA SEMANA,MES,ANO,QTD,IDMUNIC,MUNICIPIO
+,,2025-09-03,18,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00672862/2025,1,YAMAHA,YBR,PJT6564,18,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-10-01,8,ROUBO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,AUTOMOVEL,PRETO,00752122/2025,1,CHEVROLET,ONIX,OUF8485,8,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-08-15,22,FURTO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00644439/2025,1,HONDA,CG,OUT3233,22,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-01-25,3,FURTO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00070597/2025,1,HONDA,CG,QKO5297,3,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-01-27,22,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00068753/2025,1,HONDA,XRE,RPS7D80,22,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-10,15,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,AUTOMOVEL,VERMELHO,00515128/2025,1,VOLKSWAGEN,FOX,JGU7079,15,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-20,23,ROUBO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,povoado de nova minasao,AUTOMOVEL,BEGE,00318475/2025,1,CHEVROLET,CORSA,JRF6D92,23,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-04-17,22,ROUBO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,AMARELO,00309860/2025,1,HONDA,NXR,JSR1866,22,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-03-12,19,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00190752/2025,1,HONDA,CG,RPH2B86,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-08-20,9,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,sem informacao,MOTOCICLETA,CINZA,00629463/2025,1,HONDA,CG,NVM5746,9,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-11,2,FURTO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00353011/2025,1,HONDA,CG,OER7A38,2,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-04-21,21,ROUBO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,povoado dona maria,CAMINHAO,BRANCO,00298662/2025,1,VOLKSWAGEN,24280,OZO4565,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-01-14,18,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,AUTOMOVEL,BRANCO,00034540/2025,1,JOHN COOPER,MINI COOPER,QQN0C02,18,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-07,14,ROUBO,48 - rio real,291790,Jandaira,6ª CIPM - Rio Real,,zona rual,MOTOCICLETA,PRETO,00429825/2025,1,BMW,F800,OEJ9001,14,Leste,Litoral Norte Agreste Baiano,3,Leste,Jandaira
+,,2025-04-28,23,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,AUTOMOVEL,VERMELHO,00319152/2025,1,FIAT,UNO,HZN8236,23,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-06-20,11,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00458888/2025,1,HONDA,BIS,FSK2900,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-08-18,15,FURTO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,gancho do badogue,MOTOCICLETA,PRATA,00624254/2025,1,HONDA,CG,RRB4G07,15,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-05-23,19,FURTO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,zona rual,MOTOCICLETA,VERMELHO,00402387/2025,1,HONDA,CG,FUT6J47,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-01-03,7,ROUBO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,AZUL,00004767/2025,1,HONDA,CG,FRK8G26,7,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-07-14,19,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,nao se aplica,MOTOCICLETA,VERMELHO,00522217/2025,1,HONDA,CG,RCZ4A05,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-01-02,21,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,olhos dagauas,MOTOCICLETA,PRETO,00004279/2025,1,YAMAHA,YBR,JQU1904,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-01,,FURTO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,,MOTOCICLETA,PRETO,00487109/2025,1,YAMAHA,YBR,JQH0578,,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-07-06,9,ROUBO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,zona rural,AUTOMOVEL,PRATA,00499359/2025,1,RENAULT,SANDERO,PYK5H43,9,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-03-12,20,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00190330/2025,1,JTZ,JTZ,RRA7J77,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-07,19,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00264732/2025,1,HONDA,CG,JMN7155,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-02,14,ROUBO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00489000/2025,1,HONDA,CG,OZH0516,14,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-04-29,3,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00319781/2025,1,HONDA,CG,DOE9D35,3,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-04-04,11,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00256092/2025,1,HONDA,POP,NZU4074,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-01-14,9,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,povoado,MOTOCICLETA,PRETO,00032901/2025,1,HONDA,POP,NYH3494,9,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-02-01,6,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00081480/2025,1,HONDA,POP,JMZ7162,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-06,11,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,ROXO,00497668/2025,1,HONDA,POP,NVK6452,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-13,9,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,LARANJA,00442144/2025,1,HONDA,POP,JSV7607,9,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-06-24,10,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,distrito sambaiba,MOTOCICLETA,PRETO,00469156/2025,1,HONDA,POP,KHB4823,10,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-07-15,20,FURTO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,itamira,MOTOCICLETA,PRETO,00526451/2025,1,HONDA,POP,OUR6909,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-07-27,23,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00560695/2025,1,HONDA,CG,JMZ9175,23,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-01-11,13,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRATA,00026560/2025,1,HONDA,CG,IAB9252,13,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-07,11,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,AZUL,00500910/2025,1,HONDA,CG,DOQ9800,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-09-09,21,ROUBO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00689215/2025,1,HONDA,CG,DUW9767,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-01-30,19,ROUBO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00077791/2025,1,HONDA,CG,IAC8D21,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-06-04,17,ROUBO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00418343/2025,1,HONDA,CG,DYW1808,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-02-08,20,FURTO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,centro,CAMINHONETE,PRETO,00102050/2025,1,TOYOTA,HILUX,JRC0C10,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-01-25,15,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,rio real,MOTOCICLETA,VERMELHO,00062905/2025,1,HONDA,POP,RPU2G20,15,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-01,14,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona urbana,MOTOCICLETA,VERMELHO,00247418/2025,1,HONDA,POP,SJT0G74,14,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-22,17,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00302046/2025,1,HONDA,POP,PKN4D30,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-28,13,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00397583/2025,1,HONDA,POP,PJU2434,13,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-06-13,18,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00445489/2025,1,HONDA,POP,RDI6D62,18,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-06-26,17,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,povoado,MOTOCICLETA,VERMELHO,00473295/2025,1,HONDA,POP,PKE8119,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-01,13,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,BRANCO,00247142/2025,1,HONDA,POP,PJP7908,13,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-08-18,1,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,olhois d'agua,MOTOCICLETA,BRANCO,00621090/2025,1,HONDA,POP,RCW7A22,1,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-08-22,11,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,distrito de lagoa redonda,MOTOCICLETA,VERMELHO,00636943/2025,1,HONDA,POP,RPT9H19,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-06-03,11,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00412559/2025,1,HONDA,POP,PKW0468,11,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-04-12,6,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,distrito de lagoa redonda,MOTOCICLETA,BRANCO,00283065/2025,1,HONDA,POP,QMJ3B69,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-02-07,6,FURTO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00097554/2025,1,HONDA,CG,PLH0776,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-06-05,20,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,AUTOMOVEL,PRATA,00422495/2025,1,CITROEN,C3,IAD3901,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-24,17,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00390495/2025,1,SHINERAY,WUYANG,SI,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-01-15,19,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,povoado loreto,MOTOCICLETA,LARANJA,00038295/2025,1,HONDA,NXR,PLM5F13,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-02,14,FURTO,48 - rio real,290960,Crisopolis,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00328375/2025,1,HONDA,NXR,RDG1B11,14,Leste,Litoral Norte Agreste Baiano,3,Leste,Crisopolis
+,,2025-03-10,8,ROUBO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00182818/2025,1,HONDA,CG,NZK8440,8,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-03-04,20,ROUBO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,AZUL,00168551/2025,1,HONDA,XRE,FAY8D98,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-04-28,23,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,MOTOCICLETA,BRANCO,00320197/2025,1,HONDA,XRE,OEN7E26,23,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-05-03,21,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,ba 233,MOTOCICLETA,AMARELO,00355972/2025,1,HONDA,XRE,IAO3282,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-08-01,6,ROUBO,48 - rio real,291790,Jandaira,6ª CIPM - Rio Real,,zona rural,VAN,BRANCO,00576126/2025,1,MERCEDES BENZ,SPRINTER,RDC3I90,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Jandaira
+,,2025-04-16,19,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00293101/2025,1,HONDA,CG,NZD7687,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-06-22,20,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00463461/2025,1,HONDA,CG,NZI1101,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-07-12,6,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00515507/2025,1,HONDA,CG,OVD6823,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-08-05,6,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00593764/2025,1,HONDA,CG,OKS5624,6,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-09-28,0,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,ROXO,00742533/2025,1,HONDA,CG,NVN7B90,0,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-06,17,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00172054/2025,1,HONDA,CG,MGX3H71,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-10,8,FURTO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00182177/2025,1,HONDA,CG,JLY8157,8,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-02-23,17,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00142269/2025,1,HONDA,CG,JRJ4892,17,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-02-02,20,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00089219/2025,1,HONDA,CG,JQD7462,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-04-21,14,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00299055/2025,1,HONDA,CG,DLE9356,14,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-04-23,19,ROUBO,48 - rio real,292310,Olindina,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00306359/2025,1,HONDA,CG,IAF2073,19,Leste,Litoral Norte Agreste Baiano,3,Leste,Olindina
+,,2025-05-26,18,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,itamira,MOTOCICLETA,VERMELHO,00393235/2025,1,HONDA,CG,IAE2234,18,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-05-18,20,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00398075/2025,1,HONDA,CG,JSL6666,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-02-26,7,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,AUTOMOVEL,PRATA,00149195/2025,1,VOLKSWAGEN,VOYAGE,RNT0B78,7,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-05-21,20,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,sem informacao,MOTOCICLETA,BRANCO,00380591/2025,1,HONDA,NXR,OZG6918,20,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-06-28,0,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00477030/2025,1,HONDA,CG,JOW3294,0,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-09-28,1,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRATA,00746697/2025,1,HONDA,CG,JMB6607,1,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-10,8,FURTO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,VERMELHO,00182177/2025,1,HONDA,CG,JOF3771,8,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-03-22,2,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,SEM INFORMACAO,SEM INFORMACAO,00218110/2025,1,SEM INFORMACAO,SEM INFORMACAO,SI,2,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-26,12,ROUBO,48 - rio real,290190,Apora,6ª CIPM - Rio Real,,itamira,SEM INFORMACAO,SEM INFORMACAO,00229282/2025,1,SEM INFORMACAO,SEM INFORMACAO,SI,12,Leste,Litoral Norte Agreste Baiano,3,Leste,Apora
+,,2025-01-04,23,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00009029/2025,1,HONDA,C100,JPV1683,23,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-06-27,18,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,sem informacao,MOTOCICLETA,VERMELHO,00509778/2025,1,HONDA,CG,PJX0153,18,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-02-13,21,ROUBO,48 - rio real,291790,Jandaira,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00117220/2025,1,HONDA,POP,RDM0J72,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Jandaira
+,,2025-05-23,15,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,BRANCO,00385324/2025,1,SHINERAY,XY,SI,15,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-25,7,ROUBO,48 - rio real,291790,Jandaira,6ª CIPM - Rio Real,,povoado,AUTOMOVEL,PRETO,00224567/2025,1,FORD,FOCUS,JPZ2211,7,Leste,Litoral Norte Agreste Baiano,3,Leste,Jandaira
+,,2025-06-24,,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,,MOTOCICLETA,VERMELHO,00467624/2025,1,HONDA,POP,TGT5C35,,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-03-08,21,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,centro,MOTOCICLETA,BRANCO,00177821/2025,1,HONDA,POP,SKL2H65,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-09-26,13,FURTO,48 - rio real,291650,Itapicuru,6ª CIPM - Rio Real,,centro,MOTOCICLETA,PRETO,00739321/2025,1,HONDA,POP,TGV5D76,13,Leste,Litoral Norte Agreste Baiano,3,Leste,Itapicuru
+,,2025-06-10,,FURTO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,,SEM INFORMACAO,NAO INFORMADO,00470438/2025,1,SEM INFORMACAO,SEM INFORMACAO,,,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real
+,,2025-02-10,12,FURTO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,centro,MOTOCICLETA,VERMELHO,00118562/2025,1,HONDA,CG,HZZ2711,12,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-03-10,10,ROUBO,48 - rio real,290030,Acajutiba,6ª CIPM - Rio Real,,zona rural,MOTOCICLETA,PRETO,00186526/2025,1,HONDA,CG,JPZ6262,10,Leste,Litoral Norte Agreste Baiano,3,Leste,Acajutiba
+,,2025-09-22,21,ROUBO,48 - rio real,292700,Rio Real,6ª CIPM - Rio Real,,rodovia br-101,CAMINHAO,BRANCO,00727052/2025,1,,,SVR3I57,21,Leste,Litoral Norte Agreste Baiano,3,Leste,Rio Real

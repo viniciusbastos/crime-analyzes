@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import LoadingSpinner from "./LoadingSpinner";
+import { useTranslation } from "react-i18next";
 
 // Lazy load all chart components
 const HourlyChart = lazy(() => import("./charts/HourlyChart"));
@@ -28,19 +29,21 @@ const ChartsGrid = ({
   cityData,
   semesterComparisonData,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading hourly chart..." />
+            <LoadingSpinner size="sm" message={t('loading_hourly_chart')} />
           }
         >
           <HourlyChart data={temporalData?.hourly} />
         </Suspense>
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading weekday chart..." />
+            <LoadingSpinner size="sm" message={t('loading_weekday_chart')} />
           }
         >
           <WeekdayWeekendChart data={temporalData?.weekend_comparison} />
@@ -50,21 +53,21 @@ const ChartsGrid = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading weekday hours..." />
+            <LoadingSpinner size="sm" message={t('loading_weekday_hours')} />
           }
         >
           <HourlyWeekdayChart data={temporalData?.hourly_weekday} />
         </Suspense>
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading weekend hours..." />
+            <LoadingSpinner size="sm" message={t('loading_weekend_hours')} />
           }
         >
           <HourlyWeekendChart data={temporalData?.hourly_weekend} />
         </Suspense>
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading monthly chart..." />
+            <LoadingSpinner size="sm" message={t('loading_monthly_chart')} />
           }
         >
           <MonthlyChart data={temporalData} />
@@ -76,7 +79,7 @@ const ChartsGrid = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Suspense
               fallback={
-                <LoadingSpinner size="sm" message="Loading year-over-year..." />
+                <LoadingSpinner size="sm" message={t('loading_year_over_year')} />
               }
             >
               <YearOverYearChart data={trendData?.yearOverYearData} />
@@ -85,7 +88,7 @@ const ChartsGrid = ({
               fallback={
                 <LoadingSpinner
                   size="sm"
-                  message="Loading moving averages..."
+                  message={t('loading_moving_averages')}
                 />
               }
             >
@@ -96,14 +99,14 @@ const ChartsGrid = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Suspense
               fallback={
-                <LoadingSpinner size="sm" message="Loading growth rates..." />
+                <LoadingSpinner size="sm" message={t('loading_growth_rates')} />
               }
             >
               <GrowthRateChart data={trendData.growthRatesData} />
             </Suspense>
             <Suspense
               fallback={
-                <LoadingSpinner size="sm" message="Loading forecast..." />
+                <LoadingSpinner size="sm" message={t('loading_forecast')} />
               }
             >
               <ForecastChart data={trendData.forecastData} />
@@ -113,7 +116,7 @@ const ChartsGrid = ({
           <div className="grid grid-cols-1 gap-6 mb-6">
             <Suspense
               fallback={
-                <LoadingSpinner size="sm" message="Loading weekly trends..." />
+                <LoadingSpinner size="sm" message={t('loading_weekly_trends')} />
               }
             >
               <CrimeTrendsWeeklyChart data={trendData?.weeklyMovingAveragesData} />
@@ -125,13 +128,13 @@ const ChartsGrid = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Suspense
           fallback={
-            <LoadingSpinner size="sm" message="Loading crime types..." />
+            <LoadingSpinner size="sm" message={t('loading_crime_types')} />
           }
         >
           <CrimeTypesChart data={summaryData?.crime_types} />
         </Suspense>
         <Suspense
-          fallback={<LoadingSpinner size="sm" message="Loading insights..." />}
+          fallback={<LoadingSpinner size="sm" message={t('loading_insights')} />}
         >
           <CrimeInsights temporalData={temporalData} />
         </Suspense>
@@ -142,7 +145,7 @@ const ChartsGrid = ({
         <div className="grid grid-cols-1 gap-6 mb-6">
           <Suspense
             fallback={
-              <LoadingSpinner size="sm" message="Loading city data..." />
+              <LoadingSpinner size="sm" message={t('loading_city_data')} />
             }
           >
             <CityInfoChart data={cityData} />
@@ -155,7 +158,7 @@ const ChartsGrid = ({
         <div className="grid grid-cols-1 gap-6">
           <Suspense
             fallback={
-              <LoadingSpinner size="sm" message="Loading semester comparison..." />
+              <LoadingSpinner size="sm" message={t('loading_semester_comparison')} />
             }
           >
             <SemesterComparisonChart data={semesterComparisonData} />

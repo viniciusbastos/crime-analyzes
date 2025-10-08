@@ -1,10 +1,12 @@
 import { Bar } from "react-chartjs-2";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 import { useChartExport } from "../../hooks/useChartExport";
+import { useTranslation } from "react-i18next";
 
 const YearOverYearChart = ({ data }) => {
   useChartExport();
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const chartOptions = {
     responsive: true,
@@ -48,7 +50,7 @@ const YearOverYearChart = ({ data }) => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Year-over-Year Comparison
+        {t("year_over_year_comparison")}
       </h3>
       {data &&
         data?.year_over_year?.length > 0 &&
@@ -59,7 +61,7 @@ const YearOverYearChart = ({ data }) => {
               labels: data?.year_over_year.map((item) => item.year.toString()),
               datasets: [
                 {
-                  label: "YoY Change %",
+                  label: t("yoy_change_percent"),
                   data: data.year_over_year.map((item) => item.change_percent),
                   backgroundColor: data.year_over_year.map((item) =>
                     item.change_percent > 0

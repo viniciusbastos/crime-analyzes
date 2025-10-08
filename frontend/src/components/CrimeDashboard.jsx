@@ -5,12 +5,17 @@ import CollapsibleFilterBar from "./CollapsibleFilterBar";
 import Sidebar from "./Sidebar";
 import CacheStatus from "./CacheStatus";
 import LoadingSpinner from "./LoadingSpinner";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
-import { useCrimeDataSets, useInvalidateQueries } from "../hooks/useCrimeData";
+import {
+  useCrimeDataSets,
+  useInvalidateQueries,
+  useGeoJsonData,
+} from "../hooks/useCrimeData";
 
 // Lazy load heavy components
 const CrimeMap = lazy(() => import("./CrimeMap"));
+const ClusterMap = lazy(() => import("./ClusterMap"));
 const StatisticsPanel = lazy(() => import("./StatisticsPanel"));
 const DashboardStatistics = lazy(() => import("./DashboardStatistics"));
 const ChartsGrid = lazy(() => import("./ChartsGrid"));
@@ -28,6 +33,7 @@ const CrimeDashboard = () => {
   const [mapZoom, setMapZoom] = useState(10);
   const [showContours, setShowContours] = useState(true);
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [mapType, setMapType] = useState("heatmap"); // "heatmap" or "cluster"
 
   // Use React Query hooks for data fetching
   const {
@@ -47,6 +53,10 @@ const CrimeDashboard = () => {
     isLoading,
     refetchAll,
   } = useCrimeDataSets(filters);
+
+  // Get GeoJSON data for cluster map
+  const { data: geoJsonData, isLoading: geoJsonLoading } =
+    useGeoJsonData(filters);
 
   useInvalidateQueries();
 
@@ -146,7 +156,7 @@ const CrimeDashboard = () => {
 
             {/* Dashboard Statistics Grid */}
             <Suspense
-              fallback={<LoadingSpinner message="Loading statistics..." />}
+              fallback={<LoadingSpinner message={t("loading_statistics")} />}
             >
               <DashboardStatistics
                 summaryData={summaryData}
@@ -164,21 +174,61 @@ const CrimeDashboard = () => {
             {/* Main Dashboard Content */}
             <div className="flex flex-col lg:flex-row ">
               <div className="lg">
+                {/* Map Type Toggle */}
+                <div className="mb-4 flex gap-2">
+                  <button
+                    onClick={() => setMapType("heatmap")}
+                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      mapType === "heatmap"
+                        ? "bg-blue-600 text-white"
+                        : isDark
+                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {t("crime_density_map")}
+                  </button>
+                  <button
+                    onClick={() => setMapType("cluster")}
+                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      mapType === "cluster"
+                        ? "bg-blue-600 text-white"
+                        : isDark
+                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {t("cluster_map_title")}
+                  </button>
+                </div>
+
+                {mapType === "heatmap" ? (
+                  <Suspense
+                    fallback={<LoadingSpinner message={t("loading_map")} />}
+                  >
+                    <CrimeMap
+                      heatmapData={heatmapData}
+                      densityData={densityData}
+                      spatialData={spatialData}
+                      mapCenter={mapCenter}
+                      mapZoom={mapZoom}
+                      showContours={showContours}
+                      onToggleContours={() => setShowContours(!showContours)}
+                    />
+                  </Suspense>
+                ) : (
+                  <Suspense
+                    fallback={<LoadingSpinner message={t("loading_map")} />}
+                  >
+                    <ClusterMap
+                      geoJsonData={geoJsonData}
+                      isLoading={geoJsonLoading}
+                    />
+                  </Suspense>
+                )}
+
                 <Suspense
-                  fallback={<LoadingSpinner message="Loading map..." />}
-                >
-                  <CrimeMap
-                    heatmapData={heatmapData}
-                    densityData={densityData}
-                    spatialData={spatialData}
-                    mapCenter={mapCenter}
-                    mapZoom={mapZoom}
-                    showContours={showContours}
-                    onToggleContours={() => setShowContours(!showContours)}
-                  />
-                </Suspense>
-                <Suspense
-                  fallback={<LoadingSpinner message="Loading charts..." />}
+                  fallback={<LoadingSpinner message={t("loading_charts")} />}
                 >
                   <ChartsGrid
                     temporalData={temporalData}
@@ -207,7 +257,7 @@ const CrimeDashboard = () => {
               onResetFilters={resetFilters}
             />
             <Suspense
-              fallback={<LoadingSpinner message="Loading statistics..." />}
+              fallback={<LoadingSpinner message={t("loading_statistics")} />}
             >
               <DashboardStatistics
                 summaryData={summaryData}
@@ -232,17 +282,55 @@ const CrimeDashboard = () => {
               onApplyFilters={applyFilters}
               onResetFilters={resetFilters}
             />
-            <Suspense fallback={<LoadingSpinner message="Loading map..." />}>
-              <CrimeMap
-                heatmapData={heatmapData}
-                densityData={densityData}
-                spatialData={spatialData}
-                mapCenter={mapCenter}
-                mapZoom={mapZoom}
-                showContours={showContours}
-                onToggleContours={() => setShowContours(!showContours)}
-              />
-            </Suspense>
+
+            {/* Map Type Toggle */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setMapType("heatmap")}
+                className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                  mapType === "heatmap"
+                    ? "bg-blue-600 text-white"
+                    : isDark
+                      ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {t("crime_density_map")}
+              </button>
+              <button
+                onClick={() => setMapType("cluster")}
+                className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                  mapType === "cluster"
+                    ? "bg-blue-600 text-white"
+                    : isDark
+                      ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {t("cluster_map_title")}
+              </button>
+            </div>
+
+            {mapType === "heatmap" ? (
+              <Suspense fallback={<LoadingSpinner message={t("loading_map")} />}>
+                <CrimeMap
+                  heatmapData={heatmapData}
+                  densityData={densityData}
+                  spatialData={spatialData}
+                  mapCenter={mapCenter}
+                  mapZoom={mapZoom}
+                  showContours={showContours}
+                  onToggleContours={() => setShowContours(!showContours)}
+                />
+              </Suspense>
+            ) : (
+              <Suspense fallback={<LoadingSpinner message={t("loading_map")} />}>
+                <ClusterMap
+                  geoJsonData={geoJsonData}
+                  isLoading={geoJsonLoading}
+                />
+              </Suspense>
+            )}
           </div>
         );
       case "charts":
@@ -254,7 +342,9 @@ const CrimeDashboard = () => {
               onApplyFilters={applyFilters}
               onResetFilters={resetFilters}
             />
-            <Suspense fallback={<LoadingSpinner message="Loading charts..." />}>
+            <Suspense
+              fallback={<LoadingSpinner message={t("loading_charts")} />}
+            >
               <ChartsGrid
                 temporalData={temporalData}
                 trendData={{
@@ -280,7 +370,9 @@ const CrimeDashboard = () => {
             />
             <div className="h-[calc(100vh-200px)]">
               <Suspense
-                fallback={<LoadingSpinner message="Loading AI assistant..." />}
+                fallback={
+                  <LoadingSpinner message={t("loading_ai_assistant")} />
+                }
               >
                 <ChatInterface filters={filters} />
               </Suspense>
@@ -289,7 +381,9 @@ const CrimeDashboard = () => {
         );
       case "filters":
         return (
-          <Suspense fallback={<LoadingSpinner message="Loading filters..." />}>
+          <Suspense
+            fallback={<LoadingSpinner message={t("loading_filters")} />}
+          >
             <FilterPanel
               filters={filters}
               crimeTypes={crimeTypes}
@@ -300,7 +394,7 @@ const CrimeDashboard = () => {
         );
       case "upload":
         return (
-          <Suspense fallback={<LoadingSpinner message="Loading upload..." />}>
+          <Suspense fallback={<LoadingSpinner message={t("loading_upload")} />}>
             <DataUpload
               onUpload={handleUploadStatus}
               uploadStatus={uploadStatus}
@@ -309,7 +403,7 @@ const CrimeDashboard = () => {
         );
       case "export":
         return (
-          <Suspense fallback={<LoadingSpinner message="Loading export..." />}>
+          <Suspense fallback={<LoadingSpinner message={t("loading_export")} />}>
             <ExportPanel />
           </Suspense>
         );
@@ -318,7 +412,9 @@ const CrimeDashboard = () => {
       case "crimes":
         return (
           <Suspense
-            fallback={<LoadingSpinner message="Loading crime management..." />}
+            fallback={
+              <LoadingSpinner message={t("loading_crime_management")} />
+            }
           >
             <CrimeManagement />
           </Suspense>
@@ -349,15 +445,51 @@ const CrimeDashboard = () => {
             {/* Main Dashboard Content */}
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="lg">
-                <CrimeMap
-                  heatmapData={heatmapData}
-                  densityData={densityData}
-                  spatialData={spatialData}
-                  mapCenter={mapCenter}
-                  mapZoom={mapZoom}
-                  showContours={showContours}
-                  onToggleContours={() => setShowContours(!showContours)}
-                />
+                {/* Map Type Toggle */}
+                <div className="mb-4 flex gap-2">
+                  <button
+                    onClick={() => setMapType("heatmap")}
+                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      mapType === "heatmap"
+                        ? "bg-blue-600 text-white"
+                        : isDark
+                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {t("crime_density_map")}
+                  </button>
+                  <button
+                    onClick={() => setMapType("cluster")}
+                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      mapType === "cluster"
+                        ? "bg-blue-600 text-white"
+                        : isDark
+                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {t("cluster_map_title")}
+                  </button>
+                </div>
+
+                {mapType === "heatmap" ? (
+                  <CrimeMap
+                    heatmapData={heatmapData}
+                    densityData={densityData}
+                    spatialData={spatialData}
+                    mapCenter={mapCenter}
+                    mapZoom={mapZoom}
+                    showContours={showContours}
+                    onToggleContours={() => setShowContours(!showContours)}
+                  />
+                ) : (
+                  <ClusterMap
+                    geoJsonData={geoJsonData}
+                    isLoading={geoJsonLoading}
+                  />
+                )}
+
                 <ChartsGrid
                   temporalData={temporalData}
                   trendData={{

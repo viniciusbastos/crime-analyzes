@@ -1,8 +1,11 @@
 import React from "react";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const ExportPanel = () => {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
+
   const downloadBlob = (blob, filename) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -21,7 +24,7 @@ const ExportPanel = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Export failed");
+        throw new Error(t('export_failed'));
       }
 
       if (format === "json") {
@@ -36,7 +39,7 @@ const ExportPanel = () => {
       }
     } catch (error) {
       console.error("Export error:", error);
-      alert("Export failed");
+      alert(t('export_failed'));
     }
   };
 
@@ -45,26 +48,26 @@ const ExportPanel = () => {
       isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
     } border`}>
       <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-        Export Data
+        {t('export_data')}
       </h3>
       <div className="space-y-2">
         <button
           onClick={() => handleExport("json")}
           className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
-          Export JSON
+          {t('export_json')}
         </button>
         <button
           onClick={() => handleExport("csv")}
           className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
-          Export CSV
+          {t('export_csv')}
         </button>
         <button
           onClick={() => handleExport("excel")}
           className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
-          Export Excel
+          {t('export_excel')}
         </button>
       </div>
     </div>

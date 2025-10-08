@@ -1,0 +1,79 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "confirmPassword": "Confirm Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "namePlaceholder": "Enter your name",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "noAccount": "Don't have an account? Register",
+    "haveAccount": "Already have an account? Login",
+    "backToLogin": "Back to Login",
+    "fillAllFields": "Please fill all fields",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "emailRequired": "Email is required",
+    "loginFailed": "Login failed",
+    "registrationFailed": "Registration failed",
+    "registrationSuccess": "Registration successful",
+    "forgotPasswordFailed": "Failed to send reset email",
+    "forgotPasswordInstructions": "Enter your email address and we'll send you a link to reset your password.",
+    "error": "Error",
+    "success": "Success"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "statistics": "Statistics",
+    "map": "Map",
+    "charts": "Charts",
+    "chat": "Chat"
+  },
+  "dashboard": {
+    "title": "Crime Analysis Dashboard",
+    "welcome": "Welcome to your crime analysis dashboard"
+  },
+  "statistics": {
+    "title": "Statistics"
+  },
+  "map": {
+    "title": "Crime Map",
+    "loadError": "Error loading map data",
+    "noData": "No crime data available to display on the map"
+  },
+  "charts": {
+    "title": "Charts & Analytics"
+  },
+  "chat": {
+    "title": "Crime Analysis Assistant",
+    "subtitle": "Ask questions about your crime data",
+    "welcome": "Hello! I'm your crime analysis assistant. I can help you analyze crime patterns, trends, and provide insights based on your data. What would you like to know?",
+    "placeholder": "Ask about crime trends, patterns...",
+    "analyzing": "Analyzing your data...",
+    "error": "I apologize, but I couldn't generate a response. Please try again.",
+    "connectionError": "I'm sorry, I encountered an error while processing your request. Please check your connection and try again.",
+    "hint": "💡 Try asking: \"What's the trend in crime rates?\""
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save",
+    "delete": "Delete"
+  },
+  "permissions": {
+    "location": {
+      "title": "Location Permission",
+      "message": "This app needs access to location to show crime data on the map."
+    }
+  }
+}
