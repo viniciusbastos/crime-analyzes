@@ -17,8 +17,9 @@ class Config:
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 class DevelopmentConfig(Config):
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///crime_analysis.db'
+    DEBUG = True
+    # Use DATABASE_URL if set (for Docker), else sqlite
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///crime_analysis.db')
 
 class ProductionConfig(Config):
     DEBUG = False

@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, DateTime, Float, Text, Index
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
+from geoalchemy2 import Geometry
 
 db = SQLAlchemy()
 
@@ -13,6 +14,7 @@ class Crime(db.Model):
     date_time = Column(DateTime, nullable=False)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    geom = Column(Geometry('POINT', srid=4326))
     address = Column(Text)
 
     # Location fields
@@ -34,8 +36,7 @@ class Location(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(200), nullable=False)
     type = Column(String(50))  # neighborhood, district, etc.
-    # For SQLite compatibility, store boundary as text (WKT format)
-    boundary = Column(Text)  # WKT format for polygon boundaries
+    boundary = Column(Geometry('POLYGON', srid=4326))
 
 class AnalysisCache(db.Model):
     __tablename__ = 'analysis_cache'

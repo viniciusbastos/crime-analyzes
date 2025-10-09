@@ -161,14 +161,61 @@ CSV/Excel files should contain columns:
 - `severity` - Crime severity level
 - `description` - Additional details
 
-## Configuration
+## Environment Configuration
 
-Update the `.env` file with your settings:
+### Environment Files
+
+The application uses environment files for configuration:
+
+- **`.env`** - Development environment (tracked in git with example values)
+- **`.env.production`** - Production environment (not tracked in git)
+- **`.env.example`** - Template file with all available variables
+
+### Setup
+
+1. **For Development:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your development settings
+   ```
+
+2. **For Production:**
+   ```bash
+   cp .env.example .env.production
+   # Edit .env.production with your production settings
+   ```
+
+### Docker Environment Variables
+
+When using Docker, you can override environment variables:
+
+```bash
+# Use production environment file
+docker-compose --env-file .env.production up
+
+# Override specific variables
+docker-compose up -e SECRET_KEY=your-production-secret -e DATABASE_URL=postgresql://prod-db:5432/crime_analysis
+```
+
+### Key Environment Variables
 
 ```
+# Flask
+FLASK_APP=app.py
+FLASK_ENV=development|production
 SECRET_KEY=your-secret-key
-DATABASE_URL=postgresql://user:password@localhost/crime_analysis
-REDIS_URL=redis://localhost:6379/0
+
+# Database
+DATABASE_URL=postgresql://user:password@db:5432/crime_analysis
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# JWT
+JWT_SECRET_KEY=your-jwt-secret
+
+# Frontend
+VITE_API_BASE_URL=http://localhost:5001
 ```
 
 ## Development

@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_migrate import Migrate
 from config.config import config
 from models.models import db, Crime, User
 from routes.routes import api_bp
@@ -18,6 +19,7 @@ def create_app(config_name='default'):
     CORS(app)
     jwt = JWTManager(app)
     db.init_app(app)
+    migrate = Migrate(app, db)
 
     # JWT error handlers
     @jwt.invalid_token_loader
@@ -48,11 +50,14 @@ def create_app(config_name='default'):
         crimes = Crime.query.order_by(Crime.date_time.desc()).all()
         return render_template('data.html', crimes=crimes)
 
-    # Create database tables
+    # Database migrations should be run manually in production:
+    # flask db upgrade
+    # For development, you can uncomment the following to auto-create tables:
     with app.app_context():
         db.create_all()
 
-        # Create default admin user if no users exist
+    # Create default admin user if no users exist
+    with app.app_context():
         if not User.query.first():
             default_user = User(
                 email='admin@example.com',

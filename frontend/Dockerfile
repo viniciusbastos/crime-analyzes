@@ -1,6 +1,8 @@
 # Build stage
 FROM node:18-alpine as build
 
+ARG VITE_API_BASE_URL
+
 WORKDIR /app
 
 # Copy package files
@@ -11,6 +13,9 @@ RUN npm ci
 
 # Copy source code
 COPY . .
+
+# Create .env for Vite build
+RUN echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" > .env
 
 # Build the app
 RUN npm run build

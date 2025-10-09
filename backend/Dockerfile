@@ -19,8 +19,11 @@ COPY . .
 # Create data directory
 RUN mkdir -p data
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Expose port
 EXPOSE 5000
 
-# Run the application with Gunicorn
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5000", "app:app"]
+# Run the startup script which handles migrations and starts the app
+CMD ["./start.sh"]
