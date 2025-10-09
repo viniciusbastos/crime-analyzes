@@ -23,6 +23,7 @@ api = Api(
 )
 
 # Define namespaces for better organization
+auth_ns = api.namespace('auth', description='Authentication and user management')
 crime_ns = api.namespace('crimes', description='Crime data operations')
 analysis_ns = api.namespace('analysis', description='Data analysis and insights')
 trends_ns = api.namespace('trends', description='Crime trend analysis and forecasting')
@@ -176,6 +177,47 @@ metrics_model = api.model('Metrics', {
     'average_response_time': fields.Float(description='Average response time in seconds'),
     'rag_enabled': fields.Boolean(description='Whether RAG is enabled'),
     'model_name': fields.String(description='Name of the AI model being used')
+})
+
+# Authentication models
+register_request_model = api.model('RegisterRequest', {
+    'email': fields.String(required=True, description='User email address'),
+    'password': fields.String(required=True, description='User password'),
+    'name': fields.String(required=True, description='User full name'),
+    'captchaToken': fields.String(description='CAPTCHA verification token')
+})
+
+login_request_model = api.model('LoginRequest', {
+    'email': fields.String(required=True, description='User email address'),
+    'password': fields.String(required=True, description='User password'),
+    'captchaToken': fields.String(description='CAPTCHA verification token'),
+    'rememberMe': fields.Boolean(description='Remember login for 30 days')
+})
+
+user_model = api.model('User', {
+    'id': fields.Integer(description='User ID'),
+    'email': fields.String(description='User email address'),
+    'name': fields.String(description='User full name'),
+    'role': fields.String(description='User role (admin/viewer)')
+})
+
+login_response_model = api.model('LoginResponse', {
+    'token': fields.String(description='JWT access token'),
+    'user': fields.Nested(user_model, description='User information')
+})
+
+auth_response_model = api.model('AuthResponse', {
+    'message': fields.String(description='Response message')
+})
+
+forgot_password_request_model = api.model('ForgotPasswordRequest', {
+    'email': fields.String(required=True, description='User email address'),
+    'captchaToken': fields.String(description='CAPTCHA verification token')
+})
+
+token_validation_response_model = api.model('TokenValidationResponse', {
+    'valid': fields.Boolean(description='Whether the token is valid'),
+    'message': fields.String(description='Validation message')
 })
 
 # Request parsers for query parameters
@@ -465,6 +507,55 @@ class Forecast(Resource):
         """Get forecast data"""
         return {'historical': [], 'forecast': [], 'confidence_intervals': []}
 
+# Authentication endpoints
+@auth_ns.route('/register')
+class Register(Resource):
+    @auth_ns.doc('register_user',
+                 description='Register a new user account')
+    @auth_ns.expect(register_request_model)
+    @auth_ns.marshal_with(auth_response_model, code=201)
+    def post(self):
+        """Register a new user"""
+        return {'message': 'User registered successfully'}
+
+@auth_ns.route('/login')
+class Login(Resource):
+    @auth_ns.doc('login_user',
+                 description='Authenticate user and return JWT token')
+    @auth_ns.expect(login_request_model)
+    @auth_ns.marshal_with(login_response_model, code=200)
+    def post(self):
+        """Login with email and password"""
+        return {'token': 'jwt_token_here', 'user': {'id': 1, 'email': 'user@example.com', 'name': 'User Name', 'role': 'viewer'}}
+
+@auth_ns.route('/forgot-password')
+class ForgotPassword(Resource):
+    @auth_ns.doc('forgot_password',
+                 description='Send password reset email to user')
+    @auth_ns.expect(forgot_password_request_model)
+    @auth_ns.marshal_with(auth_response_model, code=200)
+    def post(self):
+        """Send password reset email"""
+        return {'message': 'If the email exists, a reset link has been sent'}
+
+@auth_ns.route('/logout')
+class Logout(Resource):
+    @auth_ns.doc('logout_user',
+                 description='Logout user (client-side token removal)')
+    @auth_ns.marshal_with(auth_response_model, code=200)
+    def post(self):
+        """Logout user"""
+        return {'message': 'Logged out successfully'}
+
+@auth_ns.route('/validate')
+class ValidateToken(Resource):
+    @auth_ns.doc('validate_token',
+                 description='Validate JWT token and return user information')
+    @auth_ns.marshal_with(token_validation_response_model, code=200)
+    def get(self):
+        """Validate JWT token"""
+        return {'valid': True, 'message': 'Token is valid'}
+
 # Chat endpoints
 @chat_ns.route('/')
 class CrimeChat(Resource):
@@ -678,6 +769,7 @@ class CrimeCreate(Resource):
         return {'id': 1, 'message': 'Crime created successfully'}
 
 # Add additional documentation
+api.add_namespace(auth_ns)
 api.add_namespace(crime_ns)
 api.add_namespace(analysis_ns)
 api.add_namespace(trends_ns)
@@ -703,7 +795,20 @@ Comprehensive REST API for crime data analysis, visualization, and AI-powered in
 - **System Monitoring**: Health checks, cache statistics, upload logs, and performance metrics
 
 ## Authentication
-JWT-based authentication with role-based access control (admin/user roles).
+JWT-based authentication with role-based access control (admin/viewer roles).
+
+### Authentication Endpoints
+- **POST /auth/register**: Register a new user account
+- **POST /auth/login**: Authenticate user and receive JWT token
+- **POST /auth/forgot-password**: Request password reset email
+- **POST /auth/logout**: Logout user (client-side token removal)
+- **GET /auth/validate**: Validate JWT token
+
+### Authentication Flow
+1. Register a new account or login with existing credentials
+2. Include the JWT token in the Authorization header for protected endpoints: `Authorization: Bearer <token>`
+3. Token expires after 24 hours (or 30 days if "remember me" is selected during login)
+4. Use `/auth/validate` to check token validity before making requests
 
 ## Filtering Parameters
 All analysis endpoints support comprehensive filtering:
@@ -720,6 +825,7 @@ All analysis endpoints support comprehensive filtering:
 All endpoints return JSON by default. Export endpoints support CSV and Excel formats.
 
 ## API Namespaces
+- **auth**: Authentication and user management (login, register, password reset)
 - **crimes**: Crime data operations, CRUD management, and export
 - **analysis**: Data analysis, summaries, temporal patterns, and spatial analysis
 - **trends**: Trend analysis, forecasting, and growth rate calculations
