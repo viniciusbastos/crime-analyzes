@@ -37,6 +37,19 @@ docker-compose up --build
 
 The application will be available at `http://localhost:5000`
 
+#### ARM64 Systems (Apple Silicon, Raspberry Pi, etc.)
+
+For ARM64-based systems, use the ARM64-specific docker-compose file:
+
+```bash
+docker-compose -f docker-compose.arm64.yaml up --build
+```
+
+This configuration includes:
+- ARM64 platform specifications for all services
+- ARM64-compatible base images
+- Optimized Dockerfiles for ARM64 architecture
+
 ### Manual Setup
 
 1. Install Python dependencies:
