@@ -10,10 +10,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d crime_analysis"]
+      test: ["CMD-SHELL", "pg_isready -U user -d crime_analysis -h 127.0.0.1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
@@ -22,6 +25,13 @@ services:
       - .env
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
 
   api:
     build:
@@ -40,6 +50,8 @@ services:
     volumes:
       - ./backend:/app
       - /app/venv
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -54,6 +66,8 @@ services:
       - .env
     depends_on:
       - api
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
