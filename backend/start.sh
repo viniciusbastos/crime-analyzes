@@ -29,6 +29,29 @@ with app.app_context():
         print('Default admin user already exists')
 "
 
+# Load sample data with police organizational fields if database is empty
+echo "Checking if sample data needs to be loaded..."
+python3 -c "
+from app import create_app
+from models.models import Crime, db
+
+app = create_app()
+with app.app_context():
+    if not Crime.query.first():
+        print('EMPTY')
+    else:
+        print('EXISTS')
+" | grep -q "EMPTY"
+
+if [ $? -eq 0 ]; then
+    echo "Converting crime data..."
+    python3 convert_crime_data.py
+    echo "Loading converted crime data..."
+    python3 load_converted_data.py
+else
+    echo "Sample data already exists, skipping load"
+fi
+
 # Start the application
 echo "Starting application..."
 exec gunicorn --workers 4 --bind 0.0.0.0:5000 app:app

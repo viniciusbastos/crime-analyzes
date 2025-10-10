@@ -11,7 +11,7 @@ def create_default_user():
             return
 
         # Create default user
-        user = User(email='admin@example.com', name='Admin User', role='admin')
+        user = User(email='admin@example.com', name='Admin User', role='admin', unidade='6 CIPM - Rio Real')
         user.set_password('password123')
         db.session.add(user)
         db.session.commit()

@@ -62,7 +62,8 @@ def create_app(config_name='default'):
             default_user = User(
                 email='admin@example.com',
                 name='Admin User',
-                role='admin'
+                role='admin',
+                unidade='6 CIPM - Rio Real'
             )
             default_user.set_password('admin123')
             db.session.add(default_user)

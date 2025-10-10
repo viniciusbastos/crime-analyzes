@@ -67,21 +67,53 @@ const FilterPanel = ({
   // City filter options will be populated from API
   const [cities, setCities] = React.useState([]);
 
-  // Load city options on component mount
+  // Police organizational filter options
+  const [unidades, setUnidades] = React.useState([]);
+  const [aisps, setAisps] = React.useState([]);
+  const [risps, setRisps] = React.useState([]);
+
+  // Load filter options on component mount
   React.useEffect(() => {
-    const loadCityOptions = async () => {
+    const loadFilterOptions = async () => {
       try {
+        // Load cities
         const citiesResponse = await fetch("/api/locations/cities");
         if (citiesResponse.ok) {
           const citiesData = await citiesResponse.json();
           setCities(citiesData.map((city) => ({ label: city, value: city })));
         }
+
+        // Load police organizational options
+        const [unidadesRes, aispsRes, rispsRes] = await Promise.all([
+          fetch("/api/police/unidades"),
+          fetch("/api/police/aisps"),
+          fetch("/api/police/risps"),
+        ]);
+
+        if (unidadesRes.ok) {
+          const unidadesData = await unidadesRes.json();
+          setUnidades(
+            unidadesData.map((unidade) => ({ label: unidade, value: unidade }))
+          );
+        }
+
+        if (aispsRes.ok) {
+          const aispsData = await aispsRes.json();
+          setAisps(
+            aispsData.map((aisp) => ({ label: aisp.toString(), value: aisp }))
+          );
+        }
+
+        if (rispsRes.ok) {
+          const rispsData = await rispsRes.json();
+          setRisps(rispsData.map((risp) => ({ label: risp, value: risp })));
+        }
       } catch (error) {
-        console.error("Error loading city options:", error);
+        console.error("Error loading filter options:", error);
       }
     };
 
-    loadCityOptions();
+    loadFilterOptions();
   }, []);
 
   const handleQuickDateSelect = (range) => {
@@ -176,7 +208,7 @@ const FilterPanel = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {/* Crime Type Filter */}
         <div>
           <label
@@ -310,6 +342,10 @@ const FilterPanel = ({
           </label>
           <input
             type="date"
+            value={pendingFilters.start_date || ""}
+            onChange={(e) =>
+              setPendingFilters({ ...pendingFilters, start_date: e.target.value })
+            }
             className={`w-full px-3 py-2 border rounded-md transition-colors ${
               isDark
                 ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -329,6 +365,10 @@ const FilterPanel = ({
           </label>
           <input
             type="date"
+            value={pendingFilters.end_date || ""}
+            onChange={(e) =>
+              setPendingFilters({ ...pendingFilters, end_date: e.target.value })
+            }
             className={`w-full px-3 py-2 border rounded-md transition-colors ${
               isDark
                 ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
@@ -361,6 +401,91 @@ const FilterPanel = ({
             {cities.map((city) => (
               <option key={city.value} value={city.value}>
                 {city.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Police Organizational Filters */}
+        <div>
+          <label
+            className={`block text-sm font-medium mb-1 ${
+              isDark ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            Unidade (Police Unit)
+          </label>
+          <select
+            value={pendingFilters.unidade || ""}
+            onChange={(e) =>
+              setPendingFilters({ ...pendingFilters, unidade: e.target.value })
+            }
+            className={`w-full px-3 py-2 border rounded-md transition-colors ${
+              isDark
+                ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                : "border-gray-300 focus:border-blue-500"
+            }`}
+          >
+            <option value="">All Unidades</option>
+            {unidades.map((unidade) => (
+              <option key={unidade.value} value={unidade.value}>
+                {unidade.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            className={`block text-sm font-medium mb-1 ${
+              isDark ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            AISP (Regional Area)
+          </label>
+          <select
+            value={pendingFilters.aisp || ""}
+            onChange={(e) =>
+              setPendingFilters({ ...pendingFilters, aisp: e.target.value })
+            }
+            className={`w-full px-3 py-2 border rounded-md transition-colors ${
+              isDark
+                ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                : "border-gray-300 focus:border-blue-500"
+            }`}
+          >
+            <option value="">All AISPs</option>
+            {aisps.map((aisp) => (
+              <option key={aisp.value} value={aisp.value}>
+                {aisp.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            className={`block text-sm font-medium mb-1 ${
+              isDark ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            RISP (Regional Department)
+          </label>
+          <select
+            value={pendingFilters.risp || ""}
+            onChange={(e) =>
+              setPendingFilters({ ...pendingFilters, risp: e.target.value })
+            }
+            className={`w-full px-3 py-2 border rounded-md transition-colors ${
+              isDark
+                ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                : "border-gray-300 focus:border-blue-500"
+            }`}
+          >
+            <option value="">All RISPs</option>
+            {risps.map((risp) => (
+              <option key={risp.value} value={risp.value}>
+                {risp.label}
               </option>
             ))}
           </select>

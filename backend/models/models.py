@@ -24,10 +24,18 @@ class Crime(db.Model):
     description = Column(Text)
     category_parent = Column(String(50), nullable=True)
 
+    # Police organizational fields
+    unidade = Column(String(100), nullable=True)  # OPM (e.g., "6ª CIPM - Rio Real")
+    aisp = Column(Integer, nullable=True)  # AISP number (e.g., 48)
+    risp = Column(String(50), nullable=True)  # RISP (parent category, e.g., "LESTE")
+
     __table_args__ = (
         Index('idx_crimes_date_time', 'date_time'),
         Index('idx_crimes_crime_type', 'crime_type'),
         Index('idx_crimes_city', 'city'),
+        Index('idx_crimes_unidade', 'unidade'),
+        Index('idx_crimes_aisp', 'aisp'),
+        Index('idx_crimes_risp', 'risp'),
     )
 
 class Location(db.Model):
@@ -60,9 +68,11 @@ class User(db.Model):
     name = Column(String(255), nullable=False)
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), default='viewer', nullable=False)
+    unidade = Column(String(100), nullable=True)  # Police unit (OPM) for filtering
 
     __table_args__ = (
         Index('idx_users_email', 'email'),
+        Index('idx_users_unidade', 'unidade'),
     )
 
     def set_password(self, password):

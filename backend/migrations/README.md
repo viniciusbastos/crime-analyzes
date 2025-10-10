@@ -9,31 +9,37 @@ Flask-Migrate has been initialized and the initial baseline migration has been c
 ## Commands
 
 ### Initialize migrations (already done)
+
 ```bash
 flask db init
 ```
 
 ### Create a new migration
+
 ```bash
 flask db migrate -m "Description of changes"
 ```
 
 ### Apply migrations
+
 ```bash
 flask db upgrade
 ```
 
 ### Rollback migrations
+
 ```bash
 flask db downgrade
 ```
 
 ### Check current migration status
+
 ```bash
 flask db current
 ```
 
 ### Show migration history
+
 ```bash
 flask db history
 ```
@@ -43,6 +49,7 @@ flask db history
 For production deployments:
 
 1. Run migrations before starting the application:
+
    ```bash
    flask db upgrade
    ```

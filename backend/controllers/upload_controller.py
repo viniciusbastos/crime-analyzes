@@ -35,15 +35,9 @@ class UploadController:
                 # Process the uploaded file
                 df = CrimeDataService.process_uploaded_file(filepath, filename)
 
-                # Convert data - skip OPM filtering for sample data
-                if 'sample_crime_data.csv' in filename:
-                    # For sample data, don't filter by OPM
-                    converted_data = CrimeDataService.convert_crime_data(df, filter_opm=None)
-                    filter_message = "sample data (all records)"
-                else:
-                    # For real data, filter by OPM
-                    converted_data = CrimeDataService.convert_crime_data(df, filter_opm='6ª CIPM - Rio Real')
-                    filter_message = "6ª CIPM - Rio Real"
+                # Convert data - process all records without OPM filtering
+                converted_data = CrimeDataService.convert_crime_data(df)
+                filter_message = "all records"
 
                 if converted_data:
                     # Save converted data to CSV

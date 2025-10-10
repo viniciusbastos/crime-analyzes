@@ -38,7 +38,15 @@ const DataUpload = ({ onUpload, uploadStatus }) => {
     uploadMutation.mutate(formData, {
       onSuccess: (data) => {
         onUpload(data.message, "success");
-        setTimeout(() => window.location.reload(), 1000);
+        // Clear the file input
+        const fileInput = event.target.querySelector('input[type="file"]');
+        if (fileInput) {
+          fileInput.value = '';
+        }
+        // Refresh data after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
       onError: (error) => {
         onUpload(error.response?.data?.error || t('upload_failed'), "error");

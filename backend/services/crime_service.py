@@ -29,18 +29,12 @@ class CrimeDataService:
         return df
 
     @staticmethod
-    def convert_crime_data(df, filter_opm=None):
+    def convert_crime_data(df):
         """Convert raw crime data to standardized format"""
         converted_data = []
 
         for _, row in df.iterrows():
             try:
-                # Apply OPM filter if specified
-                if filter_opm:
-                    opm_2025 = str(row.get('OPM 2024', ''))
-                    if opm_2025 != filter_opm:
-                        continue  # Skip records not matching the filter
-
                 # Extract date and time
                 date_str = row.get('DATA') or row.get('date_time') or row.get('datetime') or row.get('date')
                 time_str = str(row.get('HORA') or row.get('time') or '00').zfill(2)
@@ -112,6 +106,29 @@ class CrimeDataService:
 
                 description = '; '.join(desc_parts) if desc_parts else ''
 
+                # Extract police organizational data
+                unidade = str(row.get('OPM 2024') or row.get('OPM') or '').strip()
+                unidade = unidade if unidade else None
+
+                aisp = row.get('AISP')
+                if pd.notna(aisp):
+                    try:
+                        aisp = int(aisp)
+                    except (ValueError, TypeError):
+                        aisp = None
+                else:
+                    aisp = None
+
+                risp = str(row.get('RISP') or '').strip()
+                risp = risp if risp else None
+
+                # If police data not found in columns, try to extract from delegacia/description
+                if not unidade or not aisp or not risp:
+                    delegacia = str(row.get('DELEGACIA') or '').strip()
+                    if delegacia:
+                        # Parse delegacia field like "2023 - 02ª COORPIN (AISP - Rio Real)"
+                        unidade, aisp, risp = CrimeDataService.parse_police_info_from_delegacia(delegacia, unidade, aisp, risp)
+
                 # Create the record
                 record = {
                     'crime_type': crime_type,
@@ -122,7 +139,10 @@ class CrimeDataService:
                     'city': city,
                     'severity': severity,
                     'description': description,
-                    'category_parent': category_parent
+                    'category_parent': category_parent,
+                    'unidade': unidade,
+                    'aisp': aisp,
+                    'risp': risp
                 }
 
                 converted_data.append(record)
@@ -177,3 +197,65 @@ class CrimeDataService:
         db.session.commit()
         print(f"Processed {processed_count} new records, skipped {duplicates_skipped} duplicates")
         return processed_count, duplicates_skipped
+
+    @staticmethod
+    def parse_police_info_from_delegacia(delegacia, current_unidade, current_aisp, current_risp):
+        """Parse police organizational information from delegacia field"""
+        unidade = current_unidade
+        aisp = current_aisp
+        risp = current_risp
+
+        if not delegacia:
+            return unidade, aisp, risp
+
+        # Clean up the delegacia string
+        delegacia = delegacia.strip()
+
+        # Extract unidade (police unit) - look for patterns like "02ª COORPIN"
+        import re
+
+        # Pattern for unidade like "02ª COORPIN", "6ª CIPM", etc.
+        unidade_match = re.search(r'(\d+ª\s+[A-Z]+)', delegacia)
+        if unidade_match and not unidade:
+            unidade = unidade_match.group(1).strip()
+
+        # Extract AISP information - look for "(AISP - City)" pattern
+        aisp_match = re.search(r'\(AISP\s*-\s*([^)]+)\)', delegacia, re.IGNORECASE)
+        if aisp_match and not aisp:
+            aisp_city = aisp_match.group(1).strip()
+
+            # Map city names to AISP numbers (Bahia state mapping)
+            aisp_mapping = {
+                'Rio Real': 48,
+                'Itapicuru': 48,
+                'Crisopolis': 48,
+                'Acajutiba': 48,
+                'Apora': 48,
+                'Olindina': 48,
+                # Add more mappings as needed
+            }
+
+            if aisp_city in aisp_mapping:
+                aisp = aisp_mapping[aisp_city]
+
+        # For RISP, we can determine based on region
+        # Bahia is divided into RISPs (Regiões Integradas de Segurança Pública)
+        if not risp:
+            # Simple mapping based on cities - this would need to be expanded
+            risp_mapping = {
+                'Rio Real': 'LESTE',
+                'Itapicuru': 'LESTE',
+                'Crisopolis': 'LESTE',
+                'Acajutiba': 'LESTE',
+                'Apora': 'LESTE',
+                'Olindina': 'LESTE',
+            }
+
+            # Try to extract city from delegacia or use known mapping
+            city_match = re.search(r'\(AISP\s*-\s*([^)]+)\)', delegacia, re.IGNORECASE)
+            if city_match:
+                city = city_match.group(1).strip()
+                if city in risp_mapping:
+                    risp = risp_mapping[city]
+
+        return unidade, aisp, risp

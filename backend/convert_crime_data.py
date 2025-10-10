@@ -12,10 +12,7 @@ def convert_crime_data(input_file, output_file):
 
     for _, row in df.iterrows():
         try:
-            # Filter for 6CIPM - Rio Real only
-            opm_2025 = str(row.get('OPM 2025', ''))
-            if opm_2025 != '6ª CIPM - Rio Real':
-                continue  # Skip records not from 6CIPM - Rio Real
+
 
             # Extract date and time
             date_str = row['DATA']  # DD-MM-YYYY

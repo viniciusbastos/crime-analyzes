@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from models.models import db, Crime, UploadLog
+from models.models import db, Crime, UploadLog, User
 from flask_jwt_extended import jwt_required
 from routes.auth import role_required
 import pandas as pd
@@ -26,6 +26,24 @@ from services.chat_service import chat_service, RAG_AVAILABLE
 
 api_bp = Blueprint('api', __name__)
 
+def apply_user_unidade_filter(query):
+    """Apply unidade-based filtering for authenticated users"""
+    from flask_jwt_extended import get_jwt_identity
+
+    try:
+        jwt_identity = get_jwt_identity()
+        if jwt_identity and 'user_id' in jwt_identity:
+            user_id = jwt_identity['user_id']
+            user = User.query.get(user_id)
+            if user and user.unidade:
+                # Filter crimes to only show those from user's unidade
+                query = query.filter(Crime.unidade == user.unidade)
+    except:
+        # If JWT is not available or invalid, don't apply filtering
+        pass
+
+    return query
+
 def apply_enhanced_filters(query):
     """Apply all enhanced temporal and city filters to a query"""
     # Basic filters
@@ -38,6 +56,11 @@ def apply_enhanced_filters(query):
 
     # Category parent filter
     category_parent = request.args.get('category_parent')
+
+    # Police organizational filters
+    unidade = request.args.get('unidade')
+    aisp = request.args.get('aisp')
+    risp = request.args.get('risp')
 
     # Enhanced temporal filters
     time_range = request.args.get('time_range')
@@ -71,6 +94,18 @@ def apply_enhanced_filters(query):
     # Apply category parent filter
     if category_parent:
         query = query.filter(Crime.category_parent == category_parent)
+
+    # Apply police organizational filters
+    if unidade:
+        query = query.filter(Crime.unidade == unidade)
+    if aisp:
+        try:
+            aisp_int = int(aisp)
+            query = query.filter(Crime.aisp == aisp_int)
+        except ValueError:
+            pass  # Ignore invalid aisp values
+    if risp:
+        query = query.filter(Crime.risp == risp)
 
     # Apply time range filter
     if time_range:
@@ -174,6 +209,7 @@ def process_crime_data(df):
 @cached_api_call(timeout=get_cache_timeout('crimes'))
 def get_crimes():
     query = Crime.query
+    query = apply_user_unidade_filter(query)  # Apply user-based unidade filtering first
     query = apply_enhanced_filters(query)
     crimes = query.limit(1000).all()  # Limit for performance
 
@@ -277,9 +313,12 @@ def get_semester_comparison():
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('heatmap'))
 def get_heatmap_data():
+    # Add limit parameter for performance, default to 5000 for initial load
+    limit = request.args.get('limit', type=int, default=5000)
     query = Crime.query
+    query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).all()
+    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit).all()
     crimes_df = pd.DataFrame([{
         'latitude': c.latitude,
         'longitude': c.longitude,
@@ -295,9 +334,12 @@ def get_heatmap_data():
 @cached_api_call(timeout=get_cache_timeout('crime_points'))
 def get_crime_points():
     """Get crime data in latitude/longitude/weight format for mapping"""
+    # Add limit parameter for performance, default to 5000 for initial load
+    limit = request.args.get('limit', type=int, default=5000)
     query = Crime.query
+    query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).all()
+    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit).all()
 
     # Return data in the requested format: {latitude, longitude, weight}
     crime_points = []
@@ -387,6 +429,7 @@ def get_density_data():
 @cached_api_call(timeout=get_cache_timeout('summary'))
 def get_summary_statistics():
     query = Crime.query
+    query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
     crimes = query.all()
     if not crimes:
@@ -413,6 +456,7 @@ def get_summary_statistics():
 @cached_api_call(timeout=get_cache_timeout('temporal'))
 def get_temporal_analysis():
     query = Crime.query
+    query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
 
     # Optimize by fetching only the date_time column
@@ -668,6 +712,7 @@ def export_data():
     format_type = request.args.get('format', 'json')
 
     query = Crime.query
+    query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
     crimes = query.all()
     crimes_df = pd.DataFrame([{
@@ -765,6 +810,52 @@ def get_cities():
         cities = db.session.query(Crime.city).filter(Crime.city.isnot(None)).distinct().all()
         city_list = [city[0] for city in cities if city[0]]
         return jsonify(sorted(city_list))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Police organizational filter endpoints
+@api_bp.route('/police/unidades', methods=['GET'])
+@jwt_required(optional=True)
+def get_unidades():
+    """Get list of all police unidades (OPM) in the database"""
+    try:
+        # Apply user-based filtering first
+        query = Crime.query
+        query = apply_user_unidade_filter(query)
+
+        unidades = query.with_entities(Crime.unidade).filter(Crime.unidade.isnot(None)).distinct().all()
+        unidade_list = [unidade[0] for unidade in unidades if unidade[0]]
+        return jsonify(sorted(unidade_list))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/police/aisps', methods=['GET'])
+@jwt_required(optional=True)
+def get_aisps():
+    """Get list of all AISP codes in the database"""
+    try:
+        # Apply user-based filtering first
+        query = Crime.query
+        query = apply_user_unidade_filter(query)
+
+        aisps = query.with_entities(Crime.aisp).filter(Crime.aisp.isnot(None)).distinct().all()
+        aisp_list = [aisp[0] for aisp in aisps if aisp[0] is not None]
+        return jsonify(sorted(aisp_list))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/police/risps', methods=['GET'])
+@jwt_required(optional=True)
+def get_risps():
+    """Get list of all RISP categories in the database"""
+    try:
+        # Apply user-based filtering first
+        query = Crime.query
+        query = apply_user_unidade_filter(query)
+
+        risps = query.with_entities(Crime.risp).filter(Crime.risp.isnot(None)).distinct().all()
+        risp_list = [risp[0] for risp in risps if risp[0]]
+        return jsonify(sorted(risp_list))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

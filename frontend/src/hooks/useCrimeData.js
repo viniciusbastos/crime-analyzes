@@ -352,11 +352,7 @@ export const useUploadData = () => {
 
   return useMutation({
     mutationFn: async (formData) => {
-      const response = await api.post("/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.post("/upload", formData);
       return response.data;
     },
     onSuccess: () => {
