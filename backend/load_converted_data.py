@@ -14,7 +14,7 @@ def load_converted_data():
 
         # Load and process converted data that includes police organizational fields
         df = pd.read_csv('data/converted_crime_data_2025.csv')
-        df = df.head(50)  # Limit to 50 rows for sample data
+        df = df.head(4000)  # Limit to 50 rows for sample data
         print(f"Loaded {len(df)} rows from converted data (limited to 50 for sample)")
 
         count = 0

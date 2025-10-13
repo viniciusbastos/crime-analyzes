@@ -54,4 +54,4 @@ fi
 
 # Start the application
 echo "Starting application..."
-exec gunicorn --workers 4 --bind 0.0.0.0:5000 app:app
+exec gunicorn --workers 4 --bind 0.0.0.0:5000 --log-level info --access-logfile - app:app

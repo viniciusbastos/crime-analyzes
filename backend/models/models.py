@@ -36,6 +36,13 @@ class Crime(db.Model):
         Index('idx_crimes_unidade', 'unidade'),
         Index('idx_crimes_aisp', 'aisp'),
         Index('idx_crimes_risp', 'risp'),
+        # Composite indexes for common query patterns
+        Index('idx_crimes_lat_lng', 'latitude', 'longitude'),
+        Index('idx_crimes_city_date', 'city', 'date_time'),
+        Index('idx_crimes_type_date', 'crime_type', 'date_time'),
+        Index('idx_crimes_unidade_date', 'unidade', 'date_time'),
+        # Index for geospatial queries
+        Index('idx_crimes_geom', 'geom'),
     )
 
 class Location(db.Model):

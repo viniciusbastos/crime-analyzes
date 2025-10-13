@@ -9,8 +9,21 @@ from routes.routes import api_bp
 from services.cache_service import init_cache
 from services.swagger_docs import swagger_bp
 import os
+import logging
 
 def create_app(config_name='default'):
+    # Configure logging before creating the app
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler()
+        ]
+    )
+    # Disable werkzeug access logs in production
+    if config_name != 'development':
+        logging.getLogger('werkzeug').setLevel(logging.WARNING)
+
     app = Flask(__name__)
 
     app.config.from_object(config[config_name])
@@ -50,25 +63,26 @@ def create_app(config_name='default'):
         crimes = Crime.query.order_by(Crime.date_time.desc()).all()
         return render_template('data.html', crimes=crimes)
 
-    # Database migrations should be run manually in production:
-    # flask db upgrade
-    # For development, you can uncomment the following to auto-create tables:
-    with app.app_context():
-        db.create_all()
+    # Database migrations are run in start.sh via 'flask db upgrade'
+    # No need to call db.create_all() here as it can cause issues with existing indexes
 
     # Create default admin user if no users exist
-    with app.app_context():
-        if not User.query.first():
-            default_user = User(
-                email='admin@example.com',
-                name='Admin User',
-                role='admin',
-                unidade='6 CIPM - Rio Real'
-            )
-            default_user.set_password('admin123')
-            db.session.add(default_user)
-            db.session.commit()
-            print("Created default admin user: admin@example.com / admin123")
+    try:
+        with app.app_context():
+            if not User.query.first():
+                default_user = User(
+                    email='admin@example.com',
+                    name='Admin User',
+                    role='admin',
+                    unidade='6ª CIPM - Rio Real'
+                )
+                default_user.set_password('admin123')
+                db.session.add(default_user)
+                db.session.commit()
+                # Created default admin user: admin@example.com / admin123
+    except Exception as e:
+        # Log the error but don't fail the app startup
+        app.logger.error(f"Error creating default user: {e}")
 
     return app
 

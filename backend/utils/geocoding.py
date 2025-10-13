@@ -79,5 +79,8 @@ def process_address_data(row):
         'city': city,
         'severity': str(severity),
         'description': row.get('description') or '',
-        'category_parent': row.get('category_parent')
+        'category_parent': row.get('category_parent'),
+        'unidade': row.get('unidade'),
+        'aisp': row.get('aisp'),
+        'risp': row.get('risp')
     }

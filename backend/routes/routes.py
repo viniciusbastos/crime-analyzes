@@ -208,10 +208,44 @@ def process_crime_data(df):
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('crimes'))
 def get_crimes():
+    # Add pagination support
+    page = request.args.get('page', type=int, default=1)
+    per_page = request.args.get('per_page', type=int, default=100)
+    limit = request.args.get('limit', type=int)  # Override per_page if specified
+
+    if limit:
+        per_page = limit
+
     query = Crime.query
     query = apply_user_unidade_filter(query)  # Apply user-based unidade filtering first
     query = apply_enhanced_filters(query)
-    crimes = query.limit(1000).all()  # Limit for performance
+
+    # Get total count for pagination
+    total = query.count()
+
+    # Apply pagination
+    crimes = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    result = [{
+        'id': c.id,
+        'crime_type': c.crime_type,
+        'date_time': c.date_time.isoformat(),
+        'latitude': c.latitude,
+        'longitude': c.longitude,
+        'address': c.address,
+        'city': c.city,
+        'severity': c.severity
+    } for c in crimes]
+
+    return jsonify({
+        'crimes': result,
+        'pagination': {
+            'page': page,
+            'per_page': per_page,
+            'total': total,
+            'pages': (total + per_page - 1) // per_page
+        }
+    })
 
     result = [{
         'id': c.id,
@@ -313,12 +347,22 @@ def get_semester_comparison():
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('heatmap'))
 def get_heatmap_data():
-    # Add limit parameter for performance, default to 5000 for initial load
+    # Add limit and sampling parameters for performance
     limit = request.args.get('limit', type=int, default=5000)
+    sample = request.args.get('sample', type=bool, default=False)
+
     query = Crime.query
     query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit).all()
+
+    # Apply sampling if requested (random sampling for performance)
+    if sample:
+        # Use SQL random ordering for sampling
+        query = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).order_by(db.func.random()).limit(limit)
+    else:
+        query = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit)
+
+    crimes = query.all()
     crimes_df = pd.DataFrame([{
         'latitude': c.latitude,
         'longitude': c.longitude,
@@ -399,9 +443,11 @@ def get_heatmap_html():
 @cached_api_call(timeout=get_cache_timeout('density'))
 def get_density_data():
     """Get crime density contour data"""
+    # Add limit parameter for performance, default to 10000 for density calculations
+    limit = request.args.get('limit', type=int, default=10000)
     query = Crime.query
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).all()
+    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit).all()
 
     # Debug: Check if we have crimes and their structure
     print(f"Density data: Found {len(crimes)} crimes with coordinates")
@@ -428,10 +474,12 @@ def get_density_data():
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('summary'))
 def get_summary_statistics():
+    # Add limit parameter for performance, default to 50000 for summary stats
+    limit = request.args.get('limit', type=int, default=50000)
     query = Crime.query
     query = apply_user_unidade_filter(query)
     query = apply_enhanced_filters(query)
-    crimes = query.all()
+    crimes = query.limit(limit).all()
     if not crimes:
         return jsonify({
             'total_crimes': 0,
@@ -510,6 +558,8 @@ def get_spatial_analysis():
     # Get algorithm parameter (default to dbscan)
     algorithm = request.args.get('algorithm', 'dbscan').lower()
     n_clusters = request.args.get('n_clusters', type=int)
+    # Add limit parameter for performance, default to 10000 for spatial analysis
+    limit = request.args.get('limit', type=int, default=10000)
 
     # Validate algorithm
     if algorithm not in ['dbscan', 'kmeans']:
@@ -517,7 +567,7 @@ def get_spatial_analysis():
 
     query = Crime.query
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).all()
+    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).limit(limit).all()
     if not crimes:
         return jsonify([])
 

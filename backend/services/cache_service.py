@@ -27,11 +27,11 @@ def init_cache(app):
                 'CACHE_DEFAULT_TIMEOUT': app.config.get('CACHE_TIMEOUT', 300),
                 'CACHE_KEY_PREFIX': 'crime_analysis:'
             }
-            print("✅ Redis cache initialized successfully")
+            # Redis cache initialized successfully
 
         except Exception as e:
             # Redis not available, fall back to simple cache
-            print(f"⚠️  Redis not available ({str(e)}), using simple cache")
+            # Redis not available, using simple cache
             cache_config = {
                 'CACHE_TYPE': 'simple',
                 'CACHE_DEFAULT_TIMEOUT': 300,
@@ -39,7 +39,7 @@ def init_cache(app):
             }
     else:
         # No Redis URL configured, use simple cache
-        print("ℹ️  No Redis URL configured, using simple cache")
+        # No Redis URL configured, using simple cache
         cache_config = {
             'CACHE_TYPE': 'simple',
             'CACHE_DEFAULT_TIMEOUT': 300,
@@ -56,13 +56,17 @@ def init_cache(app):
         test_result = cache.get('test_key')
         if test_result == 'test_value':
             if 'redis' in cache_config.get('CACHE_TYPE', '').lower():
-                print("✅ Redis cache verified and working")
+                # Redis cache verified and working
+                pass
             else:
-                print("✅ Simple cache verified and working")
+                # Simple cache verified and working
+                pass
         else:
-            print("⚠️  Cache test failed - cache may not be working properly")
+            # Cache test failed - cache may not be working properly
+            pass
     except Exception as e:
-        print(f"⚠️  Cache test failed: {str(e)}")
+        # Cache test failed
+        pass
 
     return cache
 

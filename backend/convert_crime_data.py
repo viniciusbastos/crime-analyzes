@@ -59,6 +59,51 @@ def convert_crime_data(input_file, output_file):
 
             description = '; '.join(desc_parts) if desc_parts else ''
 
+            # Extract police organizational data
+            # Try 2025 fields first, then 2024, then current
+            unidade = None
+            if pd.notna(row.get('OPM 2025')) and row['OPM 2025']:
+                unidade = str(row['OPM 2025'])
+            elif pd.notna(row.get('OPM 2024')) and row['OPM 2024']:
+                unidade = str(row['OPM 2024'])
+
+            aisp = None
+            if pd.notna(row.get('AISP 2025')) and str(row['AISP 2025']).strip():
+                try:
+                    # Extract number from string like '26 - Candeias'
+                    aisp_str = str(row['AISP 2025']).split(' - ')[0].strip()
+                    aisp = int(float(aisp_str))
+                except (ValueError, TypeError, IndexError):
+                    pass
+            elif pd.notna(row.get('AISP 2024')) and str(row['AISP 2024']).strip():
+                try:
+                    # Extract number from string like '26 - Candeias'
+                    aisp_str = str(row['AISP 2024']).split(' - ')[0].strip()
+                    aisp = int(float(aisp_str))
+                except (ValueError, TypeError, IndexError):
+                    pass
+            elif pd.notna(row.get('AISP')) and str(row['AISP']).strip():
+                try:
+                    aisp = int(float(row['AISP']))
+                except (ValueError, TypeError):
+                    pass
+
+            risp = None
+            if pd.notna(row.get('RISP 2025')) and row['RISP 2025']:
+                risp = str(row['RISP 2025'])
+            elif pd.notna(row.get('RISP 2024')) and row['RISP 2024']:
+                risp = str(row['RISP 2024'])
+            elif pd.notna(row.get('RISP')) and row['RISP']:
+                risp = str(row['RISP'])
+
+            # Determine category_parent based on crime type
+            category_parent = None
+            crime_type_upper = crime_type.upper()
+            if 'HOMICIDIO' in crime_type_upper or 'CVLI' in crime_type_upper:
+                category_parent = 'CVLI'
+            elif 'CVP' in crime_type_upper:
+                category_parent = 'CVP'
+
             # Create the record
             record = {
                 'crime_type': crime_type,
@@ -68,7 +113,11 @@ def convert_crime_data(input_file, output_file):
                 'address': address,
                 'city': city,
                 'severity': severity,
-                'description': description
+                'description': description,
+                'category_parent': category_parent,
+                'unidade': unidade,
+                'aisp': aisp,
+                'risp': risp
             }
 
             converted_data.append(record)
