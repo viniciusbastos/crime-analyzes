@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile.arm64
     platform: linux/arm64
     ports:
-      - "5104:5104"
+      - "5104:5000"
     env_file:
       - .env
     depends_on:
