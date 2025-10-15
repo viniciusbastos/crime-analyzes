@@ -56,6 +56,9 @@ services:
       - api
     networks:
       - app-network
+    labels:
+      - "coolify.managed=true"
+      - "coolify.domains=crime-analysis-frontend.orb.local"
 
 volumes:
   postgres_data:

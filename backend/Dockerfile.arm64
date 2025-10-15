@@ -32,4 +32,4 @@ RUN ls -la start.sh && test -f start.sh && test -x start.sh
 EXPOSE 5000
 
 # Run the application directly instead of using start.sh
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]
