@@ -50,8 +50,6 @@ services:
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     platform: linux/arm64
-    ports:
-      - "8080:80"
     env_file:
       - .env
     depends_on:
