@@ -53,7 +53,7 @@ const CollapsibleFilterBar = ({
         if (aispsRes.ok) {
           const aispsData = await aispsRes.json();
           setAisps(
-            aispsData.map((aisp) => ({ label: aisp.toString(), value: aisp }))
+            aispsData.map((aisp) => ({ label: aisp.toString(), value: aisp.toString() }))
           );
         }
 

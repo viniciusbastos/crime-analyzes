@@ -42,16 +42,21 @@ export const QUERY_KEYS = {
 const createQueryKey = (baseKey, filters) => [baseKey, filters];
 
 // Custom hooks for each endpoint
-export const useHeatmapData = (filters = {}) => {
+export const useHeatmapData = (filters = {}, enabled = true, useSampling = true) => {
   return useQuery({
-    queryKey: createQueryKey(QUERY_KEYS.heatmap, filters),
+    queryKey: createQueryKey(QUERY_KEYS.heatmap, { ...filters, sampled: useSampling }),
     queryFn: async () => {
       const params = new URLSearchParams(filters);
+      // Add limit and sampling for performance
+      params.set('limit', '5000');
+      if (useSampling) {
+        params.set('sample', 'true');
+      }
       const response = await api.get(`/heatmap?${params}`);
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    enabled: true,
+    enabled: enabled,
   });
 };
 
@@ -68,15 +73,18 @@ export const useGeoJsonData = (filters = {}) => {
   });
 };
 
-export const useDensityData = (filters = {}) => {
+export const useDensityData = (filters = {}, enabled = true) => {
   return useQuery({
     queryKey: createQueryKey(QUERY_KEYS.density, filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters);
+      // Add limit for performance
+      params.set('limit', '10000');
       const response = await api.get(`/density?${params}`);
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: enabled,
   });
 };
 
@@ -104,15 +112,18 @@ export const useTemporalData = (filters = {}) => {
   });
 };
 
-export const useSpatialData = (filters = {}) => {
+export const useSpatialData = (filters = {}, enabled = true) => {
   return useQuery({
     queryKey: createQueryKey(QUERY_KEYS.spatial, filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters);
+      // Add limit for performance
+      params.set('limit', '10000');
       const response = await api.get(`/spatial?${params}`);
       return response.data;
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
+    enabled: enabled,
   });
 };
 
@@ -206,9 +217,11 @@ export const useCrimeTypes = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.crimeTypes],
     queryFn: async () => {
-      const response = await api.get("/crimes?limit=10000");
+      const response = await api.get("/crimes?per_page=10000");
+      // Handle new pagination response format
+      const crimes = response.data.crimes || response.data;
       const types = [
-        ...new Set(response.data.map((crime) => crime.crime_type)),
+        ...new Set(crimes.map((crime) => crime.crime_type)),
       ].sort();
       return types;
     },
@@ -228,12 +241,10 @@ export const useLastUpload = () => {
 };
 
 // Combined hook for all data - this replaces the loadInitialData function
-export const useCrimeDataSets = (filters = {}) => {
-  const heatmapQuery = useHeatmapData(filters);
-  const densityQuery = useDensityData(filters);
+export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
+  // Always load essential data for dashboard
   const summaryQuery = useSummaryData(filters);
   const temporalQuery = useTemporalData(filters);
-  const spatialQuery = useSpatialData(filters);
   const yearOverYearQuery = useYearOverYearData(filters);
   const growthRatesQuery = useGrowthRatesData(filters);
   const movingAveragesQuery = useMovingAveragesData(filters);
@@ -243,12 +254,15 @@ export const useCrimeDataSets = (filters = {}) => {
   const semesterComparisonQuery = useSemesterComparison(filters);
   const crimeTypesQuery = useCrimeTypes();
 
-  const isLoading = [
-    heatmapQuery,
-    densityQuery,
+  // Only load map-heavy data when needed (lazy loading with sampling for performance)
+  const heatmapQuery = useHeatmapData(filters, loadMapData, true); // Use sampling for initial loads
+  const densityQuery = useDensityData(filters, loadMapData);
+  const spatialQuery = useSpatialData(filters, loadMapData);
+
+  // Progressive loading: essential data loads first, map data loads when enabled
+  const essentialQueries = [
     summaryQuery,
     temporalQuery,
-    spatialQuery,
     yearOverYearQuery,
     growthRatesQuery,
     movingAveragesQuery,
@@ -257,7 +271,17 @@ export const useCrimeDataSets = (filters = {}) => {
     cityQuery,
     semesterComparisonQuery,
     crimeTypesQuery,
-  ].some((query) => query.isLoading);
+  ];
+
+  const mapQueries = [
+    heatmapQuery,
+    densityQuery,
+    spatialQuery,
+  ];
+
+  const isLoadingEssential = essentialQueries.some((query) => query.isLoading);
+  const isLoadingMap = mapQueries.some((query) => query.isLoading);
+  const isLoading = isLoadingEssential || (loadMapData && isLoadingMap);
 
   const isError = [
     heatmapQuery,
@@ -293,6 +317,8 @@ export const useCrimeDataSets = (filters = {}) => {
 
     // Loading states
     isLoading,
+    isLoadingEssential,
+    isLoadingMap,
     isError,
 
     // Individual loading states for fine-grained control

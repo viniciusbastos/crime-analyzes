@@ -35,7 +35,11 @@ const CrimeDashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [mapType, setMapType] = useState("heatmap"); // "heatmap" or "cluster"
 
-  // Use React Query hooks for data fetching
+  // Determine if map data should be loaded (only when map section is active or dashboard with maps)
+  const shouldLoadMapData =
+    activeSection === "map" || activeSection === "dashboard";
+
+  // Use React Query hooks for data fetching with lazy loading
   const {
     heatmapData,
     densityData,
@@ -50,9 +54,9 @@ const CrimeDashboard = () => {
     cityData,
     semesterComparisonData,
     crimeTypes,
-    isLoading,
+    isLoadingEssential,
     refetchAll,
-  } = useCrimeDataSets(filters);
+  } = useCrimeDataSets(filters, shouldLoadMapData);
 
   // Get GeoJSON data for cluster map
   const { data: geoJsonData, isLoading: geoJsonLoading } =
@@ -129,14 +133,18 @@ const CrimeDashboard = () => {
     }
   };
 
-  if (isLoading) {
+  // Show loading for essential data first
+  if (isLoadingEssential) {
     return (
       <div
         className={`flex justify-center items-center h-screen ${
           isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
         }`}
       >
-        {t("loading")}
+        <div className="text-center">
+          <LoadingSpinner message={t("loading_essential_data")} />
+          <p className="mt-2 text-sm opacity-75">{t("loading_dashboard")}</p>
+        </div>
       </div>
     );
   }
@@ -182,8 +190,8 @@ const CrimeDashboard = () => {
                       mapType === "heatmap"
                         ? "bg-blue-600 text-white"
                         : isDark
-                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
                     {t("crime_density_map")}
@@ -194,8 +202,8 @@ const CrimeDashboard = () => {
                       mapType === "cluster"
                         ? "bg-blue-600 text-white"
                         : isDark
-                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
                     {t("cluster_map_title")}
@@ -291,8 +299,8 @@ const CrimeDashboard = () => {
                   mapType === "heatmap"
                     ? "bg-blue-600 text-white"
                     : isDark
-                      ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 {t("crime_density_map")}
@@ -303,8 +311,8 @@ const CrimeDashboard = () => {
                   mapType === "cluster"
                     ? "bg-blue-600 text-white"
                     : isDark
-                      ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 {t("cluster_map_title")}
@@ -312,7 +320,9 @@ const CrimeDashboard = () => {
             </div>
 
             {mapType === "heatmap" ? (
-              <Suspense fallback={<LoadingSpinner message={t("loading_map")} />}>
+              <Suspense
+                fallback={<LoadingSpinner message={t("loading_map")} />}
+              >
                 <CrimeMap
                   heatmapData={heatmapData}
                   densityData={densityData}
@@ -324,7 +334,9 @@ const CrimeDashboard = () => {
                 />
               </Suspense>
             ) : (
-              <Suspense fallback={<LoadingSpinner message={t("loading_map")} />}>
+              <Suspense
+                fallback={<LoadingSpinner message={t("loading_map")} />}
+              >
                 <ClusterMap
                   geoJsonData={geoJsonData}
                   isLoading={geoJsonLoading}
@@ -453,8 +465,8 @@ const CrimeDashboard = () => {
                       mapType === "heatmap"
                         ? "bg-blue-600 text-white"
                         : isDark
-                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
                     {t("crime_density_map")}
@@ -465,8 +477,8 @@ const CrimeDashboard = () => {
                       mapType === "cluster"
                         ? "bg-blue-600 text-white"
                         : isDark
-                          ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
                     {t("cluster_map_title")}
