@@ -3,13 +3,18 @@
 # Wait for database to be ready (if using external database)
 # This is optional and depends on your setup
 
+# Set Python path to include current directory
+export PYTHONPATH=/app:$PYTHONPATH
+
 # Run database migrations
 echo "Running database migrations..."
-flask db upgrade
+python3 -m flask db upgrade
 
 # Create default admin user if it doesn't exist
 echo "Checking for default admin user..."
 python3 -c "
+import sys
+sys.path.insert(0, '/app')
 from app import create_app
 from models.models import User, db
 
@@ -32,6 +37,8 @@ with app.app_context():
 # Load sample data with police organizational fields if database is empty
 echo "Checking if sample data needs to be loaded..."
 python3 -c "
+import sys
+sys.path.insert(0, '/app')
 from app import create_app
 from models.models import Crime, db
 
@@ -54,4 +61,4 @@ fi
 
 # Start the application
 echo "Starting application..."
-exec gunicorn --workers 4 --bind 0.0.0.0:5000 --log-level info --access-logfile - app:app
+exec gunicorn --workers 4 --bind 0.0.0.0:5000 --log-level info --access-logfile - --pythonpath /app app:app
