@@ -20,7 +20,7 @@ COPY . /app/
 RUN mkdir -p data
 
 # Make startup script executable
-RUN chmod +x start.sh
+RUN chmod +x app/start.sh
 
 EXPOSE 5000
 
