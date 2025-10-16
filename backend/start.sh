@@ -19,6 +19,10 @@ echo "Who am I: $(whoami)"
 # Set Python path to include current directory
 export PYTHONPATH=/app:$PYTHONPATH
 
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+sleep 10
+
 # Run database migrations
 echo "Running database migrations..."
 cd /app && FLASK_APP=app.py python3 -m flask db upgrade
