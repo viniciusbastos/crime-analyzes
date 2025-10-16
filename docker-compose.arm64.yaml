@@ -2,7 +2,8 @@ version: "3.8"
 
 services:
   db:
-    image: postgis/postgis:15-3.4
+    image: postgres:15-alpine
+    platform: linux/arm64
     env_file:
       - .env
     volumes:
