@@ -9,25 +9,24 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements from backend directory
-COPY backend/requirements.txt .
+# Copy requirements from current directory (not backend/)
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy only the backend directory contents to /app/backend
-COPY backend/ /app/backend/
+# Copy everything from current directory to /app
+COPY . /app/
 
 # Create data directory
 RUN mkdir -p data
 
 # Make startup script executable
-RUN chmod +x /app/backend/start.sh
+RUN chmod +x start.sh
 
 EXPOSE 5000
 
-# Set environment variables
-ENV FLASK_APP=backend.app
+# Set environment variables (no backend. prefix needed)
+ENV FLASK_APP=app
 ENV FLASK_ENV=production
-ENV PYTHONPATH=/app
 
 # Run the startup script
-CMD ["/app/backend/start.sh"]
+CMD ["/app/start.sh"]
