@@ -40,7 +40,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/venv
-    working_dir: /app
     networks:
       - app-network
 

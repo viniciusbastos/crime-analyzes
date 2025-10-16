@@ -26,4 +26,4 @@ RUN chmod +x start.sh
 EXPOSE 5000
 
 # Run the startup script which handles migrations and starts the app
-CMD ["sh", "-c", "cd /app && ls -la && exec /app/start.sh"]
+CMD ["/app/start.sh"]
