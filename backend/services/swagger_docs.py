@@ -1,9 +1,9 @@
 from flask_restx import Api, Resource, fields, reqparse
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
-from backend.models.models import db, Crime
-from backend.services.chat_service import chat_service
-from backend.services.cache_service import CacheManager
+from models.models import db, Crime
+from services.chat_service import chat_service
+from services.cache_service import CacheManager
 from datetime import datetime
 import json
 
@@ -361,7 +361,7 @@ class TemporalAnalysis(Resource):
     @analysis_ns.marshal_with(temporal_analysis_model)
     def get(self):
         """Get temporal analysis of crime patterns"""
-        from backend.routes.routes import apply_enhanced_filters
+        from routes.routes import apply_enhanced_filters
         query = Crime.query
         query = apply_enhanced_filters(query)
 

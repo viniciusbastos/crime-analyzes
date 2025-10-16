@@ -4,8 +4,8 @@ Upload controller for handling file upload operations
 import os
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
-from backend.services.crime_service import CrimeDataService
-from backend.models.models import db, UploadLog
+from services.crime_service import CrimeDataService
+from models.models import db, UploadLog
 
 
 class UploadController:

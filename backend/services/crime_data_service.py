@@ -1,6 +1,6 @@
 from typing import Dict, List, Any
 from datetime import datetime, timedelta
-from backend.models.models import db, Crime
+from models.models import db, Crime
 from sqlalchemy import func, extract, and_, or_
 
 
