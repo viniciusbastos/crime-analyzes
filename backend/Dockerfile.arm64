@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Debug: List contents after copy
+RUN echo "Contents after COPY in /app:" && ls -la && echo "Checking start.sh specifically:" && ls -la start.sh && echo "Current working directory:" && pwd
+
 # Create data directory
 RUN mkdir -p data
 
@@ -26,4 +29,5 @@ RUN chmod +x start.sh
 EXPOSE 5000
 
 # Run the startup script which handles migrations and starts the app
-CMD ["./start.sh"]
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["cd /app && ./start.sh"]
