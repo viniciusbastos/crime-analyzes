@@ -2,6 +2,9 @@
 
 #!/bin/bash
 
+# Ensure we're in the correct directory
+cd /app || exit 1
+
 # Debug: Check current directory and file existence
 echo "Current working directory: $(pwd)"
 echo "Contents of /app:"
