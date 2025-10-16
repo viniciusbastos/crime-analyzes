@@ -4,17 +4,17 @@
 # This is optional and depends on your setup
 
 # Set Python path to include current directory
-export PYTHONPATH=/app/backend:$PYTHONPATH
+export PYTHONPATH=/app:$PYTHONPATH
 
 # Run database migrations
 echo "Running database migrations..."
-PYTHONPATH=/app/backend python3 -m flask db upgrade
+PYTHONPATH=/app python3 -m flask db upgrade
 
 # Create default admin user if it doesn't exist
 echo "Checking for default admin user..."
-PYTHONPATH=/app/backend python3 -c "
+PYTHONPATH=/app python3 -c "
 import sys
-sys.path.insert(0, '/app/backend')
+sys.path.insert(0, '/app')
 from backend.app import create_app
 from backend.models.models import User, db
 
@@ -36,9 +36,9 @@ with app.app_context():
 
 # Load sample data with police organizational fields if database is empty
 echo "Checking if sample data needs to be loaded..."
-PYTHONPATH=/app/backend python3 -c "
+PYTHONPATH=/app python3 -c "
 import sys
-sys.path.insert(0, '/app/backend')
+sys.path.insert(0, '/app')
 from backend.app import create_app
 from backend.models.models import Crime, db
 
@@ -52,13 +52,13 @@ with app.app_context():
 
 if [ $? -eq 0 ]; then
     echo "Converting crime data..."
-    PYTHONPATH=/app/backend python3 backend/convert_crime_data.py
+    PYTHONPATH=/app python3 backend/convert_crime_data.py
     echo "Loading converted crime data..."
-    PYTHONPATH=/app/backend python3 backend/load_converted_data.py
+    PYTHONPATH=/app python3 backend/load_converted_data.py
 else
     echo "Sample data already exists, skipping load"
 fi
 
 # Start the application
 echo "Starting application..."
-exec gunicorn --workers 4 --bind 0.0.0.0:5000 --log-level info --access-logfile - --pythonpath /app/backend backend.wsgi:application
+exec gunicorn --workers 4 --bind 0.0.0.0:5000 --log-level info --access-logfile - --pythonpath /app backend.wsgi:application

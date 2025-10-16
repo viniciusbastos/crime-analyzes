@@ -37,7 +37,7 @@ EXPOSE 5000
 # Set Flask environment variables
 ENV FLASK_APP=backend.app
 ENV FLASK_ENV=production
-ENV PYTHONPATH=/app/backend
+ENV PYTHONPATH=/app
 
 # Run the startup script which handles migrations and starts the app
 CMD ["/usr/local/bin/start.sh"]
