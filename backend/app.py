@@ -34,6 +34,27 @@ def create_app(config_name='default'):
     db.init_app(app)
     migrate = Migrate(app, db)
 
+    # Diagnostic logging for database connection
+    with app.app_context():
+        try:
+            # Test basic connection
+            db.engine.execute('SELECT 1')
+            app.logger.info("Database connection successful")
+
+            # Check if PostGIS is available (required for Geometry columns)
+            result = db.engine.execute("SELECT PostGIS_version()").fetchone()
+            if result:
+                app.logger.info(f"PostGIS available: {result[0]}")
+            else:
+                app.logger.warning("PostGIS not available - spatial queries may fail")
+
+            # Check current database URI (for debugging config issues)
+            app.logger.info(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+
+        except Exception as e:
+            app.logger.error(f"Database connection failed: {e}")
+            # Don't fail app startup, but log the error
+
     # JWT error handlers
     @jwt.invalid_token_loader
     def invalid_token_callback(error_string):

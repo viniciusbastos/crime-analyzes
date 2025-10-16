@@ -43,12 +43,19 @@ def login():
     """Login with email and password"""
     try:
         data = request.get_json()
+        current_app.logger.info(f"Login attempt for email: {data.get('email') if data else 'No data'}")
+
+        if not data:
+            current_app.logger.error("No JSON data received in login request")
+            return jsonify({'error': 'Invalid request format'}), 400
+
         email = data.get('email')
         password = data.get('password')
         captcha_token = data.get('captchaToken')
         remember_me = data.get('rememberMe', False)
 
         if not email or not password:
+            current_app.logger.error("Missing email or password in login request")
             return jsonify({'error': 'Email and password are required'}), 400
 
         # In production, verify captcha_token here
@@ -56,15 +63,25 @@ def login():
         # if not captcha_token:
         #     return jsonify({'error': 'CAPTCHA verification required'}), 400
 
+        current_app.logger.info(f"Querying user: {email}")
         user = User.query.filter_by(email=email).first()
-        if not user or not user.check_password(password):
+
+        if not user:
+            current_app.logger.warning(f"User not found: {email}")
             return jsonify({'error': 'Invalid credentials'}), 401
+
+        if not user.check_password(password):
+            current_app.logger.warning(f"Invalid password for user: {email}")
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        current_app.logger.info(f"Login successful for user: {email} (ID: {user.id})")
 
         # Set token expiry based on remember_me
         expires_delta = timedelta(days=30) if remember_me else timedelta(hours=24)
 
         # Ensure user.id is valid
         if user.id is None:
+            current_app.logger.error(f"User ID is None for user: {email}")
             return jsonify({'error': 'User ID is invalid'}), 500
 
         # Generate JWT token with role claim
@@ -73,6 +90,8 @@ def login():
             additional_claims={'role': user.role},
             expires_delta=expires_delta
         )
+
+        current_app.logger.info(f"JWT token generated for user: {email}")
 
         return jsonify({
             'token': access_token,
@@ -86,6 +105,9 @@ def login():
 
     except Exception as e:
         current_app.logger.error(f"Login error: {str(e)}")
+        current_app.logger.error(f"Exception type: {type(e).__name__}")
+        import traceback
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Login failed'}), 500
 
 @auth_bp.route('/forgot-password', methods=['POST'])

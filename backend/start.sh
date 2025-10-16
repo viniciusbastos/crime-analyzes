@@ -5,13 +5,7 @@
 # Ensure we're in the correct directory
 cd /app || exit 1
 
-# Debug: Check current directory and file existence
-echo "Current working directory: $(pwd)"
-echo "Contents of /app:"
-ls -la /app/
-echo "Checking if start.sh exists:"
-ls -la /app/start.sh
-echo "Who am I: $(whoami)"
+
 
 # Wait for database to be ready (if using external database)
 # This is optional and depends on your setup
