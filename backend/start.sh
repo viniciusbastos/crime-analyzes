@@ -21,7 +21,33 @@ export PYTHONPATH=/app:$PYTHONPATH
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-sleep 30
+timeout=60
+counter=0
+while ! python3 -c "
+import psycopg2
+try:
+    conn = psycopg2.connect(
+        dbname='${POSTGRES_DB}',
+        user='${POSTGRES_USER}',
+        password='${POSTGRES_PASSWORD}',
+        host='db',
+        port='5432'
+    )
+    conn.close()
+    print('Database is ready')
+    exit(0)
+except:
+    print('Database not ready')
+    exit(1)
+" 2>/dev/null; do
+    if [ $counter -ge $timeout ]; then
+        echo "Database did not become ready within $timeout seconds"
+        exit 1
+    fi
+    echo "Waiting for database... ($counter/$timeout)"
+    sleep 1
+    counter=$((counter + 1))
+done
 
 # Run database migrations
 echo "Running database migrations..."
