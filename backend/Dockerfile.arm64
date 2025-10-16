@@ -30,7 +30,6 @@ RUN ls -la start.sh && test -f start.sh && test -x start.sh
 
 # Copy start.sh explicitly to ensure it's available
 RUN cp start.sh /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
-# Also keep it in /app for direct execution
 
 # Expose port
 EXPOSE 5000
@@ -41,4 +40,4 @@ ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 
 # Run the startup script which handles migrations and starts the app
-CMD ["/app/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
