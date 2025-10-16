@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#!/bin/bash
+
 # Debug: Check current directory and file existence
 echo "Current working directory: $(pwd)"
 echo "Contents of /app:"
@@ -7,10 +9,6 @@ ls -la /app/
 echo "Checking if start.sh exists:"
 ls -la /app/start.sh
 echo "Who am I: $(whoami)"
-echo "Checking for start.sh in current directory:"
-ls -la ./start.sh
-echo "Checking permissions on start.sh:"
-stat ./start.sh
 
 # Wait for database to be ready (if using external database)
 # This is optional and depends on your setup

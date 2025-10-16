@@ -19,17 +19,11 @@ COPY . .
 # Create data directory
 RUN mkdir -p data
 
-# Debug: List contents after copy
-RUN echo "Contents after COPY:" && ls -la
-
 # Make startup script executable
 RUN chmod +x start.sh
-
-# Debug: Verify start.sh exists and is executable
-RUN echo "Verifying start.sh:" && ls -la start.sh && test -x start.sh && echo "start.sh is executable" || echo "start.sh is not executable"
 
 # Expose port
 EXPOSE 5000
 
 # Run the startup script which handles migrations and starts the app
-CMD ["./start.sh"]
+CMD ["/app/start.sh"]
