@@ -135,10 +135,20 @@ def invalidate_related_cache(patterns):
 def clear_all_cache():
     """Clear all cache"""
     try:
-        cache.clear()
-        current_app.logger.info("All cache cleared")
+        # Check if we're using Redis
+        if hasattr(cache.cache, '_write_client') and cache.cache._write_client:
+            # Redis cache - use FLUSHDB to clear all keys
+            redis_client = cache.cache._write_client
+            redis_client.flushdb()
+            current_app.logger.info("Redis cache flushed via clear_all_cache")
+        else:
+            # Simple cache - use clear()
+            cache.clear()
+            current_app.logger.info("Simple cache cleared via clear_all_cache")
+        return True
     except Exception as e:
         current_app.logger.error(f"Error clearing cache: {str(e)}")
+        return False
 
 class CacheManager:
     """Cache manager for handling complex cache operations"""

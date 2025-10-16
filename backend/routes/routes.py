@@ -819,17 +819,23 @@ def get_cache_stats():
 def clear_cache():
     """Clear all Redis cache entries"""
     try:
-        # Clear all cache entries
-        cache.clear()
+        # Use CacheManager.clear_all_cache() which handles both Redis and simple cache
+        success = CacheManager.clear_all_cache()
 
-        # Also clear any tagged cache entries
-        CacheManager.invalidate_by_tag('api')
+        if success:
+            # Also clear any tagged cache entries
+            CacheManager.invalidate_by_tag('api')
 
-        current_app.logger.info("Cache cleared successfully")
-        return jsonify({
-            'message': 'Cache cleared successfully',
-            'status': 'success'
-        })
+            current_app.logger.info("Cache cleared successfully")
+            return jsonify({
+                'message': 'Cache cleared successfully',
+                'status': 'success'
+            })
+        else:
+            return jsonify({
+                'error': 'Failed to clear cache',
+                'message': 'Cache clearing operation failed'
+            }), 500
     except Exception as e:
         current_app.logger.error(f"Error clearing cache: {str(e)}")
         return jsonify({
