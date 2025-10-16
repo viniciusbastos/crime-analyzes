@@ -8,10 +8,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.chat_service import CrimeChatService
-from services.prompt_builder import PromptBuilder
-from services.crime_data_service import CrimeDataService
-from models.models import Crime, db
+from backend.services.chat_service import CrimeChatService
+from backend.services.prompt_builder import PromptBuilder
+from backend.services.crime_data_service import CrimeDataService
+from backend.models.models import Crime, db
 
 
 class TestNLParsing:

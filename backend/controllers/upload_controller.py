@@ -4,8 +4,8 @@ Upload controller for handling file upload operations
 import os
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
-from services.crime_service import CrimeDataService
-from models.models import db, UploadLog
+from backend.services.crime_service import CrimeDataService
+from backend.models.models import db, UploadLog
 
 
 class UploadController:
@@ -48,7 +48,7 @@ class UploadController:
 
                     # Clear cache immediately after successful database update
                     try:
-                        from services.cache_service import invalidate_related_cache, CacheManager
+                        from backend.services.cache_service import invalidate_related_cache, CacheManager
                         print("Clearing cache after database update...")
                         invalidate_related_cache(['*'])  # Clear all cache
                         CacheManager.clear_all_cache()

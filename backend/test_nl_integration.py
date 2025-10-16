@@ -16,8 +16,8 @@ def test_sample_queries():
     """Test sample NL queries to verify integration works"""
     
     try:
-        from services.chat_service import chat_service
-        from services.prompt_builder import PromptBuilder
+        from backend.services.chat_service import chat_service
+        from backend.services.prompt_builder import PromptBuilder
         
         print("🤖 Testing Natural Language Crime Query Integration\n")
         print("="*60)
@@ -101,7 +101,7 @@ def test_component_integration():
     
     try:
         # Test PromptBuilder
-        from services.prompt_builder import PromptBuilder
+        from backend.services.prompt_builder import PromptBuilder
         pb = PromptBuilder()
         
         # Test NL parsing prompt
@@ -117,7 +117,7 @@ def test_component_integration():
         print("✅ PromptBuilder analysis working")
         
         # Test CrimeDataService
-        from services.crime_data_service import CrimeDataService
+        from backend.services.crime_data_service import CrimeDataService
         cds = CrimeDataService()
         
         # This might fail without database, but we can test the method exists

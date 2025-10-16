@@ -1,8 +1,8 @@
 import pandas as pd
-from app import create_app
-from utils.geocoding import process_address_data
-from models import db, Crime
-from services.crime_service import CrimeDataService
+from backend.app import create_app
+from backend.utils.geocoding import process_address_data
+from backend.models import db, Crime
+from backend.services.crime_service import CrimeDataService
 
 def load_sample_data():
     app = create_app()

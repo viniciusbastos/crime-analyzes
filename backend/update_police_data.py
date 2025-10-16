@@ -8,8 +8,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from models.models import db, Crime
-from services.crime_service import CrimeDataService
+from backend.models.models import db, Crime
+from backend.services.crime_service import CrimeDataService
 
 def update_existing_crime_records():
     """Update existing crime records that don't have police organizational data"""
@@ -68,7 +68,7 @@ def update_existing_crime_records():
     print(f"Successfully updated {updated_count} crime records with police organizational data")
 
 if __name__ == "__main__":
-    from app import create_app
+    from backend.app import create_app
 
     app = create_app()
     with app.app_context():

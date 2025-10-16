@@ -5,7 +5,7 @@ from .prompt_builder import PromptBuilder
 from .response_handler import ResponseHandler
 from .mock_response_builder import MockResponseBuilder
 from .cache_service import CacheManager
-from models.models import db, QueryHistory
+from backend.models.models import db, QueryHistory
 import time
 import json
 import hashlib

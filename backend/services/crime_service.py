@@ -4,8 +4,8 @@ Crime data processing services
 import os
 import pandas as pd
 from datetime import datetime
-from models.models import db, Crime
-from utils import process_address_data
+from backend.models.models import db, Crime
+from backend.utils import process_address_data
 
 
 class CrimeDataService:

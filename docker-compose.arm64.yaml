@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:16-alpine
+    image: postgis/postgis:15-3.4
     env_file:
       - .env
     volumes:
@@ -55,9 +55,6 @@ services:
       - api
     networks:
       - app-network
-    labels:
-      - "coolify.managed=true"
-      - "coolify.domains=crime-analysis-frontend.orb.local"
 
 volumes:
   postgres_data:
@@ -66,4 +63,3 @@ volumes:
 networks:
   app-network:
     driver: bridge
-

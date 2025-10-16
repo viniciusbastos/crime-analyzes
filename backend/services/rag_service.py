@@ -4,8 +4,8 @@ import os
 from typing import List, Dict, Any
 import json
 from datetime import datetime
-from models.models import db, Crime
-from services.crime_data_service import CrimeDataService
+from backend.models.models import db, Crime
+from backend.services.crime_data_service import CrimeDataService
 from sqlalchemy import func, extract
 
 
