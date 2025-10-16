@@ -21,7 +21,7 @@ export PYTHONPATH=/app:$PYTHONPATH
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-sleep 10
+sleep 30
 
 # Run database migrations
 echo "Running database migrations..."
