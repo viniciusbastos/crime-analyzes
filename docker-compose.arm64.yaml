@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:16-alpine
+    image: imresamu/postgis:16-3.4-alpine
     platform: linux/arm64
     environment:
       POSTGRES_DB: ${POSTGRES_DB}

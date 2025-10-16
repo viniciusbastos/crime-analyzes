@@ -37,16 +37,17 @@ def create_app(config_name='default'):
     # Diagnostic logging for database connection
     with app.app_context():
         try:
-            # Test basic connection
-            db.engine.execute('SELECT 1')
-            app.logger.info("Database connection successful")
+            # Test basic connection using SQLAlchemy 2.0+ syntax
+            with db.engine.connect() as connection:
+                connection.execute(db.text('SELECT 1'))
+                app.logger.info("Database connection successful")
 
-            # Check if PostGIS is available (required for Geometry columns)
-            result = db.engine.execute("SELECT PostGIS_version()").fetchone()
-            if result:
-                app.logger.info(f"PostGIS available: {result[0]}")
-            else:
-                app.logger.warning("PostGIS not available - spatial queries may fail")
+                # Check if PostGIS is available (required for Geometry columns)
+                result = connection.execute(db.text("SELECT PostGIS_version()")).fetchone()
+                if result:
+                    app.logger.info(f"PostGIS available: {result[0]}")
+                else:
+                    app.logger.warning("PostGIS not available - spatial queries may fail")
 
             # Check current database URI (for debugging config issues)
             app.logger.info(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
@@ -90,7 +91,10 @@ def create_app(config_name='default'):
     # Create default admin user if no users exist
     try:
         with app.app_context():
-            if not User.query.first():
+            app.logger.info("Checking for existing users...")
+            existing_user = User.query.first()
+            if not existing_user:
+                app.logger.info("No users found, creating default admin user...")
                 default_user = User(
                     email='admin@example.com',
                     name='Admin User',
@@ -100,10 +104,14 @@ def create_app(config_name='default'):
                 default_user.set_password('admin123')
                 db.session.add(default_user)
                 db.session.commit()
-                # Created default admin user: admin@example.com / admin123
+                app.logger.info("Default admin user created: admin@example.com / admin123")
+            else:
+                app.logger.info(f"Existing user found: {existing_user.email}")
     except Exception as e:
         # Log the error but don't fail the app startup
         app.logger.error(f"Error creating default user: {e}")
+        import traceback
+        app.logger.error(f"User creation traceback: {traceback.format_exc()}")
 
     return app
 
