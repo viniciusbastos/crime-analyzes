@@ -3,11 +3,11 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_migrate import Migrate
-from config.config import config
-from models.models import db, Crime, User
-from routes.routes import api_bp
-from services.cache_service import init_cache
-from services.swagger_docs import swagger_bp
+from backend.config.config import config
+from backend.models.models import db, Crime, User
+from backend.routes.routes import api_bp
+from backend.services.cache_service import init_cache
+from backend.services.swagger_docs import swagger_bp
 import os
 import logging
 
@@ -53,7 +53,7 @@ def create_app(config_name='default'):
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(swagger_bp, url_prefix='/api/docs')
-    from routes.auth import auth_bp
+    from backend.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
 
     # Route for displaying all crime data

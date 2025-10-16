@@ -35,9 +35,9 @@ RUN cp start.sh /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 EXPOSE 5000
 
 # Set Flask environment variables
-ENV FLASK_APP=app
+ENV FLASK_APP=backend.app
 ENV FLASK_ENV=production
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
 
 # Run the startup script which handles migrations and starts the app
 CMD ["/usr/local/bin/start.sh"]
