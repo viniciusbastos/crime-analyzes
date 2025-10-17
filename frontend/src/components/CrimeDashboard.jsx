@@ -1,10 +1,6 @@
-
 import React, { useState, Suspense, lazy } from "react";
 import DashboardHeader from "./DashboardHeader";
-import FilterPanel from "./FilterPanel";
-import CollapsibleFilterBar from "./CollapsibleFilterBar";
 import Sidebar from "./Sidebar";
-import CacheStatus from "./CacheStatus";
 import LoadingSpinner from "./LoadingSpinner";
 import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
@@ -14,17 +10,13 @@ import {
   useGeoJsonData,
 } from "../hooks/useCrimeData";
 
-// Lazy load heavy components
-const CrimeMap = lazy(() => import("./CrimeMap"));
-const ClusterMap = lazy(() => import("./ClusterMap"));
-const StatisticsPanel = lazy(() => import("./StatisticsPanel"));
-const DashboardStatistics = lazy(() => import("./DashboardStatistics"));
-const ChartsGrid = lazy(() => import("./ChartsGrid"));
-const ChatInterface = lazy(() => import("./ChatInterface"));
-const ExportPanel = lazy(() => import("./ExportPanel"));
-const DataUpload = lazy(() => import("./DataUpload"));
-const CrimeManagement = lazy(() => import("./CrimeManagement"));
-const UserManagement = lazy(() => import("./UserManagement"));
+// Lazy load section components for code splitting
+const DashboardSection = lazy(() => import("./sections/DashboardSection"));
+const StatisticsSection = lazy(() => import("./sections/StatisticsSection"));
+const MapSection = lazy(() => import("./sections/MapSection"));
+const ChartsSection = lazy(() => import("./sections/ChartsSection"));
+const ChatSection = lazy(() => import("./sections/ChatSection"));
+const OtherSections = lazy(() => import("./sections/OtherSections"));
 
 const CrimeDashboard = () => {
   const { isDark } = useTheme();
@@ -53,8 +45,6 @@ const CrimeDashboard = () => {
     movingAveragesData,
     weeklyMovingAveragesData,
     forecastData,
-    cityData,
-    semesterComparisonData,
     crimeTypes,
     isLoadingEssential,
     refetchAll,
@@ -155,378 +145,129 @@ const CrimeDashboard = () => {
     switch (activeSection) {
       case "dashboard":
         return (
-          <div className="space-y-6">
-            {/* Collapsible Filter Bar at top */}
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-
-            {/* Dashboard Statistics Grid */}
-            <Suspense
-              fallback={<LoadingSpinner message={t("loading_statistics")} />}
-            >
-              <DashboardStatistics
-                summaryData={summaryData}
-                temporalData={temporalData}
-                trendData={{
-                  yearOverYearData,
-                  growthRatesData,
-                  movingAveragesData,
-                  weeklyMovingAveragesData,
-                  forecastData,
-                }}
-              />
-            </Suspense>
-
-            {/* Main Dashboard Content */}
-            <div className="flex flex-col lg:flex-row ">
-              <div className="lg">
-                {/* Map Type Toggle */}
-                <div className="mb-4 flex gap-2">
-                  <button
-                    onClick={() => setMapType("heatmap")}
-                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                      mapType === "heatmap"
-                        ? "bg-blue-600 text-white"
-                        : isDark
-                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
-                  >
-                    {t("crime_density_map")}
-                  </button>
-                  <button
-                    onClick={() => setMapType("cluster")}
-                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                      mapType === "cluster"
-                        ? "bg-blue-600 text-white"
-                        : isDark
-                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
-                  >
-                    {t("cluster_map_title")}
-                  </button>
-                </div>
-
-                {mapType === "heatmap" ? (
-                  <Suspense
-                    fallback={<LoadingSpinner message={t("loading_map")} />}
-                  >
-                    <CrimeMap
-                      heatmapData={heatmapData}
-                      densityData={densityData}
-                      spatialData={spatialData}
-                      mapCenter={mapCenter}
-                      mapZoom={mapZoom}
-                      showContours={showContours}
-                      onToggleContours={() => setShowContours(!showContours)}
-                    />
-                  </Suspense>
-                ) : (
-                  <Suspense
-                    fallback={<LoadingSpinner message={t("loading_map")} />}
-                  >
-                    <ClusterMap
-                      geoJsonData={geoJsonData}
-                      isLoading={geoJsonLoading}
-                    />
-                  </Suspense>
-                )}
-
-                <Suspense
-                  fallback={<LoadingSpinner message={t("loading_charts")} />}
-                >
-                  <ChartsGrid
-                    temporalData={temporalData}
-                    trendData={{
-                      yearOverYearData,
-                      growthRatesData,
-                      movingAveragesData,
-                      forecastData,
-                    }}
-                    summaryData={summaryData}
-                    cityData={cityData}
-                    semesterComparisonData={semesterComparisonData}
-                  />
-                </Suspense>
-              </div>
-            </div>
-          </div>
-        );
-      case "statistics":
-        return (
-          <div className="space-y-6">
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-            <Suspense
-              fallback={<LoadingSpinner message={t("loading_statistics")} />}
-            >
-              <DashboardStatistics
-                summaryData={summaryData}
-                temporalData={temporalData}
-                trendData={{
-                  yearOverYearData,
-                  growthRatesData,
-                  movingAveragesData,
-                  weeklyMovingAveragesData,
-                  forecastData,
-                }}
-              />
-            </Suspense>
-          </div>
-        );
-      case "map":
-        return (
-          <div className="space-y-6">
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-
-            {/* Map Type Toggle */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => setMapType("heatmap")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                  mapType === "heatmap"
-                    ? "bg-blue-600 text-white"
-                    : isDark
-                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {t("crime_density_map")}
-              </button>
-              <button
-                onClick={() => setMapType("cluster")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                  mapType === "cluster"
-                    ? "bg-blue-600 text-white"
-                    : isDark
-                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {t("cluster_map_title")}
-              </button>
-            </div>
-
-            {mapType === "heatmap" ? (
-              <Suspense
-                fallback={<LoadingSpinner message={t("loading_map")} />}
-              >
-                <CrimeMap
-                  heatmapData={heatmapData}
-                  densityData={densityData}
-                  spatialData={spatialData}
-                  mapCenter={mapCenter}
-                  mapZoom={mapZoom}
-                  showContours={showContours}
-                  onToggleContours={() => setShowContours(!showContours)}
-                />
-              </Suspense>
-            ) : (
-              <Suspense
-                fallback={<LoadingSpinner message={t("loading_map")} />}
-              >
-                <ClusterMap
-                  geoJsonData={geoJsonData}
-                  isLoading={geoJsonLoading}
-                />
-              </Suspense>
-            )}
-          </div>
-        );
-      case "charts":
-        return (
-          <div className="space-y-6">
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-            <Suspense
-              fallback={<LoadingSpinner message={t("loading_charts")} />}
-            >
-              <ChartsGrid
-                temporalData={temporalData}
-                trendData={{
-                  yearOverYearData,
-                  growthRatesData,
-                  movingAveragesData,
-                  weeklyMovingAveragesData,
-                  forecastData,
-                }}
-                summaryData={summaryData}
-              />
-            </Suspense>
-          </div>
-        );
-      case "chat":
-        return (
-          <div className="space-y-6">
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-            <div className="h-[calc(100vh-200px)]">
-              <Suspense
-                fallback={
-                  <LoadingSpinner message={t("loading_ai_assistant")} />
-                }
-              >
-                <ChatInterface filters={filters} />
-              </Suspense>
-            </div>
-          </div>
-        );
-      case "filters":
-        return (
           <Suspense
-            fallback={<LoadingSpinner message={t("loading_filters")} />}
+            fallback={<LoadingSpinner message={t("loading_dashboard")} />}
           >
-            <FilterPanel
+            <DashboardSection
               filters={filters}
               crimeTypes={crimeTypes}
               onApplyFilters={applyFilters}
               onResetFilters={resetFilters}
-            />
-          </Suspense>
-        );
-      case "upload":
-        return (
-          <Suspense fallback={<LoadingSpinner message={t("loading_upload")} />}>
-            <DataUpload
-              onUpload={handleUploadStatus}
-              uploadStatus={uploadStatus}
-            />
-          </Suspense>
-        );
-      case "export":
-        return (
-          <Suspense fallback={<LoadingSpinner message={t("loading_export")} />}>
-            <ExportPanel />
-          </Suspense>
-        );
-      case "cache":
-        return <CacheStatus />;
-      case "crimes":
-        return (
-          <Suspense
-            fallback={
-              <LoadingSpinner message={t("loading_crime_management")} />
-            }
-          >
-            <CrimeManagement />
-          </Suspense>
-        );
-      case "users":
-        return (
-          <Suspense
-            fallback={
-              <LoadingSpinner message="Loading user management..." />
-            }
-          >
-            <UserManagement />
-          </Suspense>
-        );
-      default:
-        return (
-          <div className="space-y-6">
-            {/* Collapsible Filter Bar at top */}
-            <CollapsibleFilterBar
-              filters={filters}
-              crimeTypes={crimeTypes}
-              onApplyFilters={applyFilters}
-              onResetFilters={resetFilters}
-            />
-
-            {/* Dashboard Statistics Grid */}
-            <DashboardStatistics
               summaryData={summaryData}
               temporalData={temporalData}
               trendData={{
                 yearOverYearData,
                 growthRatesData,
                 movingAveragesData,
+                weeklyMovingAveragesData,
+                forecastData,
+              }}
+              heatmapData={heatmapData}
+              densityData={densityData}
+              spatialData={spatialData}
+              geoJsonData={geoJsonData}
+              isGeoJsonLoading={geoJsonLoading}
+              mapCenter={mapCenter}
+              mapZoom={mapZoom}
+              showContours={showContours}
+              onToggleContours={() => setShowContours(!showContours)}
+              mapType={mapType}
+              setMapType={setMapType}
+            />
+          </Suspense>
+        );
+      case "statistics":
+        return (
+          <Suspense
+            fallback={<LoadingSpinner message={t("loading_statistics")} />}
+          >
+            <StatisticsSection
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={applyFilters}
+              onResetFilters={resetFilters}
+              summaryData={summaryData}
+              temporalData={temporalData}
+              trendData={{
+                yearOverYearData,
+                growthRatesData,
+                movingAveragesData,
+                weeklyMovingAveragesData,
                 forecastData,
               }}
             />
-
-            {/* Main Dashboard Content */}
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="lg">
-                {/* Map Type Toggle */}
-                <div className="mb-4 flex gap-2">
-                  <button
-                    onClick={() => setMapType("heatmap")}
-                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                      mapType === "heatmap"
-                        ? "bg-blue-600 text-white"
-                        : isDark
-                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
-                  >
-                    {t("crime_density_map")}
-                  </button>
-                  <button
-                    onClick={() => setMapType("cluster")}
-                    className={`px-4 py-2 text-sm rounded-md transition-colors ${
-                      mapType === "cluster"
-                        ? "bg-blue-600 text-white"
-                        : isDark
-                        ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
-                  >
-                    {t("cluster_map_title")}
-                  </button>
-                </div>
-
-                {mapType === "heatmap" ? (
-                  <CrimeMap
-                    heatmapData={heatmapData}
-                    densityData={densityData}
-                    spatialData={spatialData}
-                    mapCenter={mapCenter}
-                    mapZoom={mapZoom}
-                    showContours={showContours}
-                    onToggleContours={() => setShowContours(!showContours)}
-                  />
-                ) : (
-                  <ClusterMap
-                    geoJsonData={geoJsonData}
-                    isLoading={geoJsonLoading}
-                  />
-                )}
-
-                <ChartsGrid
-                  temporalData={temporalData}
-                  trendData={{
-                    yearOverYearData,
-                    growthRatesData,
-                    movingAveragesData,
-                    forecastData,
-                  }}
-                  summaryData={summaryData}
-                />
-              </div>
-            </div>
-          </div>
+          </Suspense>
+        );
+      case "map":
+        return (
+          <Suspense fallback={<LoadingSpinner message={t("loading_map")} />}>
+            <MapSection
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={applyFilters}
+              onResetFilters={resetFilters}
+              heatmapData={heatmapData}
+              densityData={densityData}
+              spatialData={spatialData}
+              geoJsonData={geoJsonData}
+              isGeoJsonLoading={geoJsonLoading}
+              mapCenter={mapCenter}
+              mapZoom={mapZoom}
+              showContours={showContours}
+              onToggleContours={() => setShowContours(!showContours)}
+              mapType={mapType}
+              setMapType={setMapType}
+            />
+          </Suspense>
+        );
+      case "charts":
+        return (
+          <Suspense fallback={<LoadingSpinner message={t("loading_charts")} />}>
+            <ChartsSection
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={applyFilters}
+              onResetFilters={resetFilters}
+              temporalData={temporalData}
+              trendData={{
+                yearOverYearData,
+                growthRatesData,
+                movingAveragesData,
+                weeklyMovingAveragesData,
+                forecastData,
+              }}
+              summaryData={summaryData}
+            />
+          </Suspense>
+        );
+      case "chat":
+        return (
+          <Suspense
+            fallback={<LoadingSpinner message={t("loading_ai_assistant")} />}
+          >
+            <ChatSection
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={applyFilters}
+              onResetFilters={resetFilters}
+            />
+          </Suspense>
+        );
+      default:
+        return (
+          <Suspense
+            fallback={<LoadingSpinner message={t("loading_section")} />}
+          >
+            <OtherSections
+              activeSection={activeSection}
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={applyFilters}
+              onResetFilters={resetFilters}
+              onUpload={handleUploadStatus}
+              uploadStatus={uploadStatus}
+            />
+          </Suspense>
         );
     }
   };

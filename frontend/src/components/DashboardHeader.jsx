@@ -7,7 +7,7 @@ import { useLastUpload } from "../hooks/useCrimeData";
 const DashboardHeader = () => {
   const { isDark, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { data: lastUpload, isLoading: isLoadingLastUpload } = useLastUpload();
 
   const toggleLanguage = () => {
@@ -47,6 +47,13 @@ const DashboardHeader = () => {
           >
             {t("crime_analysis_dashboard")}
           </h1>
+          <p
+            className={`text-sm mt-1 ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
+            {user ? `Welcome, ${user.name} (${user.role})` : ""}
+          </p>
           <p
             className={`text-sm mt-1 ${
               isDark ? "text-gray-400" : "text-gray-600"

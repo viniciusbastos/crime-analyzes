@@ -96,7 +96,7 @@ export const useSummaryData = (filters = {}) => {
       const response = await api.get(`/summary?${params}`);
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes - increased for better caching
   });
 };
 
@@ -173,7 +173,7 @@ export const useWeeklyMovingAveragesData = (filters = {}) => {
       const response = await api.get(`/trends/weekly-moving-averages?${params}`);
       return response.data;
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 45 * 60 * 1000, // 45 minutes - increased for better caching
   });
 };
 
@@ -185,7 +185,7 @@ export const useForecastData = (filters = {}) => {
       const response = await api.get(`/trends/forecast?${params}`);
       return response.data;
     },
-    staleTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours - increased for better caching
   });
 };
 
@@ -197,7 +197,7 @@ export const useCityData = (filters = {}) => {
       const response = await api.get(`/cities?${params}`);
       return response.data;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 15 * 60 * 1000, // 15 minutes - increased for better caching
   });
 };
 
@@ -209,7 +209,7 @@ export const useSemesterComparison = (filters = {}) => {
       const response = await api.get(`/semester-comparison?${params}`);
       return response.data;
     },
-    staleTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 20 * 60 * 1000, // 20 minutes - increased for better caching
   });
 };
 
@@ -225,7 +225,7 @@ export const useCrimeTypes = () => {
       ].sort();
       return types;
     },
-    staleTime: 60 * 60 * 1000, // 1 hour - crime types don't change often
+    staleTime: 4 * 60 * 60 * 1000, // 4 hours - crime types don't change often
   });
 };
 
@@ -236,15 +236,18 @@ export const useLastUpload = () => {
       const response = await api.get("/last-upload");
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes - refresh relatively often
+    staleTime: 10 * 60 * 1000, // 10 minutes - refresh relatively often
   });
 };
 
 // Combined hook for all data - this replaces the loadInitialData function
 export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
-  // Always load essential data for dashboard
+  // Always load essential data for dashboard (prioritized loading)
   const summaryQuery = useSummaryData(filters);
   const temporalQuery = useTemporalData(filters);
+  const crimeTypesQuery = useCrimeTypes();
+
+  // Load trend data progressively (lower priority)
   const yearOverYearQuery = useYearOverYearData(filters);
   const growthRatesQuery = useGrowthRatesData(filters);
   const movingAveragesQuery = useMovingAveragesData(filters);
@@ -252,17 +255,20 @@ export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
   const forecastQuery = useForecastData(filters);
   const cityQuery = useCityData(filters);
   const semesterComparisonQuery = useSemesterComparison(filters);
-  const crimeTypesQuery = useCrimeTypes();
 
   // Only load map-heavy data when needed (lazy loading with sampling for performance)
   const heatmapQuery = useHeatmapData(filters, loadMapData, true); // Use sampling for initial loads
   const densityQuery = useDensityData(filters, loadMapData);
   const spatialQuery = useSpatialData(filters, loadMapData);
 
-  // Progressive loading: essential data loads first, map data loads when enabled
+  // Progressive loading: essential data loads first, then trends, then map data
   const essentialQueries = [
     summaryQuery,
     temporalQuery,
+    crimeTypesQuery,
+  ];
+
+  const trendQueries = [
     yearOverYearQuery,
     growthRatesQuery,
     movingAveragesQuery,
@@ -270,7 +276,6 @@ export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
     forecastQuery,
     cityQuery,
     semesterComparisonQuery,
-    crimeTypesQuery,
   ];
 
   const mapQueries = [
@@ -280,8 +285,9 @@ export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
   ];
 
   const isLoadingEssential = essentialQueries.some((query) => query.isLoading);
+  const isLoadingTrends = trendQueries.some((query) => query.isLoading);
   const isLoadingMap = mapQueries.some((query) => query.isLoading);
-  const isLoading = isLoadingEssential || (loadMapData && isLoadingMap);
+  const isLoading = isLoadingEssential || isLoadingTrends || (loadMapData && isLoadingMap);
 
   const isError = [
     heatmapQuery,
@@ -318,6 +324,7 @@ export const useCrimeDataSets = (filters = {}, loadMapData = false) => {
     // Loading states
     isLoading,
     isLoadingEssential,
+    isLoadingTrends,
     isLoadingMap,
     isError,
 
