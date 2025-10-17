@@ -42,8 +42,13 @@ class CrimeDataService:
                 # Parse date
                 if date_str:
                     try:
-                        # Handle DD-MM-YYYY format
-                        if '-' in str(date_str) and len(str(date_str).split('-')) == 3:
+                        # Handle DD/MM/YYYY format (Brazilian date format)
+                        if '/' in str(date_str) and len(str(date_str).split('/')) == 3:
+                            # DD/MM/YYYY format
+                            day, month, year = str(date_str).split('/')
+                            formatted_date = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+                            date_time = pd.to_datetime(f"{formatted_date} {time_str}:00")
+                        elif '-' in str(date_str) and len(str(date_str).split('-')) == 3:
                             parts = str(date_str).split('-')
                             if len(parts[0]) == 2:  # DD-MM-YYYY format
                                 day, month, year = parts
@@ -51,7 +56,8 @@ class CrimeDataService:
                             else:  # Assume YYYY-MM-DD or other format
                                 date_time = pd.to_datetime(f"{date_str} {time_str}:00:00")
                         else:
-                            date_time = pd.to_datetime(f"{date_str} {time_str}:00:00")
+                            # Try pandas parsing with dayfirst=True for DD/MM/YYYY
+                            date_time = pd.to_datetime(f"{date_str} {time_str}", dayfirst=True)
                     except:
                         continue  # Skip invalid dates
                 else:

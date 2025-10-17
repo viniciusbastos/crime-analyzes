@@ -1,0 +1,2 @@
+crime_type,date_time,latitude,longitude,address,city,severity,description,category_parent,unidade,aisp,risp
+HOMICIDIO DOLOSO,2025-10-08T16:30:00,-12.9714,-38.5014,"RUA TESTE, CENTRO",Salvador,High,,CVLI,,,
