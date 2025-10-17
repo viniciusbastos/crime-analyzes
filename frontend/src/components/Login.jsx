@@ -98,6 +98,7 @@ const Login = () => {
         setError("Registration successful! Please login.");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.response?.data?.error || "An error occurred");
     } finally {
       setLoading(false);

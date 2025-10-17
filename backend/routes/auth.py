@@ -62,8 +62,8 @@ def login():
 
         # In production, verify captcha_token here
         # Temporarily disabled for development
-        # if not captcha_token:
-        #     return jsonify({'error': 'CAPTCHA verification required'}), 400
+        if not captcha_token:
+            return jsonify({'error': 'CAPTCHA verification required'}), 400
 
         current_app.logger.info(f"Querying user: {email}")
         user = User.query.filter_by(email=email).first()
