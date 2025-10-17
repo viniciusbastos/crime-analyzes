@@ -24,6 +24,7 @@ const ChatInterface = lazy(() => import("./ChatInterface"));
 const ExportPanel = lazy(() => import("./ExportPanel"));
 const DataUpload = lazy(() => import("./DataUpload"));
 const CrimeManagement = lazy(() => import("./CrimeManagement"));
+const UserManagement = lazy(() => import("./UserManagement"));
 
 const CrimeDashboard = () => {
   const { isDark } = useTheme();
@@ -430,6 +431,16 @@ const CrimeDashboard = () => {
             }
           >
             <CrimeManagement />
+          </Suspense>
+        );
+      case "users":
+        return (
+          <Suspense
+            fallback={
+              <LoadingSpinner message="Loading user management..." />
+            }
+          >
+            <UserManagement />
           </Suspense>
         );
       default:

@@ -76,10 +76,18 @@ class User(db.Model):
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), default='viewer', nullable=False)
     unidade = Column(String(100), nullable=True)  # Police unit (OPM) for filtering
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    last_login = Column(DateTime, nullable=True)
+    is_active = Column(db.Boolean, default=True, nullable=False)
+    created_by = Column(Integer, nullable=True)  # Admin who created the user
 
     __table_args__ = (
         Index('idx_users_email', 'email'),
         Index('idx_users_unidade', 'unidade'),
+        Index('idx_users_role', 'role'),
+        Index('idx_users_created_at', 'created_at'),
+        Index('idx_users_is_active', 'is_active'),
     )
 
     def set_password(self, password):
@@ -119,4 +127,23 @@ class QueryHistory(db.Model):
     __table_args__ = (
         Index('idx_query_history_timestamp', 'timestamp'),
         Index('idx_query_history_user_id', 'user_id'),
+    )
+
+class UserActivityLog(db.Model):
+    __tablename__ = 'user_activity_logs'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, nullable=False)  # User who performed the action
+    action = Column(String(100), nullable=False)  # login, logout, create_user, update_user, delete_user, etc.
+    target_user_id = Column(Integer, nullable=True)  # User affected by the action (for admin actions)
+    details = Column(Text)  # JSON string with additional details
+    ip_address = Column(String(45), nullable=True)  # IPv4/IPv6 address
+    user_agent = Column(Text, nullable=True)
+    timestamp = Column(DateTime, server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        Index('idx_user_activity_user_id', 'user_id'),
+        Index('idx_user_activity_action', 'action'),
+        Index('idx_user_activity_timestamp', 'timestamp'),
+        Index('idx_user_activity_target_user', 'target_user_id'),
     )

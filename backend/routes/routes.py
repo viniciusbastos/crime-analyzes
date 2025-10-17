@@ -280,7 +280,7 @@ def get_semester_comparison():
                 else_=2
             ).label('semester'),
             func.count(Crime.id).label('crime_count')
-        ).group_by(
+        ).select_from(query.subquery()).group_by(
             extract('year', Crime.date_time),
             case(
                 (extract('month', Crime.date_time) <= 6, 1),
