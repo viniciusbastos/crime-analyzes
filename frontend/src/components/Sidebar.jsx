@@ -25,14 +25,13 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
     { id: "charts", label: t("charts"), icon: "📊" },
     { id: "chat", label: t("ai_assistant"), icon: "🤖" },
     { id: "cache", label: t("cache_status"), icon: "🚀" },
-    { id: "users", label: "User Management", icon: "👥" },
     { id: "filters", label: t("filters"), icon: "🔍" },
     { id: "upload", label: t("data_upload"), icon: "📤" },
     { id: "export", label: t("export"), icon: "📥" },
     { id: "crimes", label: t("crime_records"), icon: "📋" },
-    // ...(user?.role === "admin"
-    //   ?
-    //   : []),
+    ...(user?.role === "admin"
+      ? [{ id: "users", label: "User Management", icon: "👥" }]
+      : []),
   ];
 
   return (
