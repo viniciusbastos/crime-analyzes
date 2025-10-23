@@ -13,9 +13,9 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
 
   // Debug logging for user role
   useEffect(() => {
-    console.log('Sidebar - User object:', user);
-    console.log('Sidebar - User role:', user?.role);
-    console.log('Sidebar - Is admin?', user?.role === 'admin');
+    console.log("Sidebar - User object:", user);
+    console.log("Sidebar - User role:", user?.role);
+    console.log("Sidebar - Is admin?", user?.role === "admin");
   }, [user]);
 
   const menuItems = [
@@ -29,9 +29,10 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
     { id: "export", label: t("export"), icon: "📥" },
     { id: "crimes", label: t("crime_records"), icon: "📋" },
     { id: "cache", label: t("cache_status"), icon: "🚀" },
-    ...(user?.role === "admin"
-      ? [{ id: "users", label: "User Management", icon: "👥" }]
-      : []),
+    { id: "users", label: "User Management", icon: "👥" },
+    // ...(user?.role === "admin"
+    //   ?
+    //   : []),
   ];
 
   return (
