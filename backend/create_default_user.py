@@ -1,5 +1,5 @@
-from backend.app import create_app
-from backend.models.models import db, User
+from app import create_app
+from models.models import db, User
 
 def create_default_user():
     app = create_app()
