@@ -12,6 +12,9 @@ export const AuthProvider = ({ children }) => {
       // Decode token to get role (simple decode, no validation for now)
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
+        console.log('AuthProvider - Token payload:', payload);
+        console.log('AuthProvider - Role from token:', payload.role);
+        console.log('AuthProvider - User from token:', payload.user);
         setRole(payload.role);
         setUser(payload.user || null);
         setIsAuthenticated(true);
@@ -23,9 +26,13 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = (newToken) => {
+    console.log('AuthProvider - Login called with token:', newToken);
     setToken(newToken);
     localStorage.setItem("token", newToken);
     const payload = JSON.parse(atob(newToken.split(".")[1]));
+    console.log('AuthProvider - Login payload:', payload);
+    console.log('AuthProvider - Setting role:', payload.role);
+    console.log('AuthProvider - Setting user:', payload.user);
     setRole(payload.role);
     setUser(payload.user || null);
     setIsAuthenticated(true);

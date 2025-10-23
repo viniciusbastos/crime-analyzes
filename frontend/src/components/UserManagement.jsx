@@ -28,12 +28,20 @@ const UserManagement = () => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('UserManagement - Current user:', currentUser);
+    console.log('UserManagement - Current user role:', currentUser?.role);
+    console.log('UserManagement - Is admin?', currentUser?.role === 'admin');
+  }, [currentUser]);
+
   useEffect(() => {
     fetchUsers();
   }, [filters]);
 
   const fetchUsers = async () => {
     try {
+      console.log('UserManagement - Fetching users with filters:', filters);
       setLoading(true);
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -43,10 +51,13 @@ const UserManagement = () => {
       });
 
       const response = await axios.get(`/auth/users?${params}`);
+      console.log('UserManagement - API response:', response.data);
       setUsers(response.data.users);
       setPagination(response.data.pagination);
       setError("");
     } catch (err) {
+      console.error('UserManagement - Error fetching users:', err);
+      console.error('UserManagement - Error response:', err.response);
       setError(err.response?.data?.error || "Failed to fetch users");
     } finally {
       setLoading(false);
@@ -149,6 +160,8 @@ const UserManagement = () => {
   };
 
   if (!currentUser || currentUser.role !== "admin") {
+    console.log('UserManagement - Access denied. Current user:', currentUser);
+    console.log('UserManagement - User role check:', currentUser?.role !== "admin");
     return (
       <div className="p-6">
         <div className="text-center">
@@ -157,6 +170,9 @@ const UserManagement = () => {
           </h2>
           <p className="text-gray-600">
             You need admin privileges to access this page.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Current role: {currentUser?.role || 'undefined'}
           </p>
         </div>
       </div>

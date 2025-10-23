@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect } from "react";
 
 const Sidebar = ({ activeSection, onSectionChange }) => {
   const { isDark } = useTheme();
@@ -9,6 +10,13 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false); // Start expanded
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Debug logging for user role
+  useEffect(() => {
+    console.log('Sidebar - User object:', user);
+    console.log('Sidebar - User role:', user?.role);
+    console.log('Sidebar - Is admin?', user?.role === 'admin');
+  }, [user]);
 
   const menuItems = [
     { id: "dashboard", label: t("dashboard"), icon: "📊" },
@@ -21,7 +29,9 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
     { id: "export", label: t("export"), icon: "📥" },
     { id: "crimes", label: t("crime_records"), icon: "📋" },
     { id: "cache", label: t("cache_status"), icon: "🚀" },
-    ...(user?.role === 'admin' ? [{ id: 'users', label: 'User Management', icon: '👥' }] : []),
+    ...(user?.role === "admin"
+      ? [{ id: "users", label: "User Management", icon: "👥" }]
+      : []),
   ];
 
   return (
