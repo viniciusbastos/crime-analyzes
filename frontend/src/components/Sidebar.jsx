@@ -11,20 +11,17 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
   const [isCollapsed, setIsCollapsed] = useState(false); // Start expanded
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Debug logging for user role
-  useEffect(() => {
-    console.log("Sidebar - User object:", user);
-    console.log("Sidebar - User role:", user?.role);
-    console.log("Sidebar - Is admin?", user?.role === "admin");
-  }, [user]);
-
   const menuItems = [
     { id: "dashboard", label: t("dashboard"), icon: "📊" },
     { id: "statistics", label: t("statistics"), icon: "📈" },
     { id: "map", label: t("crime_map"), icon: "🗺️" },
     { id: "charts", label: t("charts"), icon: "📊" },
     { id: "chat", label: t("ai_assistant"), icon: "🤖" },
-    { id: "incident-free", label: "Incident-Free Analysis", icon: "📅" },
+    {
+      id: "incident-free",
+      label: "Análise de Períodos sem Incidentes",
+      icon: "📅",
+    },
     { id: "cache", label: t("cache_status"), icon: "🚀" },
     { id: "filters", label: t("filters"), icon: "🔍" },
     { id: "upload", label: t("data_upload"), icon: "📤" },

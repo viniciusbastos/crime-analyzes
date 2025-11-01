@@ -23,10 +23,10 @@ const IncidentFreePeriodsSection = () => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Incident-Free Period Analysis
+          Análise de Períodos sem Incidentes
         </h2>
         <p className="text-gray-600">
-          Analyze periods without incidents for specific cities
+          Analise períodos sem incidentes para cidades específicas
         </p>
       </div>
 
@@ -43,7 +43,7 @@ const IncidentFreePeriodsSection = () => {
           disabled={citiesLoading}
         >
           <option value="">
-            {citiesLoading ? 'Loading cities...' : 'Choose a city'}
+            {citiesLoading ? 'Carregando cidades...' : 'Escolha uma cidade'}
           </option>
           {cities.map((city) => (
             <option key={city} value={city}>
@@ -59,7 +59,7 @@ const IncidentFreePeriodsSection = () => {
           {isLoading && (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Analyzing incident-free periods...</p>
+              <p className="mt-2 text-gray-600">Analisando períodos sem incidentes...</p>
             </div>
           )}
 
@@ -101,7 +101,7 @@ const IncidentFreePeriodsSection = () => {
                       {formatDays(incidentFreeData.longest_streak)}
                     </p>
                     <p className="text-sm text-green-700 mt-1">
-                      Maximum consecutive days without incidents
+                      Máximo de dias consecutivos sem incidentes
                     </p>
                   </div>
                 </div>
@@ -123,7 +123,7 @@ const IncidentFreePeriodsSection = () => {
                       {formatDays(incidentFreeData.current_streak)}
                     </p>
                     <p className="text-sm text-blue-700 mt-1">
-                      Days since last incident
+                      Dias desde o último incidente
                     </p>
                   </div>
                 </div>
@@ -132,23 +132,23 @@ const IncidentFreePeriodsSection = () => {
               {/* Additional Information */}
               <div className="md:col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-6">
                 <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Analysis Details for {incidentFreeData.city}
+                  Detalhes da Análise para {incidentFreeData.city}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Total Incidents</p>
+                    <p className="text-sm text-gray-600">Total de Incidentes</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {incidentFreeData.total_crimes}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Analysis Period</p>
+                    <p className="text-sm text-gray-600">Período de Análise</p>
                     <p className="text-sm font-medium text-gray-900">
                       {formatDate(incidentFreeData.analysis_period?.start)} - {formatDate(incidentFreeData.analysis_period?.end)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Last Incident</p>
+                    <p className="text-sm text-gray-600">Último Incidente</p>
                     <p className="text-sm font-medium text-gray-900">
                       {formatDate(incidentFreeData.last_crime_date)}
                     </p>
