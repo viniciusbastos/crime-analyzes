@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Select from "react-select";
 import { useIncidentFreePeriods, useCityData } from "../../hooks/useCrimeData";
 
 const IncidentFreePeriodsSection = () => {
@@ -10,7 +11,8 @@ const IncidentFreePeriodsSection = () => {
     error,
   } = useIncidentFreePeriods(selectedCity, !!selectedCity);
 
-  const cities = cityData?.map((city) => city.city) || [];
+  const cities = cityData?.map((city) => city.city).sort() || [];
+  const cityOptions = cities.map((city) => ({ value: city, label: city }));
 
   const formatDays = (days) => {
     if (days === 0) return "0 days";
@@ -42,22 +44,36 @@ const IncidentFreePeriodsSection = () => {
         >
           Select City
         </label>
-        <select
+        <Select
           id="city-select"
-          value={selectedCity}
-          onChange={(e) => setSelectedCity(e.target.value)}
-          className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          disabled={citiesLoading}
-        >
-          <option value="">
-            {citiesLoading ? "Carregando cidades..." : "Escolha uma cidade"}
-          </option>
-          {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
+          value={selectedCity ? { value: selectedCity, label: selectedCity } : null}
+          onChange={(option) => setSelectedCity(option ? option.value : "")}
+          options={cityOptions}
+          isLoading={citiesLoading}
+          placeholder={citiesLoading ? "Carregando cidades..." : "Escolha uma cidade"}
+          isClearable
+          className="w-full max-w-md"
+          styles={{
+            control: (provided) => ({
+              ...provided,
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              '&:hover': {
+                borderColor: '#9ca3af',
+              },
+              '&:focus-within': {
+                borderColor: '#3b82f6',
+                boxShadow: '0 0 0 1px #3b82f6',
+              },
+            }),
+            option: (provided, state) => ({
+              ...provided,
+              backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+              color: state.isSelected ? 'white' : '#374151',
+            }),
+          }}
+        />
       </div>
 
       {/* Results Display */}
