@@ -1116,7 +1116,7 @@ def get_incident_free_periods():
             })
 
         # Extract dates only (remove time component)
-        crime_dates_only = [crime_date.date_time.date() for crime_date in crime_dates]
+        crime_dates_only = [crime_date[0].date() for crime_date in crime_dates]
         unique_crime_dates = sorted(list(set(crime_dates_only)))
 
         # Calculate longest streak
