@@ -8,6 +8,7 @@ const ExportPanel = lazy(() => import("../ExportPanel"));
 const CacheStatus = lazy(() => import("../CacheStatus"));
 const CrimeManagement = lazy(() => import("../CrimeManagement"));
 const UserManagement = lazy(() => import("../UserManagement"));
+const IncidentFreePeriodsSection = lazy(() => import("./IncidentFreePeriodsSection"));
 
 const OtherSections = ({
   activeSection,
@@ -68,6 +69,14 @@ const OtherSections = ({
             fallback={<LoadingSpinner message="Loading user management..." />}
           >
             <UserManagement />
+          </Suspense>
+        );
+      case "incident-free":
+        return (
+          <Suspense
+            fallback={<LoadingSpinner message="Loading incident-free analysis..." />}
+          >
+            <IncidentFreePeriodsSection />
           </Suspense>
         );
       default:

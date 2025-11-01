@@ -1079,3 +1079,80 @@ def delete_crime(crime_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/incident-free-periods', methods=['GET'])
+# @jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('trends'))
+def get_incident_free_periods():
+    """Get incident-free period analysis for cities"""
+    try:
+        # Get city filter
+        city = request.args.get('city')
+
+        if not city:
+            return jsonify({'error': 'City parameter is required'}), 400
+
+        # Base query with city filter
+        query = Crime.query.filter(Crime.city == city)
+
+        # Apply additional filters
+        query = apply_enhanced_filters(query)
+
+        # Get all crime dates for the city, ordered by date
+        crime_dates = query.with_entities(Crime.date_time).order_by(Crime.date_time).all()
+
+        if not crime_dates:
+            # No crimes found for this city
+            return jsonify({
+                'city': city,
+                'longest_streak': 0,
+                'current_streak': 0,
+                'total_crimes': 0,
+                'analysis_period': {
+                    'start': None,
+                    'end': None
+                },
+                'message': f'No crime data found for {city}'
+            })
+
+        # Extract dates only (remove time component)
+        crime_dates_only = [crime_date.date_time.date() for crime_date in crime_dates]
+        unique_crime_dates = sorted(list(set(crime_dates_only)))
+
+        # Calculate longest streak
+        longest_streak = 0
+        current_streak = 0
+
+        if unique_crime_dates:
+            # Calculate gaps between consecutive crime dates
+            for i in range(1, len(unique_crime_dates)):
+                gap_days = (unique_crime_dates[i] - unique_crime_dates[i-1]).days - 1
+                if gap_days > longest_streak:
+                    longest_streak = gap_days
+
+            # Calculate current streak (days since last crime)
+            from datetime import date
+            today = date.today()
+            last_crime_date = unique_crime_dates[-1]
+            current_streak = (today - last_crime_date).days
+
+        # Get analysis period
+        analysis_start = unique_crime_dates[0] if unique_crime_dates else None
+        analysis_end = unique_crime_dates[-1] if unique_crime_dates else None
+
+        return jsonify({
+            'city': city,
+            'longest_streak': longest_streak,
+            'current_streak': current_streak,
+            'total_crimes': len(unique_crime_dates),
+            'analysis_period': {
+                'start': analysis_start.isoformat() if analysis_start else None,
+                'end': analysis_end.isoformat() if analysis_end else None
+            },
+            'last_crime_date': analysis_end.isoformat() if analysis_end else None,
+            'filters_applied': dict(request.args)
+        })
+
+    except Exception as e:
+        print(f"Error in incident-free periods analysis: {str(e)}")
+        return jsonify({'error': str(e)}), 500

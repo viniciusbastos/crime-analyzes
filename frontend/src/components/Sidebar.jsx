@@ -24,6 +24,7 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
     { id: "map", label: t("crime_map"), icon: "🗺️" },
     { id: "charts", label: t("charts"), icon: "📊" },
     { id: "chat", label: t("ai_assistant"), icon: "🤖" },
+    { id: "incident-free", label: "Incident-Free Analysis", icon: "📅" },
     { id: "cache", label: t("cache_status"), icon: "🚀" },
     { id: "filters", label: t("filters"), icon: "🔍" },
     { id: "upload", label: t("data_upload"), icon: "📤" },

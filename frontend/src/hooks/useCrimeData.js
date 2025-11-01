@@ -398,6 +398,22 @@ export const useUploadData = () => {
 };
 
 // Hook to invalidate specific queries when filters change
+export const useIncidentFreePeriods = (city = null, enabled = true) => {
+  return useQuery({
+    queryKey: createQueryKey("incidentFreePeriods", { city }),
+    queryFn: async () => {
+      if (!city) {
+        return null;
+      }
+      const params = new URLSearchParams({ city });
+      const response = await api.get(`/incident-free-periods?${params}`);
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    enabled: enabled && !!city,
+  });
+};
+
 export const useInvalidateQueries = () => {
   const queryClient = useQueryClient();
 
