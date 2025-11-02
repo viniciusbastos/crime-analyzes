@@ -132,6 +132,10 @@ const CrimeManagement = () => {
       const response = await fetch("/api/crimes");
       if (!response.ok) throw new Error(t('failed_to_fetch_crimes'));
       const data = await response.json();
+      // Ensure data is an array before sorting
+      if (!Array.isArray(data)) {
+        throw new Error(t('invalid_data_format'));
+      }
       // Sort by date most recent first
       const sortedData = data.sort(
         (a, b) => new Date(b.date_time) - new Date(a.date_time)
