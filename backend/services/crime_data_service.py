@@ -1,7 +1,8 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-from models.models import db, Crime
+from models.models import db, Crime, IbgeDemographicData
 from sqlalchemy import func, extract, and_, or_
+from services.ibge_service import ibge_service
 
 
 class CrimeDataService:
@@ -218,3 +219,163 @@ class CrimeDataService:
         elif day_filter == 'sunday':
             return query.filter(extract('dow', Crime.date_time) == 0)
         return query
+
+    def get_crime_demographic_correlation(self, city: str = None, year: int = None) -> Dict[str, Any]:
+        """Analyze correlation between crime rates and demographic factors"""
+        try:
+            if not year:
+                year = datetime.now().year - 1
+
+            # Get crime statistics by city
+            crime_query = Crime.query
+            if city:
+                crime_query = crime_query.filter(Crime.city == city)
+
+            # Get crime counts by city
+            crime_stats = db.session.query(
+                Crime.city,
+                func.count(Crime.id).label('crime_count')
+            ).filter(
+                Crime.city.isnot(None),
+                extract('year', Crime.date_time) == year
+            ).group_by(Crime.city).all()
+
+            crime_by_city = {stat.city: stat.crime_count for stat in crime_stats}
+
+            # Get IBGE data for cities with crime data
+            correlations = []
+
+            for city_name, crime_count in crime_by_city.items():
+                # Try to find municipality code for the city
+                # This is a simplified approach - in practice, you'd need a mapping
+                # For now, we'll skip cities that don't have clear IBGE codes
+                municipality_code = self._get_municipality_code_from_city(city_name)
+                if not municipality_code:
+                    continue
+
+                # Get IBGE demographic data
+                ibge_data = ibge_service.get_municipality_data(municipality_code, year)
+                if not ibge_data:
+                    continue
+
+                # Calculate crime rate per 1000 inhabitants
+                population = ibge_data.get('total_population', 0)
+                if population > 0:
+                    crime_rate = (crime_count / population) * 1000
+                else:
+                    crime_rate = 0
+
+                correlation_data = {
+                    'city': city_name,
+                    'municipality_code': municipality_code,
+                    'year': year,
+                    'crime_count': crime_count,
+                    'crime_rate_per_1000': round(crime_rate, 2),
+                    'population': population,
+                    'demographic_indicators': {
+                        'urban_population_pct': round((ibge_data.get('urban_population', 0) / population * 100), 1) if population > 0 else 0,
+                        'gini_coefficient': ibge_data.get('gini_coefficient'),
+                        'average_income': ibge_data.get('average_income'),
+                        'poverty_rate': ibge_data.get('poverty_rate'),
+                        'literacy_rate': ibge_data.get('literacy_rate'),
+                        'unemployment_rate': ibge_data.get('unemployment_rate'),
+                        'gdp_per_capita': ibge_data.get('gdp_per_capita')
+                    }
+                }
+
+                correlations.append(correlation_data)
+
+            return {
+                'correlations': correlations,
+                'year': year,
+                'total_cities_analyzed': len(correlations)
+            }
+
+        except Exception as e:
+            print(f"Error in crime-demographic correlation analysis: {e}")
+            return {'error': str(e)}
+
+    def _get_municipality_code_from_city(self, city_name: str) -> Optional[str]:
+        """Get IBGE municipality code from city name (simplified mapping)"""
+        # This is a placeholder - in a real implementation, you'd have a proper mapping table
+        # or use IBGE's locality API to find municipality codes by name
+
+        # For Bahia state (example mappings)
+        bahia_cities = {
+            'Salvador': '2927408',
+            'Feira de Santana': '2910800',
+            'Vitória da Conquista': '2933307',
+            'Camaçari': '2905701',
+            'Itabuna': '2914802',
+            'Juazeiro': '2918407',
+            'Ilhéus': '2913606',
+            'Lauro de Freitas': '2919207',
+            'Jequié': '2918001',
+            'Teixeira de Freitas': '2931350',
+            'Eunápolis': '2910727',
+            'Alagoinhas': '2900702',
+            'Itapetinga': '2914703',
+            'Porto Seguro': '2925303',
+            'Simões Filho': '2930709',
+            'Paulo Afonso': '2924009',
+            'Valença': '2930501',
+            'Barreiras': '2903201',
+            'Candeias': '2906501',
+            'Santo Antônio de Jesus': '2928703',
+            'Conceição do Jacuípe': '2908203',
+            'Serrinha': '2930501',
+            'Cruz das Almas': '2909203',
+            'Itaberaba': '2914703',
+            'Rio Real': '2926600'
+        }
+
+        return bahia_cities.get(city_name)
+
+    def get_socioeconomic_crime_analysis(self, indicator: str, year: int = None) -> Dict[str, Any]:
+        """Analyze relationship between socioeconomic indicators and crime rates"""
+        try:
+            if not year:
+                year = datetime.now().year - 1
+
+            # Get all IBGE data for the year
+            ibge_records = IbgeDemographicData.query.filter_by(year=year).all()
+
+            analysis_data = []
+
+            for record in ibge_records:
+                # Get crime count for this municipality
+                crime_count = db.session.query(func.count(Crime.id)).filter(
+                    Crime.city == record.municipality_name,
+                    extract('year', Crime.date_time) == year
+                ).scalar() or 0
+
+                # Calculate crime rate
+                population = record.total_population or 0
+                crime_rate = (crime_count / population * 1000) if population > 0 else 0
+
+                # Get the socioeconomic indicator value
+                indicator_value = getattr(record, indicator, None)
+
+                if indicator_value is not None and population > 0:
+                    analysis_data.append({
+                        'municipality': record.municipality_name,
+                        'population': population,
+                        'crime_count': crime_count,
+                        'crime_rate_per_1000': round(crime_rate, 2),
+                        'indicator': indicator,
+                        'indicator_value': indicator_value
+                    })
+
+            # Sort by indicator value for correlation analysis
+            analysis_data.sort(key=lambda x: x['indicator_value'])
+
+            return {
+                'analysis': analysis_data,
+                'indicator': indicator,
+                'year': year,
+                'total_municipalities': len(analysis_data)
+            }
+
+        except Exception as e:
+            print(f"Error in socioeconomic crime analysis: {e}")
+            return {'error': str(e)}

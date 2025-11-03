@@ -147,3 +147,75 @@ class UserActivityLog(db.Model):
         Index('idx_user_activity_timestamp', 'timestamp'),
         Index('idx_user_activity_target_user', 'target_user_id'),
     )
+
+class IbgeDemographicData(db.Model):
+    """IBGE demographic and socioeconomic data by municipality"""
+    __tablename__ = 'ibge_demographic_data'
+
+    id = Column(Integer, primary_key=True)
+    municipality_code = Column(String(20), nullable=False)  # IBGE municipality code (7 digits)
+    municipality_name = Column(String(200), nullable=False)
+    state_code = Column(String(2), nullable=False)  # UF code
+    state_name = Column(String(50), nullable=False)
+    year = Column(Integer, nullable=False)
+
+    # Population data
+    total_population = Column(Integer, nullable=True)
+    urban_population = Column(Integer, nullable=True)
+    rural_population = Column(Integer, nullable=True)
+
+    # Age distribution
+    population_0_14 = Column(Integer, nullable=True)  # 0-14 years
+    population_15_64 = Column(Integer, nullable=True)  # 15-64 years
+    population_65_plus = Column(Integer, nullable=True)  # 65+ years
+
+    # Gender distribution
+    male_population = Column(Integer, nullable=True)
+    female_population = Column(Integer, nullable=True)
+
+    # Socioeconomic indicators
+    gini_coefficient = Column(Float, nullable=True)  # Income inequality index
+    average_income = Column(Float, nullable=True)  # Average household income
+    poverty_rate = Column(Float, nullable=True)  # Percentage below poverty line
+
+    # Education indicators
+    literacy_rate = Column(Float, nullable=True)  # Literacy rate (%)
+    school_enrollment_rate = Column(Float, nullable=True)  # School enrollment rate (%)
+
+    # Health indicators
+    life_expectancy = Column(Float, nullable=True)  # Life expectancy at birth
+    infant_mortality_rate = Column(Float, nullable=True)  # Infant mortality per 1000 births
+
+    # Economic indicators
+    gdp_per_capita = Column(Float, nullable=True)  # GDP per capita
+    unemployment_rate = Column(Float, nullable=True)  # Unemployment rate (%)
+
+    # Housing indicators
+    households_with_water = Column(Float, nullable=True)  # % households with treated water
+    households_with_sewage = Column(Float, nullable=True)  # % households with sewage system
+
+    # Metadata
+    data_source = Column(String(100), nullable=False)  # SIDRA table reference
+    last_updated = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index('idx_ibge_municipality_year', 'municipality_code', 'year'),
+        Index('idx_ibge_state_year', 'state_code', 'year'),
+        Index('idx_ibge_data_source', 'data_source'),
+        Index('idx_ibge_last_updated', 'last_updated'),
+    )
+
+class IbgeDataCache(db.Model):
+    """Cache for IBGE API responses"""
+    __tablename__ = 'ibge_data_cache'
+
+    id = Column(Integer, primary_key=True)
+    cache_key = Column(String(500), unique=True, nullable=False)
+    data = Column(Text, nullable=False)  # JSON data
+    created_at = Column(DateTime, server_default=func.now())
+    expires_at = Column(DateTime, nullable=False)
+
+    __table_args__ = (
+        Index('idx_ibge_cache_key', 'cache_key'),
+        Index('idx_ibge_cache_expires', 'expires_at'),
+    )

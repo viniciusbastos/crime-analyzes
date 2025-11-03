@@ -23,6 +23,9 @@ from controllers.upload_controller import UploadController
 from services.cache_service import CacheManager, cache
 from services.cache_service import cached_api_call, get_cache_timeout, invalidate_related_cache, CacheManager
 from services.chat_service import chat_service, RAG_AVAILABLE
+from services.ibge_service import ibge_service
+from services.crime_data_service import CrimeDataService
+from services.ibge_data_sync import ibge_sync_service
 
 api_bp = Blueprint('api', __name__)
 
@@ -1155,4 +1158,252 @@ def get_incident_free_periods():
 
     except Exception as e:
         print(f"Error in incident-free periods analysis: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+# IBGE Data endpoints
+@api_bp.route('/ibge/municipality/<municipality_code>', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('ibge'))
+def get_municipality_ibge_data(municipality_code):
+    """Get IBGE demographic and socioeconomic data for a municipality"""
+    try:
+        year = request.args.get('year', type=int)
+
+        data = ibge_service.get_municipality_data(municipality_code, year)
+
+        if not data:
+            return jsonify({
+                'error': 'IBGE data not found for this municipality',
+                'municipality_code': municipality_code
+            }), 404
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching IBGE data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/ibge/municipality/<municipality_code>/population', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('ibge'))
+def get_municipality_population(municipality_code):
+    """Get population data for a municipality"""
+    try:
+        year = request.args.get('year', type=int)
+
+        data = ibge_service.get_population_data(municipality_code, year)
+
+        if not data:
+            return jsonify({
+                'error': 'Population data not found',
+                'municipality_code': municipality_code
+            }), 404
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching population data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/ibge/municipality/<municipality_code>/demographics', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('ibge'))
+def get_municipality_demographics(municipality_code):
+    """Get demographic breakdown for a municipality"""
+    try:
+        year = request.args.get('year', type=int)
+
+        data = ibge_service.get_demographic_data(municipality_code, year)
+
+        if not data:
+            return jsonify({
+                'error': 'Demographic data not found',
+                'municipality_code': municipality_code
+            }), 404
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching demographic data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/ibge/municipality/<municipality_code>/socioeconomic', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('ibge'))
+def get_municipality_socioeconomic(municipality_code):
+    """Get socioeconomic indicators for a municipality"""
+    try:
+        year = request.args.get('year', type=int)
+
+        data = ibge_service.get_socioeconomic_data(municipality_code, year)
+
+        if not data:
+            return jsonify({
+                'error': 'Socioeconomic data not found',
+                'municipality_code': municipality_code
+            }), 404
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching socioeconomic data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/ibge/cache/clear', methods=['POST'])
+@role_required('admin')
+def clear_ibge_cache():
+    """Clear IBGE data cache"""
+    try:
+        ibge_service.clear_expired_cache()
+        return jsonify({
+            'message': 'IBGE cache cleared successfully',
+            'status': 'success'
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error clearing IBGE cache: {str(e)}")
+        return jsonify({
+            'error': 'Failed to clear IBGE cache',
+            'message': str(e)
+        }), 500
+
+# IBGE data synchronization endpoints
+@api_bp.route('/ibge/sync/status', methods=['GET'])
+@jwt_required(optional=True)
+def get_ibge_sync_status():
+    """Get IBGE data synchronization status"""
+    try:
+        status = ibge_sync_service.get_sync_status()
+        return jsonify(status)
+
+    except Exception as e:
+        current_app.logger.error(f"Error getting IBGE sync status: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/ibge/sync/bahia', methods=['POST'])
+@role_required('admin')
+def sync_bahia_data():
+    """Sync IBGE data for all municipalities in Bahia state"""
+    try:
+        year = request.args.get('year', type=int)
+
+        # This is a long-running operation, so we'll start it asynchronously
+        # For now, we'll run it synchronously but with a timeout warning
+        result = ibge_sync_service.sync_bahia_municipalities(year)
+
+        return jsonify({
+            'message': 'Bahia municipalities sync completed',
+            'results': result,
+            'status': 'completed'
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error syncing Bahia data: {str(e)}")
+        return jsonify({
+            'error': 'Failed to sync Bahia data',
+            'message': str(e)
+        }), 500
+
+@api_bp.route('/ibge/sync/municipalities', methods=['POST'])
+@role_required('admin')
+def sync_municipalities():
+    """Sync IBGE data for specified municipalities"""
+    try:
+        data = request.get_json()
+        if not data or 'municipality_codes' not in data:
+            return jsonify({'error': 'municipality_codes array is required'}), 400
+
+        municipality_codes = data['municipality_codes']
+        year = data.get('year')
+
+        if not isinstance(municipality_codes, list):
+            return jsonify({'error': 'municipality_codes must be an array'}), 400
+
+        result = ibge_sync_service.sync_municipalities_data(municipality_codes, year)
+
+        return jsonify({
+            'message': f'Synced {len(municipality_codes)} municipalities',
+            'results': result,
+            'status': 'completed'
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error syncing municipalities: {str(e)}")
+        return jsonify({
+            'error': 'Failed to sync municipalities',
+            'message': str(e)
+        }), 500
+
+@api_bp.route('/ibge/cleanup', methods=['POST'])
+@role_required('admin')
+def cleanup_ibge_data():
+    """Clean up old IBGE cache data"""
+    try:
+        days_to_keep = request.args.get('days', type=int, default=365)
+        deleted_count = ibge_sync_service.cleanup_old_data(days_to_keep)
+
+        return jsonify({
+            'message': f'Cleaned up {deleted_count} old cache entries',
+            'days_kept': days_to_keep,
+            'status': 'success'
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error cleaning up IBGE data: {str(e)}")
+        return jsonify({
+            'error': 'Failed to cleanup IBGE data',
+            'message': str(e)
+        }), 500
+
+# Crime-IBGE correlation endpoints
+@api_bp.route('/correlations/crime-demographics', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('correlations'))
+def get_crime_demographic_correlations():
+    """Get correlations between crime rates and demographic factors"""
+    try:
+        city = request.args.get('city')
+        year = request.args.get('year', type=int)
+
+        crime_service = CrimeDataService()
+        correlations = crime_service.get_crime_demographic_correlation(city, year)
+
+        if 'error' in correlations:
+            return jsonify({'error': correlations['error']}), 500
+
+        return jsonify(correlations)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching crime-demographic correlations: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/correlations/socioeconomic-crime/<indicator>', methods=['GET'])
+@jwt_required(optional=True)
+@cached_api_call(timeout=get_cache_timeout('correlations'))
+def get_socioeconomic_crime_analysis(indicator):
+    """Analyze relationship between socioeconomic indicators and crime rates"""
+    try:
+        year = request.args.get('year', type=int)
+
+        # Validate indicator
+        valid_indicators = [
+            'gini_coefficient', 'average_income', 'poverty_rate',
+            'literacy_rate', 'unemployment_rate', 'gdp_per_capita'
+        ]
+
+        if indicator not in valid_indicators:
+            return jsonify({
+                'error': f'Invalid indicator. Valid options: {", ".join(valid_indicators)}'
+            }), 400
+
+        crime_service = CrimeDataService()
+        analysis = crime_service.get_socioeconomic_crime_analysis(indicator, year)
+
+        if 'error' in analysis:
+            return jsonify({'error': analysis['error']}), 500
+
+        return jsonify(analysis)
+
+    except Exception as e:
+        current_app.logger.error(f"Error in socioeconomic-crime analysis: {str(e)}")
         return jsonify({'error': str(e)}), 500
