@@ -30,6 +30,7 @@ const ChartsSection = ({
         fallback={<LoadingSpinner message="Loading charts..." />}
       >
         <ChartsGrid
+          filters={filters}
           temporalData={temporalData}
           trendData={trendData}
           summaryData={summaryData}
