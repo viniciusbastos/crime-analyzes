@@ -52,7 +52,7 @@ const LocationPicker = ({ latitude, longitude, onLocationChange, isDark }) => {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium">
-        {t('location_picker_label')}
+        {t("location_picker_label")}
       </label>
       <div
         style={{ height: "300px" }}
@@ -86,7 +86,7 @@ const LocationPicker = ({ latitude, longitude, onLocationChange, isDark }) => {
         </MapContainer>
       </div>
       <div className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
-        {t('coordinates')}: {position[0].toFixed(6)}, {position[1].toFixed(6)}
+        {t("coordinates")}: {position[0].toFixed(6)}, {position[1].toFixed(6)}
       </div>
     </div>
   );
@@ -130,11 +130,11 @@ const CrimeManagement = () => {
     try {
       setLoading(true);
       const response = await fetch("/api/crimes");
-      if (!response.ok) throw new Error(t('failed_to_fetch_crimes'));
+      if (!response.ok) throw new Error(t("failed_to_fetch_crimes"));
       const data = await response.json();
       // Ensure data is an array before sorting
       if (!Array.isArray(data)) {
-        throw new Error(t('invalid_data_format'));
+        throw new Error(t("invalid_data_format"));
       }
       // Sort by date most recent first
       const sortedData = data.sort(
@@ -169,7 +169,7 @@ const CrimeManagement = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error(t('failed_to_save_crime'));
+      if (!response.ok) throw new Error(t("failed_to_save_crime"));
 
       // Clear Redis cache and invalidate React Query
       await clearCache.mutateAsync();
@@ -186,15 +186,14 @@ const CrimeManagement = () => {
 
   // Handle delete
   const handleDelete = async (crimeId) => {
-    if (!window.confirm(t('confirm_delete')))
-      return;
+    if (!window.confirm(t("confirm_delete"))) return;
 
     try {
       const response = await fetch(`/api/crimes/${crimeId}`, {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error(t('failed_to_delete_crime'));
+      if (!response.ok) throw new Error(t("failed_to_delete_crime"));
 
       // Clear Redis cache and invalidate React Query
       await clearCache.mutateAsync();
@@ -254,7 +253,7 @@ const CrimeManagement = () => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        {t('loading_crimes')}...
+        {t("loading_crimes")}...
       </div>
     );
   }
@@ -263,7 +262,7 @@ const CrimeManagement = () => {
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">{t('crime_records_management')}</h2>
+        <h2 className="text-2xl font-bold">{t("crime_records_management")}</h2>
         <button
           onClick={() => {
             setEditingCrime(null);
@@ -272,7 +271,7 @@ const CrimeManagement = () => {
           }}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
-          {t('add_new_crime')}
+          {t("add_new_crime")}
         </button>
       </div>
 
@@ -301,13 +300,13 @@ const CrimeManagement = () => {
           } border`}
         >
           <h3 className="text-xl font-semibold mb-4">
-            {editingCrime ? t('edit_crime_record') : t('add_new_crime_record')}
+            {editingCrime ? t("edit_crime_record") : t("add_new_crime_record")}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t('crime_type')} *
+                  {t("crime_type")} *
                 </label>
                 <input
                   type="text"
@@ -324,7 +323,7 @@ const CrimeManagement = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t('date_time')} *
+                  {t("date_time")} *
                 </label>
                 <input
                   type="datetime-local"
@@ -354,7 +353,9 @@ const CrimeManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">{t('city')}</label>
+                <label className="block text-sm font-medium mb-1">
+                  {t("city")}
+                </label>
                 <input
                   type="text"
                   name="city"
@@ -369,7 +370,7 @@ const CrimeManagement = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t('severity')}
+                  {t("severity")}
                 </label>
                 <select
                   name="severity"
@@ -381,16 +382,18 @@ const CrimeManagement = () => {
                       : "border-gray-300 focus:border-blue-500"
                   }`}
                 >
-                  <option value="">{t('select_severity')}</option>
-                  <option value="Low">{t('low')}</option>
-                  <option value="Medium">{t('medium')}</option>
-                  <option value="High">{t('high')}</option>
-                  <option value="Critical">{t('critical')}</option>
+                  <option value="">{t("select_severity")}</option>
+                  <option value="Low">{t("low")}</option>
+                  <option value="Medium">{t("medium")}</option>
+                  <option value="High">{t("high")}</option>
+                  <option value="Critical">{t("critical")}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">{t('address')}</label>
+              <label className="block text-sm font-medium mb-1">
+                {t("address")}
+              </label>
               <input
                 type="text"
                 name="address"
@@ -405,7 +408,7 @@ const CrimeManagement = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t('description')}
+                {t("description")}
               </label>
               <textarea
                 name="description"
@@ -424,7 +427,7 @@ const CrimeManagement = () => {
                 type="submit"
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
               >
-                {editingCrime ? t('update') : t('create')}
+                {editingCrime ? t("update") : t("create")}
               </button>
               <button
                 type="button"
@@ -435,7 +438,7 @@ const CrimeManagement = () => {
                 }}
                 className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                {t('cancel')}
+                {t("cancel")}
               </button>
             </div>
           </form>
@@ -453,22 +456,22 @@ const CrimeManagement = () => {
             <thead className={`${isDark ? "bg-gray-700" : "bg-gray-50"}`}>
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('id')}
+                  {t("id")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('type')}
+                  {t("type")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('date_time')}
+                  {t("date_time")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('location')}
+                  {t("location")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('severity')}
+                  {t("severity")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                  {t('actions')}
+                  {t("actions")}
                 </th>
               </tr>
             </thead>
@@ -489,10 +492,11 @@ const CrimeManagement = () => {
                     {crime.crime_type}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
-                    {formatDateTime(crime.date_time)}
+                    {/* {formatDateTime(crime.date_time)} */}
+                    console.log(crime.date_time);
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
-                    {crime.city || t('na')}
+                    {crime.city || t("na")}
                     {crime.latitude && crime.longitude && (
                       <div className="text-xs text-gray-500">
                         {crime.latitude.toFixed(4)},{" "}
@@ -514,7 +518,7 @@ const CrimeManagement = () => {
                           : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {crime.severity || t('na')}
+                      {crime.severity || t("na")}
                     </span>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm space-x-2">
@@ -522,13 +526,13 @@ const CrimeManagement = () => {
                       onClick={() => handleEdit(crime)}
                       className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs"
                     >
-                      {t('edit')}
+                      {t("edit")}
                     </button>
                     <button
                       onClick={() => handleDelete(crime.id)}
                       className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-xs"
                     >
-                      {t('delete')}
+                      {t("delete")}
                     </button>
                   </td>
                 </tr>
@@ -538,7 +542,7 @@ const CrimeManagement = () => {
         </div>
         {crimes.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            {t('no_crime_records_found')}
+            {t("no_crime_records_found")}
           </div>
         )}
       </div>
