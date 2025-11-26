@@ -132,12 +132,12 @@ const CrimeManagement = () => {
       const response = await fetch("/api/crimes");
       if (!response.ok) throw new Error(t("failed_to_fetch_crimes"));
       const data = await response.json();
-      // Ensure data is an array before sorting
-      if (!Array.isArray(data)) {
+      // Ensure data.crimes is an array before sorting
+      if (!Array.isArray(data.crimes)) {
         throw new Error(t("invalid_data_format"));
       }
       // Sort by date most recent first
-      const sortedData = data.sort(
+      const sortedData = data.crimes.sort(
         (a, b) => new Date(b.date_time) - new Date(a.date_time)
       );
       setCrimes(sortedData);
@@ -492,8 +492,7 @@ const CrimeManagement = () => {
                     {crime.crime_type}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
-                    {/* {formatDateTime(crime.date_time)} */}
-                    console.log(crime.date_time);
+                    {formatDateTime(crime.date_time)}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
                     {crime.city || t("na")}

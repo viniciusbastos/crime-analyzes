@@ -846,6 +846,42 @@ def clear_cache():
             'message': str(e)
         }), 500
 
+@api_bp.route('/system/clear-crime-data', methods=['POST'])
+@role_required('admin')
+def clear_all_crime_data():
+    """Delete all crime data from the database - DANGER: This is irreversible"""
+    try:
+        # Get count before deletion for logging
+        crime_count = Crime.query.count()
+
+        # Delete all crime records
+        Crime.query.delete()
+
+        # Also clear related tables if needed (upload logs, query history, etc.)
+        # Note: Keeping upload logs and query history for audit purposes
+
+        db.session.commit()
+
+        # Clear all caches since all data has changed
+        CacheManager.clear_all_cache()
+        CacheManager.invalidate_by_tag('api')
+
+        current_app.logger.warning(f"All crime data deleted by admin. {crime_count} records removed.")
+
+        return jsonify({
+            'message': f'All crime data deleted successfully. {crime_count} records removed.',
+            'status': 'success',
+            'records_deleted': crime_count
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deleting all crime data: {str(e)}")
+        return jsonify({
+            'error': 'Failed to delete crime data',
+            'message': str(e)
+        }), 500
+
 @api_bp.route('/metrics', methods=['GET'])
 @jwt_required(optional=True)
 def get_chat_metrics():

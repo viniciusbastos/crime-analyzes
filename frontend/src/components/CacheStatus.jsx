@@ -147,7 +147,7 @@ const CacheStatus = () => {
         </ul>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex gap-2 flex-wrap">
         <button
           onClick={() => {
             // Clear all React Query cache
@@ -170,6 +170,27 @@ const CacheStatus = () => {
           className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm"
         >
           {t("clear_redis_cache")}
+        </button>
+
+        <button
+          onClick={async () => {
+            const confirmed = window.confirm(
+              "⚠️ WARNING: This will permanently delete ALL crime data from the database. This action cannot be undone. Are you sure you want to proceed?"
+            );
+            if (!confirmed) return;
+
+            try {
+              const response = await axios.post("/api/system/clear-crime-data");
+              alert(`✅ ${response.data.message}`);
+              // Reload the page to clear all cached data
+              window.location.reload();
+            } catch (error) {
+              alert(`❌ Error deleting crime data: ${error.response?.data?.message || error.message}`);
+            }
+          }}
+          className="px-4 py-2 bg-red-800 text-white rounded-md hover:bg-red-900 transition-colors text-sm font-bold"
+        >
+          🗑️ {t("delete_all_crime_data")}
         </button>
       </div>
     </div>

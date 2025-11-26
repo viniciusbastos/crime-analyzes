@@ -76,6 +76,7 @@
   "offline_query_caching": "O cache de consultas offline melhora a experiência do usuário",
   "clear_react_query_cache": "Limpar Cache do React Query",
   "clear_redis_cache": "Limpar Cache do Redis",
+  "delete_all_crime_data": "Excluir Todos os Dados de Crimes",
   "loading_cache_stats": "Carregando estatísticas do cache...",
   "error_loading_cache_stats": "Erro ao carregar estatísticas do cache",
   "redis_cache_cleared_successfully": "Cache do Redis limpo com sucesso!",
