@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, DateTime, Float, Text, Index
+from sqlalchemy import Column, Integer, String, DateTime, Float, Text, Boolean, Index
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from geoalchemy2 import Geometry
@@ -24,9 +24,24 @@ class Crime(db.Model):
     description = Column(Text)
     category_parent = Column(String(50), nullable=True)
 
+    # Occurrence identity / victim details (promoted out of `description`)
+    bo = Column(String(50), nullable=True)          # Boletim de Ocorrência number
+    delegacia = Column(String(200), nullable=True)  # Reporting police station
+    sexo = Column(String(20), nullable=True)        # Victim gender
+    idade = Column(Integer, nullable=True)          # Victim age
+    coorpin = Column(String(120), nullable=True)    # COORPIN (regional coordination)
+    regiao = Column(String(50), nullable=True)      # REGIAO (CAPITAL / RMS / INTERIOR)
+    id_municipio = Column(String(20), nullable=True)  # IBGE municipality code
+
+    # True when latitude/longitude are a real geocoded point; False when the
+    # source flagged the address as pending georeferencing or the coordinates
+    # fell outside the state bounding box.
+    geocoded = Column(Boolean, nullable=True, default=True)
+
     # Police organizational fields
     unidade = Column(String(100), nullable=True)  # OPM (e.g., "6ª CIPM - Rio Real")
-    aisp = Column(Integer, nullable=True)  # AISP number (e.g., 48)
+    aisp = Column(Integer, nullable=True)  # AISP number when numbered (e.g., 48)
+    aisp_name = Column(String(100), nullable=True)  # AISP / region name (e.g., "Portal do Sertão")
     risp = Column(String(50), nullable=True)  # RISP (parent category, e.g., "LESTE")
 
     __table_args__ = (
@@ -35,12 +50,18 @@ class Crime(db.Model):
         Index('idx_crimes_city', 'city'),
         Index('idx_crimes_unidade', 'unidade'),
         Index('idx_crimes_aisp', 'aisp'),
+        Index('idx_crimes_aisp_name', 'aisp_name'),
         Index('idx_crimes_risp', 'risp'),
+        Index('idx_crimes_bo', 'bo'),
+        Index('idx_crimes_sexo', 'sexo'),
+        Index('idx_crimes_regiao', 'regiao'),
         # Composite indexes for common query patterns
         Index('idx_crimes_lat_lng', 'latitude', 'longitude'),
         Index('idx_crimes_city_date', 'city', 'date_time'),
         Index('idx_crimes_type_date', 'crime_type', 'date_time'),
         Index('idx_crimes_unidade_date', 'unidade', 'date_time'),
+        # Dedup lookup key
+        Index('idx_crimes_bo_type_date', 'bo', 'crime_type', 'date_time'),
         # Index for geospatial queries
         Index('idx_crimes_geom', 'geom'),
     )
@@ -105,12 +126,14 @@ class UploadLog(db.Model):
     records_processed = Column(Integer, nullable=False)
     records_loaded = Column(Integer, nullable=False)
     duplicates_skipped = Column(Integer, default=0)
+    records_rejected = Column(Integer, default=0)  # rows that failed conversion or DB insert
     status = Column(String(50), default='success', nullable=False)  # success, error
     message = Column(Text)
 
     __table_args__ = (
         Index('idx_upload_logs_time', 'upload_time'),
     )
+
 
 class QueryHistory(db.Model):
     __tablename__ = 'query_history'

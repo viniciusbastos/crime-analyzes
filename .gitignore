@@ -36,3 +36,7 @@ wheels/
 # OS
 .DS_Store
 Thumbs.db
+
+# ChromaDB vector store (regenerated at build/deploy time)
+chroma_db/
+backend/chroma_db/
