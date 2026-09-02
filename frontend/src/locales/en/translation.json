@@ -103,6 +103,8 @@
   "analyzing_your_data": "Analyzing your data...",
   "chat_placeholder": "Ask about crime trends, patterns, or analysis...",
   "send": "Send",
+  "search": "Search",
+  "search_crime_records": "Search crime records...",
   "chat_tip": "Try asking: \"What's the trend in crime rates?\" or \"When do most crimes happen?\"",
   "chat_tagline": "Ask questions about your crime data and get AI-powered insights",
   "filters_and_search": "Filters & Search",

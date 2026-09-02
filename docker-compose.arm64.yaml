@@ -37,6 +37,9 @@ services:
     platform: linux/arm64
     env_file:
       - .env
+    environment:
+      - NO_PROXY=localhost,127.0.0.1
+      - no_proxy=localhost,127.0.0.1
     depends_on:
       - db
       - redis

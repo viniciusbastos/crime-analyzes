@@ -103,6 +103,8 @@
   "analyzing_your_data": "Analisando seus dados...",
   "chat_placeholder": "Pergunte sobre tendências de crimes, padrões ou análises...",
   "send": "Enviar",
+  "search": "Pesquisar",
+  "search_crime_records": "Pesquisar registros de crimes...",
   "chat_tip": "Tente perguntar: \"Qual é a tendência nas taxas de criminalidade?\" ou \"Quando a maioria dos crimes acontece?\"",
   "chat_tagline": "Faça perguntas sobre seus dados de crime e obtenha insights com tecnologia de IA",
   "filters_and_search": "Filtros e Pesquisa",

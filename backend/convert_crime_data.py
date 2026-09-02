@@ -12,8 +12,6 @@ def convert_crime_data(input_file, output_file):
 
     for _, row in df.iterrows():
         try:
-
-
             # Extract date and time
             date_str = row['DATA']  # DD-MM-YYYY
             time_str = str(row['HORA']).zfill(2)  # Ensure 2 digits
@@ -60,41 +58,50 @@ def convert_crime_data(input_file, output_file):
             description = '; '.join(desc_parts) if desc_parts else ''
 
             # Extract police organizational data
-            # Try 2025 fields first, then 2024, then current
+            # Try to find the latest year-specific fields (e.g., OPM 2026, OPM 2025, etc.)
             unidade = None
-            if pd.notna(row.get('OPM 2025')) and row['OPM 2025']:
-                unidade = str(row['OPM 2025'])
-            elif pd.notna(row.get('OPM 2024')) and row['OPM 2024']:
-                unidade = str(row['OPM 2024'])
+            for year in range(2026, 2023, -1):
+                col = f'OPM {year}'
+                if col in row and pd.notna(row[col]) and str(row[col]).strip():
+                    unidade = str(row[col]).strip()
+                    break
+            if not unidade:
+                unidade = str(row.get('OPM') or '').strip()
+            unidade = unidade if unidade else None
 
             aisp = None
-            if pd.notna(row.get('AISP 2025')) and str(row['AISP 2025']).strip():
-                try:
-                    # Extract number from string like '26 - Candeias'
-                    aisp_str = str(row['AISP 2025']).split(' - ')[0].strip()
-                    aisp = int(float(aisp_str))
-                except (ValueError, TypeError, IndexError):
-                    pass
-            elif pd.notna(row.get('AISP 2024')) and str(row['AISP 2024']).strip():
-                try:
-                    # Extract number from string like '26 - Candeias'
-                    aisp_str = str(row['AISP 2024']).split(' - ')[0].strip()
-                    aisp = int(float(aisp_str))
-                except (ValueError, TypeError, IndexError):
-                    pass
-            elif pd.notna(row.get('AISP')) and str(row['AISP']).strip():
-                try:
-                    aisp = int(float(row['AISP']))
-                except (ValueError, TypeError):
-                    pass
+            for year in range(2026, 2023, -1):
+                col = f'AISP {year}'
+                if col in row and pd.notna(row[col]) and str(row[col]).strip():
+                    aisp_val = str(row[col]).strip()
+                    try:
+                        if ' - ' in aisp_val:
+                            aisp_val = aisp_val.split(' - ')[0].strip()
+                        aisp = int(float(aisp_val))
+                        break
+                    except (ValueError, TypeError):
+                        continue
+            
+            if aisp is None:
+                aisp_val = row.get('AISP')
+                if pd.notna(aisp_val):
+                    try:
+                        aisp_str = str(aisp_val).strip()
+                        if ' - ' in aisp_str:
+                            aisp_str = aisp_str.split(' - ')[0].strip()
+                        aisp = int(float(aisp_str))
+                    except (ValueError, TypeError):
+                        aisp = None
 
             risp = None
-            if pd.notna(row.get('RISP 2025')) and row['RISP 2025']:
-                risp = str(row['RISP 2025'])
-            elif pd.notna(row.get('RISP 2024')) and row['RISP 2024']:
-                risp = str(row['RISP 2024'])
-            elif pd.notna(row.get('RISP')) and row['RISP']:
-                risp = str(row['RISP'])
+            for year in range(2026, 2023, -1):
+                col = f'RISP {year}'
+                if col in row and pd.notna(row[col]) and str(row[col]).strip():
+                    risp = str(row[col]).strip()
+                    break
+            if not risp:
+                risp = str(row.get('RISP') or '').strip()
+            risp = risp if risp else None
 
             # Determine category_parent based on crime type
             category_parent = None
@@ -140,7 +147,7 @@ def convert_crime_data(input_file, output_file):
     print(f"Sample record: {result_df.iloc[0].to_dict() if len(result_df) > 0 else 'No records'}")
 
 if __name__ == '__main__':
-    input_file = 'data/listagemdevitimas2025_estado (2).csv'
-    output_file = 'data/converted_crime_data_2025.csv'
+    input_file = 'data/listagemdevitimas2026_estado (2).csv'
+    output_file = 'data/converted_crime_data_2026.csv'
 
     convert_crime_data(input_file, output_file)

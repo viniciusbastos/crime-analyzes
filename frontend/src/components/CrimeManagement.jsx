@@ -102,6 +102,7 @@ const CrimeManagement = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCrime, setEditingCrime] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     crime_type: "",
     date_time: "",
@@ -261,18 +262,31 @@ const CrimeManagement = () => {
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">{t("crime_records_management")}</h2>
-        <button
-          onClick={() => {
-            setEditingCrime(null);
-            resetForm();
-            setShowForm(true);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          {t("add_new_crime")}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder={t("search_crime_records")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`px-3 py-2 border rounded-md flex-1 sm:w-64 ${
+              isDark
+                ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
+                : "border-gray-300 focus:border-blue-500"
+            }`}
+          />
+          <button
+            onClick={() => {
+              setEditingCrime(null);
+              resetForm();
+              setShowForm(true);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+          >
+            {t("add_new_crime")}
+          </button>
+        </div>
       </div>
 
       {/* Error message */}
@@ -445,8 +459,24 @@ const CrimeManagement = () => {
         </div>
       )}
 
-      {/* Crimes Table */}
-      <div
+      {/* Filter crimes based on search term */}
+      {(() => {
+        const filteredCrimes = crimes.filter((crime) => {
+          if (!searchTerm) return true;
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            crime.crime_type?.toLowerCase().includes(searchLower) ||
+            crime.city?.toLowerCase().includes(searchLower) ||
+            crime.address?.toLowerCase().includes(searchLower) ||
+            crime.description?.toLowerCase().includes(searchLower) ||
+            crime.severity?.toLowerCase().includes(searchLower)
+          );
+        });
+
+        return (
+          <>
+            {/* Crimes Table */}
+            <div
         className={`rounded-lg shadow overflow-hidden ${
           isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } border`}
@@ -480,7 +510,7 @@ const CrimeManagement = () => {
                 isDark ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {crimes.map((crime) => (
+              {filteredCrimes.map((crime) => (
                 <tr
                   key={crime.id}
                   className={isDark ? "bg-gray-800" : "bg-white"}
@@ -539,12 +569,15 @@ const CrimeManagement = () => {
             </tbody>
           </table>
         </div>
-        {crimes.length === 0 && (
+        {filteredCrimes.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            {t("no_crime_records_found")}
+            {searchTerm ? `${t("no_crime_records_found")} (${t("search")}: "${searchTerm}")` : t("no_crime_records_found")}
           </div>
         )}
       </div>
+          </>
+        );
+      })()}
     </div>
   );
 };
