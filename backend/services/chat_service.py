@@ -10,9 +10,10 @@ import time
 import json
 import hashlib
 
-# Import RAG service if available
+# Import RAG service if available. Use the lazy accessor so importing this
+# module does not construct a ChromaDB client — that only happens on first RAG use.
 try:
-    from .rag_service import rag_service
+    from .rag_service import get_rag_service
     RAG_AVAILABLE = True
 except ImportError:
     RAG_AVAILABLE = False
@@ -57,7 +58,7 @@ class CrimeChatService:
                 # Increase results for spatial queries and add more specific context
                 n_results = 5 if is_spatial_query else 3
 
-                relevant_docs = rag_service.retrieve_relevant_documents(user_query, n_results=n_results)
+                relevant_docs = get_rag_service().retrieve_relevant_documents(user_query, n_results=n_results)
 
                 if relevant_docs:
                     # Format RAG context differently for spatial queries
@@ -206,7 +207,7 @@ class CrimeChatService:
 
             # RAG metrics
             if RAG_AVAILABLE:
-                rag_stats = rag_service.get_collection_stats()
+                rag_stats = get_rag_service().get_collection_stats()
             else:
                 rag_stats = {"error": "RAG service not available"}
 
@@ -236,5 +237,23 @@ class CrimeChatService:
             }
 
 
-# Global chat service instance
-chat_service = CrimeChatService()
+# Lazily-constructed chat service singleton. Constructing CrimeChatService pulls
+# in the model/transformers stack; defer it until a chat/metrics endpoint is hit
+# so dashboard-only traffic (and app boot) never pays for it.
+_chat_service_singleton = None
+
+
+def get_chat_service():
+    """Return the process-wide CrimeChatService, constructing it on first use."""
+    global _chat_service_singleton
+    if _chat_service_singleton is None:
+        _chat_service_singleton = CrimeChatService()
+    return _chat_service_singleton
+
+
+def __getattr__(name):
+    # Backward compatibility: `from services.chat_service import chat_service`
+    # still works, but construction is deferred until the name is accessed.
+    if name == "chat_service":
+        return get_chat_service()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

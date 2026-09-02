@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_compress import Compress
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_migrate import Migrate
@@ -30,6 +31,7 @@ def create_app(config_name='default'):
 
     # Initialize extensions
     CORS(app)
+    Compress(app)  # Gzip compress API responses (~70-90% smaller JSON payloads)
     jwt = JWTManager(app)
     db.init_app(app)
     migrate = Migrate(app, db)

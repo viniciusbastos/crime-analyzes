@@ -81,28 +81,46 @@ def generate_cache_key(endpoint, params):
     return f"api:{endpoint}:{key_hash}"
 
 def cached_api_call(timeout=300):
-    """Decorator to cache API responses"""
+    """Decorator to cache API responses.
+
+    The cache key includes the authenticated user's *unidade* so that
+    routes which scope results via ``apply_user_unidade_filter`` do not
+    serve one user's cached data to a different user.
+    """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             from flask import request
-            
-            # Generate cache key from endpoint and request parameters
+
+            # Resolve the calling user's unidade (if authenticated).
+            # We import lazily to avoid a circular-import at module load.
+            user_unidade = None
+            try:
+                from flask_jwt_extended import get_jwt_identity
+                jwt_identity = get_jwt_identity()
+                if jwt_identity and isinstance(jwt_identity, dict):
+                    user_unidade = jwt_identity.get('unidade') or jwt_identity.get('user_id')
+            except Exception:
+                pass  # Outside request context or no JWT — use an anonymous key
+
+            # Generate cache key from endpoint, request parameters, and user scope
             endpoint = f.__name__
             params = dict(request.args)
+            if user_unidade is not None:
+                params['_user_scope'] = str(user_unidade)
             cache_key = generate_cache_key(endpoint, params)
-            
+
             # Try to get cached result
             cached_result = cache.get(cache_key)
             if cached_result is not None:
                 current_app.logger.info(f"Cache HIT for {endpoint}: {cache_key}")
                 return cached_result
-            
+
             # Call the function and cache the result
             current_app.logger.info(f"Cache MISS for {endpoint}: {cache_key}")
             result = f(*args, **kwargs)
             cache.set(cache_key, result, timeout=timeout)
-            
+
             return result
         return decorated_function
     return decorator

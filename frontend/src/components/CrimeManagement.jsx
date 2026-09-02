@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTheme } from "../hooks/useTheme";
-import { useClearCache, useInvalidateQueries } from "../hooks/useCrimeData";
+import { useInvalidateQueries } from "../hooks/useCrimeData";
 import { useTranslation } from "react-i18next";
 
 // Fix for default markers in react-leaflet
@@ -95,14 +95,22 @@ const LocationPicker = ({ latitude, longitude, onLocationChange, isDark }) => {
 const CrimeManagement = () => {
   const { isDark } = useTheme();
   const { t } = useTranslation();
-  const clearCache = useClearCache();
-  const { invalidateAll } = useInvalidateQueries();
+  const { invalidateByFilters } = useInvalidateQueries();
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCrime, setEditingCrime] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 25;
+
+  // Debounce the search box so filtering doesn't run on every keystroke
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(id);
+  }, [searchTerm]);
   const [formData, setFormData] = useState({
     crime_type: "",
     date_time: "",
@@ -114,7 +122,7 @@ const CrimeManagement = () => {
     description: "",
   });
 
-  // Helper function to format date as dd/mm/yyyy and time as 24h
+  // Format date as dd/mm/yyyy and time as 24h
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
     const day = String(date.getDate()).padStart(2, "0");
@@ -127,31 +135,65 @@ const CrimeManagement = () => {
   };
 
   // Fetch crimes
-  const fetchCrimes = async () => {
+  const fetchCrimes = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/crimes");
+      const response = await fetch("/api/crimes?per_page=5000");
       if (!response.ok) throw new Error(t("failed_to_fetch_crimes"));
       const data = await response.json();
       // Ensure data.crimes is an array before sorting
       if (!Array.isArray(data.crimes)) {
         throw new Error(t("invalid_data_format"));
       }
-      // Sort by date most recent first
-      const sortedData = data.crimes.sort(
-        (a, b) => new Date(b.date_time) - new Date(a.date_time)
-      );
+      // Sort by date most recent first and pre-format the display date once,
+      // so we don't build a Date object per row on every render.
+      const sortedData = data.crimes
+        .sort((a, b) => new Date(b.date_time) - new Date(a.date_time))
+        .map((crime) => ({
+          ...crime,
+          _formattedDateTime: formatDateTime(crime.date_time),
+        }));
       setCrimes(sortedData);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchCrimes();
-  }, []);
+  }, [fetchCrimes]);
+
+  // Filter once per (crimes, debounced search) change instead of every render
+  const filteredCrimes = useMemo(() => {
+    if (!debouncedSearch) return crimes;
+    const searchLower = debouncedSearch.toLowerCase();
+    return crimes.filter(
+      (crime) =>
+        crime.crime_type?.toLowerCase().includes(searchLower) ||
+        crime.city?.toLowerCase().includes(searchLower) ||
+        crime.address?.toLowerCase().includes(searchLower) ||
+        crime.description?.toLowerCase().includes(searchLower) ||
+        crime.severity?.toLowerCase().includes(searchLower)
+    );
+  }, [crimes, debouncedSearch]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCrimes.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedCrimes = useMemo(
+    () =>
+      filteredCrimes.slice(
+        (currentPage - 1) * PER_PAGE,
+        currentPage * PER_PAGE
+      ),
+    [filteredCrimes, currentPage]
+  );
+
+  // Reset to first page whenever the search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -172,9 +214,9 @@ const CrimeManagement = () => {
 
       if (!response.ok) throw new Error(t("failed_to_save_crime"));
 
-      // Clear Redis cache and invalidate React Query
-      await clearCache.mutateAsync();
-      invalidateAll();
+      // Backend already invalidates its own cache for this crime's routes;
+      // just refresh the affected dashboard queries + this table.
+      invalidateByFilters();
 
       await fetchCrimes(); // Refresh the list
       setShowForm(false);
@@ -196,9 +238,9 @@ const CrimeManagement = () => {
 
       if (!response.ok) throw new Error(t("failed_to_delete_crime"));
 
-      // Clear Redis cache and invalidate React Query
-      await clearCache.mutateAsync();
-      invalidateAll();
+      // Backend already invalidates its own cache for this crime's routes;
+      // just refresh the affected dashboard queries + this table.
+      invalidateByFilters();
 
       await fetchCrimes(); // Refresh the list
     } catch (err) {
@@ -459,24 +501,8 @@ const CrimeManagement = () => {
         </div>
       )}
 
-      {/* Filter crimes based on search term */}
-      {(() => {
-        const filteredCrimes = crimes.filter((crime) => {
-          if (!searchTerm) return true;
-          const searchLower = searchTerm.toLowerCase();
-          return (
-            crime.crime_type?.toLowerCase().includes(searchLower) ||
-            crime.city?.toLowerCase().includes(searchLower) ||
-            crime.address?.toLowerCase().includes(searchLower) ||
-            crime.description?.toLowerCase().includes(searchLower) ||
-            crime.severity?.toLowerCase().includes(searchLower)
-          );
-        });
-
-        return (
-          <>
-            {/* Crimes Table */}
-            <div
+      {/* Crimes Table */}
+      <div
         className={`rounded-lg shadow overflow-hidden ${
           isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } border`}
@@ -510,7 +536,7 @@ const CrimeManagement = () => {
                 isDark ? "divide-gray-700" : "divide-gray-200"
               }`}
             >
-              {filteredCrimes.map((crime) => (
+              {pagedCrimes.map((crime) => (
                 <tr
                   key={crime.id}
                   className={isDark ? "bg-gray-800" : "bg-white"}
@@ -522,7 +548,7 @@ const CrimeManagement = () => {
                     {crime.crime_type}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
-                    {formatDateTime(crime.date_time)}
+                    {crime._formattedDateTime ?? formatDateTime(crime.date_time)}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm">
                     {crime.city || t("na")}
@@ -574,10 +600,39 @@ const CrimeManagement = () => {
             {searchTerm ? `${t("no_crime_records_found")} (${t("search")}: "${searchTerm}")` : t("no_crime_records_found")}
           </div>
         )}
+        {filteredCrimes.length > PER_PAGE && (
+          <div
+            className={`flex items-center justify-between px-4 py-3 border-t ${
+              isDark ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
+            <span className="text-sm opacity-75">
+              {(currentPage - 1) * PER_PAGE + 1}–
+              {Math.min(currentPage * PER_PAGE, filteredCrimes.length)} /{" "}
+              {filteredCrimes.length}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="px-3 py-1 rounded-md bg-gray-600 text-white text-xs disabled:opacity-40"
+              >
+                {t("previous", "Previous")}
+              </button>
+              <span className="text-sm px-1">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="px-3 py-1 rounded-md bg-gray-600 text-white text-xs disabled:opacity-40"
+              >
+                {t("next", "Next")}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-          </>
-        );
-      })()}
     </div>
   );
 };

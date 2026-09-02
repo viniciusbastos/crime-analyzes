@@ -4,11 +4,7 @@ import Sidebar from "./Sidebar";
 import LoadingSpinner from "./LoadingSpinner";
 import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
-import {
-  useCrimeDataSets,
-  useInvalidateQueries,
-  useGeoJsonData,
-} from "../hooks/useCrimeData";
+import { useCrimeDataSets, useGeoJsonData } from "../hooks/useCrimeData";
 
 // Lazy load section components for code splitting
 const DashboardSection = lazy(() => import("./sections/DashboardSection"));
@@ -33,6 +29,19 @@ const CrimeDashboard = () => {
   const shouldLoadMapData =
     activeSection === "map" || activeSection === "dashboard";
 
+  // Trend/city data is only rendered by these sections — skip the ~7 trend
+  // requests entirely for map/chat/other sections.
+  const shouldLoadTrendData =
+    activeSection === "dashboard" ||
+    activeSection === "statistics" ||
+    activeSection === "charts";
+
+  // The cluster (GeoJSON) map is the only consumer of the full-dataset GeoJSON
+  // payload — only fetch it when that map can actually be shown.
+  const shouldLoadGeoJson =
+    (activeSection === "map" || activeSection === "dashboard") &&
+    mapType === "cluster";
+
   // Use React Query hooks for data fetching with lazy loading
   const {
     heatmapData,
@@ -48,13 +57,13 @@ const CrimeDashboard = () => {
     crimeTypes,
     isLoadingEssential,
     refetchAll,
-  } = useCrimeDataSets(filters, shouldLoadMapData);
+  } = useCrimeDataSets(filters, shouldLoadMapData, shouldLoadTrendData);
 
-  // Get GeoJSON data for cluster map
-  const { data: geoJsonData, isLoading: geoJsonLoading } =
-    useGeoJsonData(filters);
-
-  useInvalidateQueries();
+  // Get GeoJSON data for cluster map (only when the cluster map is active)
+  const { data: geoJsonData, isLoading: geoJsonLoading } = useGeoJsonData(
+    filters,
+    shouldLoadGeoJson
+  );
 
   // Update map view based on data
   React.useEffect(() => {
@@ -125,23 +134,20 @@ const CrimeDashboard = () => {
     }
   };
 
-  // Show loading for essential data first
-  if (isLoadingEssential) {
-    return (
-      <div
-        className={`flex justify-center items-center h-screen ${
-          isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-        }`}
-      >
-        <div className="text-center">
-          <LoadingSpinner message={t("loading_essential_data")} />
-          <p className="mt-2 text-sm opacity-75">{t("loading_dashboard")}</p>
-        </div>
-      </div>
-    );
-  }
-
   const renderContent = () => {
+    // Keep the sidebar + header frame painted; only the content area waits on
+    // essential data instead of blocking the whole screen.
+    if (isLoadingEssential) {
+      return (
+        <div className="flex justify-center items-center py-24">
+          <div className="text-center">
+            <LoadingSpinner message={t("loading_essential_data")} />
+            <p className="mt-2 text-sm opacity-75">{t("loading_dashboard")}</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeSection) {
       case "dashboard":
         return (

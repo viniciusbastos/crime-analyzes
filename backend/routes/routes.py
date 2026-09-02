@@ -22,7 +22,7 @@ from utils import (
 from controllers.upload_controller import UploadController
 from services.cache_service import CacheManager, cache
 from services.cache_service import cached_api_call, get_cache_timeout, invalidate_related_cache, CacheManager
-from services.chat_service import chat_service, RAG_AVAILABLE
+from services.chat_service import get_chat_service, RAG_AVAILABLE
 from services.ibge_service import ibge_service
 from services.crime_data_service import CrimeDataService
 from services.ibge_data_sync import ibge_sync_service
@@ -250,18 +250,30 @@ def get_crimes():
         }
     })
 
-    result = [{
-        'id': c.id,
-        'crime_type': c.crime_type,
-        'date_time': c.date_time.isoformat(),
-        'latitude': c.latitude,
-        'longitude': c.longitude,
-        'address': c.address,
-        'city': c.city,
-        'severity': c.severity
-    } for c in crimes]
 
-    return jsonify(result)
+@api_bp.route('/crimes/types', methods=['GET'])
+@cached_api_call(timeout=get_cache_timeout('heatmap'))  # crime types rarely change
+def get_crime_types():
+    """Return a sorted list of distinct crime types for filter dropdowns.
+
+    Uses a lightweight SELECT DISTINCT query instead of fetching every crime
+    row and deriving the list client-side.
+    """
+    try:
+        query = Crime.query
+        query = apply_user_unidade_filter(query)
+        types = (
+            query
+            .with_entities(Crime.crime_type)
+            .filter(Crime.crime_type.isnot(None))
+            .distinct()
+            .all()
+        )
+        type_list = sorted([t[0] for t in types if t[0]])
+        return jsonify({'crime_types': type_list})
+    except Exception as e:
+        current_app.logger.error(f"Error fetching crime types: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @api_bp.route('/semester-comparison', methods=['GET'])
 # @jwt_required(optional=True)
@@ -403,10 +415,25 @@ def get_crime_points():
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('heatmap'))
 def get_heatmap_geojson():
-    """Get crime data as GeoJSON for heatmap visualization"""
+    """Get crime data as GeoJSON for heatmap / cluster-map visualization.
+
+    Query params:
+      limit  – max rows to return (default 20000; prevents worst-case
+               full-table serialization for large datasets).
+      sample – if 'true', rows are drawn at random (ORDER BY random()),
+               giving a representative sample across the whole dataset.
+    """
+    limit = request.args.get('limit', type=int, default=20000)
+    use_sample = request.args.get('sample', '').lower() == 'true'
+
     query = Crime.query
     query = apply_enhanced_filters(query)
-    crimes = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None)).all()
+    query = query.filter(Crime.latitude.isnot(None), Crime.longitude.isnot(None))
+
+    if use_sample:
+        query = query.order_by(func.random())
+
+    crimes = query.limit(limit).all()
 
     crimes_df = pd.DataFrame([{
         'latitude': c.latitude,
@@ -602,7 +629,8 @@ def get_spatial_analysis():
 
             if rag_query_parts:
                 rag_query = " ".join(rag_query_parts)
-                relevant_docs = rag_service.retrieve_relevant_documents(rag_query, n_results=2)
+                from services.rag_service import get_rag_service
+                relevant_docs = get_rag_service().retrieve_relevant_documents(rag_query, n_results=2)
 
                 # Add RAG insights to response
                 if relevant_docs:
@@ -887,7 +915,7 @@ def clear_all_crime_data():
 def get_chat_metrics():
     """Get chat service and RAG metrics"""
     try:
-        metrics = chat_service.get_metrics()
+        metrics = get_chat_service().get_metrics()
         return jsonify(metrics)
     except Exception as e:
         current_app.logger.error(f"Error getting metrics: {str(e)}")
@@ -982,7 +1010,7 @@ def chat_with_crime_data():
         print(f"User ID: {user_id}")
 
         # Generate response using MLX-LM with RAG
-        result = chat_service.generate_response(user_query, filters, user_id)
+        result = get_chat_service().generate_response(user_query, filters, user_id)
 
         print(f"API Response - Thinking: {repr(result.get('thinking'))}")
         print(f"API Response - Response: {repr(result.get('response')[:200])}...")

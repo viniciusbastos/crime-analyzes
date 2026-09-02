@@ -337,5 +337,24 @@ class RAGService:
             return {"error": str(e)}
 
 
-# Global RAG service instance
-rag_service = RAGService()
+# Lazily-constructed RAG service singleton.
+# Building a RAGService opens a ChromaDB client (and may embed documents via
+# Ollama), so we defer it until something actually needs RAG instead of paying
+# the cost on every app import / worker boot.
+_rag_service_singleton = None
+
+
+def get_rag_service():
+    """Return the process-wide RAGService, constructing it on first use."""
+    global _rag_service_singleton
+    if _rag_service_singleton is None:
+        _rag_service_singleton = RAGService()
+    return _rag_service_singleton
+
+
+def __getattr__(name):
+    # Backward compatibility: `from services.rag_service import rag_service`
+    # keeps working, but only triggers construction when the name is read.
+    if name == "rag_service":
+        return get_rag_service()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
