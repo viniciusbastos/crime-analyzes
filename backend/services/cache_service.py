@@ -16,38 +16,38 @@ def init_cache(app):
     if redis_url:
         try:
             # Try to connect to Redis first
-            import redis
-            test_client = redis.Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
+            import redis as redis_lib
+            test_client = redis_lib.Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
             test_client.ping()  # Test connection
 
-            # Redis is available, use it
+            # Redis is available, use it.
+            # flask-caching >=2.x uses 'RedisCache'; <2.x uses 'redis'.
             cache_config = {
-                'CACHE_TYPE': 'redis',
+                'CACHE_TYPE': 'RedisCache',
                 'CACHE_REDIS_URL': redis_url,
                 'CACHE_DEFAULT_TIMEOUT': app.config.get('CACHE_TIMEOUT', 300),
                 'CACHE_KEY_PREFIX': 'crime_analysis:'
             }
-            # Redis cache initialized successfully
 
         except Exception as e:
-            # Redis not available, fall back to simple cache
-            # Redis not available, using simple cache
+            # Redis not available or wrong type string – fall back to SimpleCache
+            app.logger.warning(f"Redis unavailable, falling back to SimpleCache: {e}")
             cache_config = {
-                'CACHE_TYPE': 'simple',
+                'CACHE_TYPE': 'SimpleCache',
                 'CACHE_DEFAULT_TIMEOUT': 300,
                 'CACHE_KEY_PREFIX': 'crime_analysis:'
             }
     else:
-        # No Redis URL configured, use simple cache
-        # No Redis URL configured, using simple cache
+        # No Redis URL configured, use SimpleCache
         cache_config = {
-            'CACHE_TYPE': 'simple',
+            'CACHE_TYPE': 'SimpleCache',
             'CACHE_DEFAULT_TIMEOUT': 300,
             'CACHE_KEY_PREFIX': 'crime_analysis:'
         }
 
     app.config.update(cache_config)
     cache.init_app(app)
+
 
     # Verify which cache type is actually being used
     try:

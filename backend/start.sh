@@ -1,14 +1,7 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Ensure we're in the correct directory
 cd /app || exit 1
-
-
-
-# Wait for database to be ready (if using external database)
-# This is optional and depends on your setup
 
 # Set Python path to include current directory
 export PYTHONPATH=/app:$PYTHONPATH
@@ -19,15 +12,15 @@ sleep 5
 
 # Run database migrations
 echo "Running database migrations..."
-cd /app && FLASK_APP=app.py python3 -m flask db upgrade
+FLASK_APP=app FLASK_ENV=production python3 -m flask db upgrade
 
 # Create default admin user if it doesn't exist
 echo "Checking for default admin user..."
-cd /app && python3 -c "
+python3 -c "
 import sys
 sys.path.insert(0, '/app')
-from backend.app import create_app
-from backend.models.models import User, db
+from app import create_app
+from models.models import User, db
 
 app = create_app()
 with app.app_context():
@@ -45,13 +38,13 @@ with app.app_context():
         print('Default admin user already exists')
 "
 
-# Load sample data with police organizational fields if database is empty
+# Load sample data if database is empty
 echo "Checking if sample data needs to be loaded..."
-cd /app && python3 -c "
+python3 -c "
 import sys
 sys.path.insert(0, '/app')
-from backend.app import create_app
-from backend.models.models import Crime, db
+from app import create_app
+from models.models import Crime, db
 
 app = create_app()
 with app.app_context():
@@ -63,9 +56,9 @@ with app.app_context():
 
 if [ $? -eq 0 ]; then
     echo "Converting crime data..."
-    cd /app && python3 backend/convert_crime_data.py
+    python3 convert_crime_data.py
     echo "Loading converted crime data..."
-    cd /app && python3 backend/load_converted_data.py
+    python3 load_converted_data.py
 else
     echo "Sample data already exists, skipping load"
 fi
