@@ -27,6 +27,8 @@ const DashboardSection = ({
   onToggleContours,
   mapType,
   setMapType,
+  cityData,
+  semesterComparisonData,
 }) => {
   return (
     <div className="space-y-6">
@@ -48,6 +50,8 @@ const DashboardSection = ({
           summaryData={summaryData}
           temporalData={temporalData}
           trendData={trendData}
+          filters={filters}
+          cityData={cityData}
         />
       </Suspense>
 
@@ -101,9 +105,12 @@ const DashboardSection = ({
 
           <Suspense fallback={<LoadingSpinner message="Loading charts..." />}>
             <ChartsGrid
+              filters={filters}
               temporalData={temporalData}
               trendData={trendData}
               summaryData={summaryData}
+              cityData={cityData}
+              semesterComparisonData={semesterComparisonData}
             />
           </Suspense>
         </div>

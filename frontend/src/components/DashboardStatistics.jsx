@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
-const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
+const DashboardStatistics = ({ summaryData, trendData, temporalData, filters, cityData }) => {
   const { isDark } = useTheme();
   const { t } = useTranslation();
 
@@ -351,6 +351,87 @@ const DashboardStatistics = ({ summaryData, trendData, temporalData }) => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+      {/* City Statistics — shown when filtering by Unidade */}
+      {filters?.unidade && cityData && cityData.length > 0 && (
+        <div
+          className={`p-6 rounded-xl border-2 ${
+            isDark
+              ? "bg-gradient-to-r from-gray-800 to-gray-700 border-gray-600"
+              : "bg-gradient-to-r from-white to-gray-50 border-gray-200"
+          }`}
+        >
+          <h3
+            className={`text-lg font-semibold mb-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            🏙️ {t("crime_distribution_by_city_and_year", "Distribuição por Cidade")}
+          </h3>
+          <p className={`text-xs mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+            {t("unidade_filter_label", "Unidade")}: <strong>{filters.unidade}</strong>
+          </p>
+          <div className="space-y-3">
+            {(() => {
+              const totalAll = cityData.reduce((s, c) => s + c.total_crimes, 0);
+              const barColors = [
+                "bg-blue-500",
+                "bg-purple-500",
+                "bg-emerald-500",
+                "bg-orange-500",
+                "bg-rose-500",
+                "bg-teal-500",
+                "bg-indigo-500",
+              ];
+              return cityData.map((item, index) => {
+                const pct = totalAll > 0 ? ((item.total_crimes / totalAll) * 100).toFixed(1) : 0;
+                return (
+                  <div key={item.city} className="flex items-center space-x-4">
+                    <div
+                      className={`w-4 h-4 rounded-full ${barColors[index % barColors.length]}`}
+                    />
+                    <div className="flex-1">
+                      <div
+                        className={`flex justify-between items-center ${
+                          isDark ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        <span className="font-medium">{item.city}</span>
+                        <span className="font-bold">{pct}%</span>
+                      </div>
+                      <div
+                        className={`w-full ${
+                          isDark ? "bg-gray-700" : "bg-gray-200"
+                        } rounded-full h-2 mt-1`}
+                      >
+                        <div
+                          className={`${
+                            barColors[index % barColors.length]
+                          } h-2 rounded-full transition-all duration-500`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <div
+                        className={`text-sm ${
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        {item.total_crimes.toLocaleString()} {t("incidents", "incidentes")}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+          <div
+            className={`mt-4 text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+          >
+            {t("total_cities", "Total de cidades")}: {cityData.length} &nbsp;|&nbsp;
+            {t("total_crimes", "Total de crimes")}:{" "}
+            {cityData.reduce((s, c) => s + c.total_crimes, 0).toLocaleString()}
           </div>
         </div>
       )}

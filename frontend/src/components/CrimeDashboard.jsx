@@ -54,6 +54,8 @@ const CrimeDashboard = () => {
     movingAveragesData,
     weeklyMovingAveragesData,
     forecastData,
+    cityData,
+    semesterComparisonData,
     crimeTypes,
     isLoadingEssential,
     refetchAll,
@@ -179,6 +181,8 @@ const CrimeDashboard = () => {
               onToggleContours={() => setShowContours(!showContours)}
               mapType={mapType}
               setMapType={setMapType}
+              cityData={cityData}
+              semesterComparisonData={semesterComparisonData}
             />
           </Suspense>
         );
@@ -201,6 +205,7 @@ const CrimeDashboard = () => {
                 weeklyMovingAveragesData,
                 forecastData,
               }}
+              cityData={cityData}
             />
           </Suspense>
         );

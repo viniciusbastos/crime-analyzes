@@ -13,6 +13,7 @@ const StatisticsSection = ({
   summaryData,
   temporalData,
   trendData,
+  cityData,
 }) => {
   return (
     <div className="space-y-6">
@@ -33,6 +34,8 @@ const StatisticsSection = ({
           summaryData={summaryData}
           temporalData={temporalData}
           trendData={trendData}
+          filters={filters}
+          cityData={cityData}
         />
       </Suspense>
     </div>
