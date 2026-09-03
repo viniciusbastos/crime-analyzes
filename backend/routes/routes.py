@@ -741,19 +741,25 @@ def get_forecast():
 # @jwt_required(optional=True)
 def get_city_statistics():
     """Get crime statistics by city and year"""
-    query = Crime.query
-    query = apply_enhanced_filters(query)
-
-    # Group by city and year, then count crimes
     from sqlalchemy import func, extract
-    city_year_stats = db.session.query(
+
+    # Build aggregation query and apply all active filters directly
+    city_year_query = db.session.query(
         Crime.city,
         extract('year', Crime.date_time).label('year'),
         func.count(Crime.id).label('crime_count')
     ).filter(
         Crime.city.isnot(None),
         Crime.city != ''
-    ).group_by(Crime.city, extract('year', Crime.date_time)).order_by(
+    )
+
+    # Apply user-based and request-based filters (unidade, city, date range, etc.)
+    city_year_query = apply_user_unidade_filter(city_year_query)
+    city_year_query = apply_enhanced_filters(city_year_query)
+
+    city_year_stats = city_year_query.group_by(
+        Crime.city, extract('year', Crime.date_time)
+    ).order_by(
         Crime.city, extract('year', Crime.date_time)
     ).all()
 
