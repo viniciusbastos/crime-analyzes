@@ -2,7 +2,7 @@ from flask_restx import Api, Resource, fields, reqparse
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
 from models.models import db, Crime
-from services.chat_service import chat_service
+from services.chat_service import get_chat_service
 from services.cache_service import CacheManager
 from datetime import datetime
 import json
@@ -574,7 +574,7 @@ class CrimeChat(Resource):
         filters = data.get('filters', {})
 
         try:
-            response = chat_service.generate_response(user_query, filters)
+            response = get_chat_service().generate_response(user_query, filters)
 
             return {
                 'query': user_query,
