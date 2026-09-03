@@ -51,11 +51,11 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
       {/* Sidebar */}
       <div
         className={`
-        h-full transition-all duration-300 ease-in-out shadow-xl
+        h-screen flex flex-col transition-all duration-300 ease-in-out shadow-xl
         ${isCollapsed ? "w-16" : "w-64"}
         ${isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}
         border-r
-        fixed lg:relative z-40
+        fixed lg:sticky top-0 z-40
         ${isMobileOpen ? "left-0" : "-left-64 lg:left-0"}
       `}
       >
@@ -87,7 +87,7 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
         </div>
 
         {/* Menu Items */}
-        <nav className="p-4">
+        <nav className="p-4 flex-1 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.id}>
@@ -115,7 +115,7 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
 
         {/* Footer */}
         <div
-          className={`absolute bottom-0 left-0 right-0 p-4 border-t ${
+          className={`shrink-0 p-4 border-t ${
             isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
           }`}
         >
