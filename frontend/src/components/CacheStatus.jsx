@@ -161,7 +161,7 @@ const CacheStatus = () => {
         <button
           onClick={async () => {
             try {
-              await axios.post("/api/system/cache/clear");
+              await axios.post("/api/cache/clear");
               alert(t("redis_cache_cleared_successfully"));
             } catch (error) {
               alert(`${t("error_clearing_cache")}: ${error.message}`);
