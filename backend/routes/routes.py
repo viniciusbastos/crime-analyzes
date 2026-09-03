@@ -283,30 +283,28 @@ def get_semester_comparison():
     try:
         print(f"Semester comparison request args: {dict(request.args)}")
         query = Crime.query
+        query = apply_user_unidade_filter(query)
         query = apply_enhanced_filters(query)
 
         # Group by year and semester (1=Jan-Jun, 2=Jul-Dec)
         from sqlalchemy import func, case, extract
 
-        semester_data = db.session.query(
-            extract('year', Crime.date_time).label('year'),
-            case(
-                (extract('month', Crime.date_time) <= 6, 1),
-                else_=2
-            ).label('semester'),
+        year_expr = extract('year', Crime.date_time)
+        semester_expr = case(
+            (extract('month', Crime.date_time) <= 6, 1),
+            else_=2
+        )
+
+        # with_entities keeps the existing FROM/filters and only swaps the
+        # SELECT list — no extra FROM entity, so no cartesian join.
+        semester_data = query.with_entities(
+            year_expr.label('year'),
+            semester_expr.label('semester'),
             func.count(Crime.id).label('crime_count')
-        ).select_from(query.subquery()).group_by(
-            extract('year', Crime.date_time),
-            case(
-                (extract('month', Crime.date_time) <= 6, 1),
-                else_=2
-            )
+        ).group_by(
+            year_expr, semester_expr
         ).order_by(
-            extract('year', Crime.date_time),
-            case(
-                (extract('month', Crime.date_time) <= 6, 1),
-                else_=2
-            )
+            year_expr, semester_expr
         ).all()
 
         # Organize data by year and semester

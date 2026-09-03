@@ -31,8 +31,14 @@ const SemesterComparisonChart = ({ data }) => {
     );
   }
 
+  // Only the most recent year-over-year comparison
+  const latestYear = data
+    .map((d) => d.current_year)
+    .sort((a, b) => String(b).localeCompare(String(a)))[0];
+  const latest = data.filter((d) => d.current_year === latestYear);
+
   // Group data by semester
-  const semesterData = data.reduce((acc, item) => {
+  const semesterData = latest.reduce((acc, item) => {
     if (!acc[item.semester]) {
       acc[item.semester] = [];
     }
@@ -253,8 +259,8 @@ const SemesterComparisonChart = ({ data }) => {
           </span>
           <div className="flex gap-4">
             <span className={isDark ? "text-white" : "text-gray-900"}>
-              {data.reduce((sum, d) => sum + d.current_count, 0)} (
-              {data[0]?.current_year || "Current"})
+              {latest.reduce((sum, d) => sum + d.current_count, 0)} (
+              {latest[0]?.current_year || "Current"})
             </span>
             <span
               className={`font-medium ${
@@ -264,8 +270,8 @@ const SemesterComparisonChart = ({ data }) => {
               {t("vs")}
             </span>
             <span className={isDark ? "text-white" : "text-gray-900"}>
-              {data.reduce((sum, d) => sum + d.previous_count, 0)} (
-              {data[0]?.previous_year || "Previous"})
+              {latest.reduce((sum, d) => sum + d.previous_count, 0)} (
+              {latest[0]?.previous_year || "Previous"})
             </span>
           </div>
         </div>

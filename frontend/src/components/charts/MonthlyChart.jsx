@@ -8,13 +8,9 @@ const MonthlyChart = ({ filters = {} }) => {
   const { isDark } = useTheme();
   const { t } = useTranslation();
   const [selectedYears, setSelectedYears] = useState([]);
-  const [localFilters, setLocalFilters] = useState(filters);
-  const [cities, setCities] = useState([]);
-  const [unidades, setUnidades] = useState([]);
-  const [risps, setRisps] = useState([]);
 
-  // Use the crime data hook to get filtered temporal data
-  const { temporalData } = useCrimeDataSets(localFilters, false);
+  // Follow the general filtering — use the shared filters prop directly
+  const { temporalData } = useCrimeDataSets(filters, false);
 
   const chartOptions = {
     responsive: true,
@@ -87,45 +83,6 @@ const MonthlyChart = ({ filters = {} }) => {
         { bg: "rgba(124, 58, 237, 0.8)", border: "rgba(124, 58, 237, 1)" }, // Purple
         { bg: "rgba(219, 39, 119, 0.8)", border: "rgba(219, 39, 119, 1)" }, // Pink
       ];
-
-  // Update local filters when props change
-  useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
-
-  // Load filter options
-  useEffect(() => {
-    const loadFilterOptions = async () => {
-      try {
-        const [citiesRes, unidadesRes, rispsRes] = await Promise.all([
-          fetch("/api/locations/cities"),
-          fetch("/api/police/unidades"),
-          fetch("/api/police/risps"),
-        ]);
-
-        if (citiesRes.ok) {
-          const citiesData = await citiesRes.json();
-          setCities(citiesData.map((city) => ({ label: city, value: city })));
-        }
-
-        if (unidadesRes.ok) {
-          const unidadesData = await unidadesRes.json();
-          setUnidades(
-            unidadesData.map((unidade) => ({ label: unidade, value: unidade }))
-          );
-        }
-
-        if (rispsRes.ok) {
-          const rispsData = await rispsRes.json();
-          setRisps(rispsData.map((risp) => ({ label: risp, value: risp })));
-        }
-      } catch (error) {
-        console.error("Error loading filter options:", error);
-      }
-    };
-
-    loadFilterOptions();
-  }, []);
 
   // Initialize selected years when temporalData changes
   useEffect(() => {
@@ -207,123 +164,55 @@ const MonthlyChart = ({ filters = {} }) => {
           {t("monthly_crime_trends_by_year")}
         </h3>
 
-        {/* Filter Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label className={`block text-sm font-medium mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-              🏙️ {t("city")}
-            </label>
-            <select
-              value={localFilters.city || ""}
-              onChange={(e) => setLocalFilters({ ...localFilters, city: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
+        {/* Year display toggle — data itself follows the general filters */}
+        <div className="mb-4">
+          <label className={`block text-sm font-medium mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+            📅 {t("years")}
+          </label>
+          <div className="flex flex-wrap gap-1">
+            <button
+              onClick={handleSelectAll}
+              className={`px-2 py-1 text-xs rounded ${
                 isDark
-                  ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
-                  : "bg-white border-gray-300 focus:border-blue-500"
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
               }`}
             >
-              <option value="">{t("all_cities")}</option>
-              {cities.map((city) => (
-                <option key={city.value} value={city.value}>
-                  {city.label}
+              {t("all")}
+            </button>
+            <button
+              onClick={handleClearAll}
+              className={`px-2 py-1 text-xs rounded ${
+                isDark
+                  ? "bg-gray-600 hover:bg-gray-700 text-white"
+                  : "bg-gray-500 hover:bg-gray-600 text-white"
+              }`}
+            >
+              {t("none")}
+            </button>
+            <select
+              multiple
+              value={selectedYears}
+              onChange={(e) => {
+                const values = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                );
+                setSelectedYears(values);
+              }}
+              className={`px-2 py-1 text-xs rounded border ${
+                isDark
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              }`}
+              size={Math.min(availableYears.length, 3)}
+            >
+              {availableYears.map((year) => (
+                <option key={year} value={year}>
+                  {year}
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className={`block text-sm font-medium mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-              👮 {t("unidade")}
-            </label>
-            <select
-              value={localFilters.unidade || ""}
-              onChange={(e) => setLocalFilters({ ...localFilters, unidade: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
-                isDark
-                  ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
-                  : "bg-white border-gray-300 focus:border-blue-500"
-              }`}
-            >
-              <option value="">{t("all_unidades")}</option>
-              {unidades.map((unidade) => (
-                <option key={unidade.value} value={unidade.value}>
-                  {unidade.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className={`block text-sm font-medium mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-              🏛️ {t("risp")}
-            </label>
-            <select
-              value={localFilters.risp || ""}
-              onChange={(e) => setLocalFilters({ ...localFilters, risp: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${
-                isDark
-                  ? "bg-gray-700 border-gray-600 text-white focus:border-blue-500"
-                  : "bg-white border-gray-300 focus:border-blue-500"
-              }`}
-            >
-              <option value="">{t("all_risps")}</option>
-              {risps.map((risp) => (
-                <option key={risp.value} value={risp.value}>
-                  {risp.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className={`block text-sm font-medium mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-              📅 {t("years")}
-            </label>
-            <div className="flex flex-wrap gap-1">
-              <button
-                onClick={handleSelectAll}
-                className={`px-2 py-1 text-xs rounded ${
-                  isDark
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
-                }`}
-              >
-                {t("all")}
-              </button>
-              <button
-                onClick={handleClearAll}
-                className={`px-2 py-1 text-xs rounded ${
-                  isDark
-                    ? "bg-gray-600 hover:bg-gray-700 text-white"
-                    : "bg-gray-500 hover:bg-gray-600 text-white"
-                }`}
-              >
-                {t("none")}
-              </button>
-              <select
-                multiple
-                value={selectedYears}
-                onChange={(e) => {
-                  const values = Array.from(
-                    e.target.selectedOptions,
-                    (option) => option.value
-                  );
-                  setSelectedYears(values);
-                }}
-                className={`px-2 py-1 text-xs rounded border ${
-                  isDark
-                    ? "bg-gray-700 border-gray-600 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                }`}
-                size={Math.min(availableYears.length, 3)}
-              >
-                {availableYears.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
       </div>
