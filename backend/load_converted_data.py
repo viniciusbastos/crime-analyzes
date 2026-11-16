@@ -1,8 +1,16 @@
+import os
 import pandas as pd
-from backend.app import create_app
-from backend.utils.geocoding import process_address_data
-from backend.models import db, Crime
-from backend.services.crime_service import CrimeDataService
+
+try:
+    from app import create_app
+    from utils.geocoding import process_address_data
+    from models.models import db, Crime
+    from services.crime_service import CrimeDataService
+except ImportError:
+    from backend.app import create_app
+    from backend.utils.geocoding import process_address_data
+    from backend.models import db, Crime
+    from backend.services.crime_service import CrimeDataService
 
 def load_converted_data():
     app = create_app()
@@ -13,7 +21,10 @@ def load_converted_data():
             return
 
         # Load and process converted data that includes police organizational fields
-        df = pd.read_csv('data/converted_crime_data_2025.csv')
+        csv_path = 'data/converted_crime_data_2026.csv'
+        if not os.path.exists(csv_path):
+            csv_path = 'data/converted_crime_data_2025.csv'
+        df = pd.read_csv(csv_path)
         df = df.head(4000)  # Limit to 50 rows for sample data
         print(f"Loaded {len(df)} rows from converted data (limited to 50 for sample)")
 
