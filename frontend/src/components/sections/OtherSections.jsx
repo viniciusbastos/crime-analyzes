@@ -60,7 +60,12 @@ const OtherSections = ({
           <Suspense
             fallback={<LoadingSpinner message="Loading crime management..." />}
           >
-            <CrimeManagement />
+            <CrimeManagement
+              filters={filters}
+              crimeTypes={crimeTypes}
+              onApplyFilters={onApplyFilters}
+              onResetFilters={onResetFilters}
+            />
           </Suspense>
         );
       case "users":

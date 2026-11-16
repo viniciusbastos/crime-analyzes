@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTheme } from "../hooks/useTheme";
 import { useInvalidateQueries } from "../hooks/useCrimeData";
 import { useTranslation } from "react-i18next";
+import LoadingSpinner from "./LoadingSpinner";
+
+const CollapsibleFilterBar = lazy(() => import("./CollapsibleFilterBar"));
 
 // Fix for default markers in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -92,7 +95,12 @@ const LocationPicker = ({ latitude, longitude, onLocationChange, isDark }) => {
   );
 };
 
-const CrimeManagement = () => {
+const CrimeManagement = ({
+  filters = {},
+  crimeTypes = [],
+  onApplyFilters,
+  onResetFilters,
+}) => {
   const { isDark } = useTheme();
   const { t } = useTranslation();
   const { invalidateByFilters } = useInvalidateQueries();
@@ -138,7 +146,15 @@ const CrimeManagement = () => {
   const fetchCrimes = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/crimes?per_page=5000");
+      const params = new URLSearchParams();
+      Object.entries(filters || {}).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          params.set(key, value);
+        }
+      });
+      params.set("per_page", "5000");
+
+      const response = await fetch(`/api/crimes?${params.toString()}`);
       if (!response.ok) throw new Error(t("failed_to_fetch_crimes"));
       const data = await response.json();
       // Ensure data.crimes is an array before sorting
@@ -159,7 +175,7 @@ const CrimeManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, filters]);
 
   useEffect(() => {
     fetchCrimes();
@@ -190,10 +206,10 @@ const CrimeManagement = () => {
     [filteredCrimes, currentPage]
   );
 
-  // Reset to first page whenever the search changes
+  // Reset to first page whenever the search or filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, filters]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -289,21 +305,30 @@ const CrimeManagement = () => {
     }));
   };
 
-  if (loading) {
-    return (
-      <div
-        className={`flex justify-center items-center h-64 ${
-          isDark ? "text-white" : "text-gray-900"
-        }`}
-      >
-        {t("loading_crimes")}...
-      </div>
-    );
-  }
-
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
-      {/* Header */}
+      {onApplyFilters && onResetFilters && (
+        <Suspense fallback={<LoadingSpinner message="Loading filters..." />}>
+          <CollapsibleFilterBar
+            filters={filters}
+            crimeTypes={crimeTypes}
+            onApplyFilters={onApplyFilters}
+            onResetFilters={onResetFilters}
+          />
+        </Suspense>
+      )}
+
+      {loading ? (
+        <div
+          className={`flex justify-center items-center h-64 ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
+          {t("loading_crimes")}...
+        </div>
+      ) : (
+        <>
+          {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">{t("crime_records_management")}</h2>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -633,6 +658,8 @@ const CrimeManagement = () => {
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -71,6 +71,7 @@ gen_local_msg() {
   echo "$FILES" | grep -qE '^backend/'  && { TYPE="feat"; SCOPES+=("backend"); }
   echo "$FILES" | grep -qE '^frontend/' && { TYPE="feat"; SCOPES+=("frontend"); }
   echo "$FILES" | grep -qE 'docker|Dockerfile|compose' && TYPE="chore"
+  
 
   SCOPE=$(IFS=,; echo "${SCOPES[*]}")
   COUNT=$(echo "$FILES" | wc -l | tr -d ' ')

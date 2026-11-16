@@ -1,80 +1,135 @@
-# Crime Analysis Web Application
+# Crime Analysis
 
-A comprehensive Python web application for analyzing geolocated crime data with interactive heatmap visualization.
+A web and mobile platform for analyzing geolocated crime data, with interactive maps, trend analysis, and an AI chat for natural language questions. It is built around police incident data from the state of Bahia, Brazil, and includes filters for police organizational units (OPM, AISP, and RISP).
 
 ## Features
 
-- **AI-Powered Natural Language Queries**: Ask questions about crime data in plain English or Portuguese
-- **Intelligent Chart Recommendations**: AI suggests relevant visualizations based on your questions
-- **Data Ingestion**: Upload CSV/Excel files with crime data or integrate with external APIs
-- **Geospatial Analysis**: Interactive heatmaps, spatial clustering, and location-based statistics
-- **Temporal Analysis**: Crime patterns by hour, day, week, and month
-- **Interactive Dashboard**: Filter by crime type, date range, and severity
-- **Data Export**: Export analysis results in JSON, CSV, or Excel formats
-- **Geocoding**: Automatic address-to-coordinates conversion
-- **Modern UI**: Responsive web interface with React, Tailwind CSS, and interactive charts
+- **AI Chat**: Ask questions about crime data in English or Portuguese, with answers supported by retrieval (RAG)
+- **Data Upload**: Admins can upload CSV files with row-level rejection reporting and duplicate detection
+- **Maps**: Heatmaps, crime points, clusters, and density views
+- **Temporal Analysis**: Hourly, weekday/weekend, monthly, and semester patterns
+- **Trends**: Year-over-year comparison, growth rates, moving averages, and forecasts
+- **Incident-Free Periods**: Find periods without recorded incidents
+- **Demographic Correlation**: Compare crime with IBGE population and socioeconomic data
+- **Authentication**: JWT login, `admin` and `viewer` roles, and activity logs
+- **Data Export**: Export results as JSON, CSV, or Excel
+- **Mobile App**: React Native (Expo) client in `mobile/`
+- **Internationalization**: English and Brazilian Portuguese
 
 ## Tech Stack
 
-- **Backend**: Flask, SQLAlchemy
-- **Database**: SQLite (with PostgreSQL support)
-- **AI/ML**: MLX-LM (local language models), OpenAI API (optional)
-- **Frontend**: React, Vite, Tailwind CSS, Chart.js, Leaflet.js
-- **Analysis**: Pandas, Scikit-learn, Shapely
-- **Deployment**: Docker, Redis (caching)
+- **Backend**: Python 3.12, Flask, SQLAlchemy, GeoAlchemy2, Flask-Migrate, Gunicorn
+- **Database**: PostgreSQL 16 with PostGIS
+- **Cache**: Redis
+- **AI**: MLX-LM or Transformers for text generation, Ollama for embeddings, ChromaDB for vector storage
+- **Analysis**: Pandas, GeoPandas, Scikit-learn, Shapely
+- **Web Frontend**: React 19, Vite, Tailwind CSS, TanStack Query, Chart.js, D3, Leaflet, Mapbox GL
+- **Mobile**: Expo, React Native Paper, React Navigation
+- **Deployment**: Docker Compose, Nginx
+
+## Project Structure
+
+```
+backend/
+  app.py              Flask application factory
+  config/             Application configuration
+  controllers/        Upload handling
+  migrations/         Alembic database migrations
+  models/             SQLAlchemy models
+  routes/             API (routes.py) and authentication (auth.py) endpoints
+  services/           Crime data, cache, chat, RAG, and IBGE services
+  tests/              Pytest suite
+frontend/             React web application
+mobile/               Expo mobile application
+```
 
 ## Quick Start
 
-### Using Docker (Recommended)
+### Using Docker
 
-1. Clone the repository
-2. Update the `.env` file with your configuration
-3. Run the application:
+1. Create the environment file:
 
-```bash
-docker-compose up --build
-```
+   ```bash
+   cp .env.example .env
+   ```
 
-The application will be available at `http://localhost:5000`
+2. Edit `.env`:
+   - Set `SECRET_KEY`, `JWT_SECRET_KEY`, and `POSTGRES_PASSWORD`, and use the same password in `DATABASE_URL`.
+   - Set `REDIS_URL=redis://redis:6379/0`. The template value points to `localhost`, which does not reach the Redis container.
+   - Keep `POSTGRES_USER=user` and `POSTGRES_DB=crime_analysis` unless you also change the database healthcheck in `docker-compose.yaml`.
 
-#### ARM64 Systems (Apple Silicon, Raspberry Pi, etc.)
+3. Start the services:
 
-For ARM64-based systems, use the ARM64-specific docker-compose file:
+   ```bash
+   docker-compose up --build
+   ```
+
+| Service | URL |
+|---------|-----|
+| Web application | `http://localhost:8080` |
+| API | `http://localhost:5005/api` |
+| API documentation | `http://localhost:5005/api/docs` |
+
+On startup, the API container runs the database migrations and creates a default admin user if no users exist.
+
+> **Security:** The default login is `admin@example.com` / `admin123`. Change this password immediately, and do not expose the application before you do.
+
+#### ARM64 Systems
+
+Use the ARM64 Compose file on systems such as Apple Silicon or Raspberry Pi:
 
 ```bash
 docker-compose -f docker-compose.arm64.yaml up --build
 ```
 
-This configuration includes:
-- ARM64 platform specifications for all services
-- ARM64-compatible base images
-- Optimized Dockerfiles for ARM64 architecture
+This file does not publish any ports to the host. To reach the application, add a `ports` entry to the `frontend` service or connect it through a reverse proxy. It also does not mount the backend source code, so rebuild the image after backend changes.
 
 ### Manual Setup
 
-1. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+1. Create the database:
 
-2. Set up PostgreSQL with PostGIS:
-```sql
-CREATE DATABASE crime_analysis;
-CREATE EXTENSION postgis;
-```
+   ```sql
+   CREATE DATABASE crime_analysis;
+   \c crime_analysis
+   CREATE EXTENSION postgis;
+   ```
 
-3. Update `.env` with your database credentials
+2. Create `.env` from `.env.example` in the repository root. Set `DATABASE_URL` to your local database, for example `postgresql://user:password@localhost:5432/crime_analysis`.
 
-4. Run the application:
-```bash
-python app.py
-```
+3. Install the backend dependencies, apply the migrations, and start the API on port 5001:
 
-## AI Natural Language Queries
+   ```bash
+   cd backend
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   FLASK_APP=app flask db upgrade
+   python app.py
+   ```
 
-### Overview
+   Set `FLASK_RUN_PORT` to use a different port.
 
-The application features an advanced AI chat interface that allows you to analyze crime data using natural language queries in English or Portuguese. The system uses local MLX language models to parse your questions, execute relevant database queries, and provide insightful responses with chart recommendations.
+4. In a second terminal, start the web frontend:
+
+   ```bash
+   cd frontend
+   npm install
+   VITE_API_BASE_URL=http://localhost:5001 npm run dev
+   ```
+
+   The Vite development server forwards `/api` and `/auth` to this address. Without the variable, it uses port 5000.
+
+5. Optionally, start the mobile app. See `mobile/README.md` for details:
+
+   ```bash
+   cd mobile
+   npm install
+   npx expo start
+   ```
+
+## AI Chat
+
+The chat parses each question into filters, queries the database, retrieves related knowledge from ChromaDB, and generates an answer.
 
 ### Example Queries
 
@@ -82,17 +137,14 @@ The application features an advanced AI chat interface that allows you to analyz
 - "What crimes happen most often during evenings?"
 - "Show me crime trends by month for 2024"
 - "Compare weekday vs weekend crime patterns"
-- "What's the hourly distribution of thefts?"
 
 **Geographic Analysis:**
 - "Which cities have the highest crime rates?"
 - "Show me crime patterns in Salvador"
-- "What areas should we focus police patrols on?"
 
 **Crime Type Analysis:**
 - "What are the most common crime types?"
 - "How have robbery rates changed over time?"
-- "Compare theft vs assault incidents"
 
 **Portuguese Queries:**
 - "Quais crimes acontecem mais à noite?"
@@ -101,54 +153,71 @@ The application features an advanced AI chat interface that allows you to analyz
 
 ### AI Setup
 
-#### Option 1: Local MLX Model (Recommended)
+**Text generation** uses the first option available:
 
-Install MLX-LM for local, private AI processing:
+1. **MLX-LM**, on Apple Silicon only. It is not in `requirements.txt`, so install it separately with `pip install mlx-lm`. The default model, `mlx-community/gpt-oss-20b-MXFP4-Q8`, downloads on first use.
+2. **Transformers with `gpt2`**, when MLX-LM is not installed. This includes the Docker images. Expect much lower answer quality.
+3. **A built-in template response**, when model generation fails.
+
+**Embeddings** use Ollama, which is not part of the Docker Compose setup. Install and start Ollama, and then download the model:
 
 ```bash
-# Install MLX-LM
-pip install mlx-lm
-
-# The app will automatically download the default model on first use
-# Default model: mlx-community/gpt-oss-20b-MXFP4-Q8
+ollama pull mxbai-embed-large
 ```
-
-#### Option 2: Cloud API (Alternative)
-
-For better accuracy, you can configure cloud AI providers:
-
-```python
-# In config/config.py, set:
-USE_CLOUD_LLM = True
-OPENAI_API_KEY = "your-api-key"  # Optional
-```
-
-### Chat Interface Features
-
-- **Interactive Chat**: Ask questions in natural language
-- **Smart Parsing**: Automatically converts questions to database queries
-- **Dynamic Filtering**: Extracts filters from your questions (dates, locations, crime types)
-- **Chart Suggestions**: AI recommends relevant visualizations
-- **Thinking Process**: View the AI's reasoning (when available)
-- **Bilingual Support**: Works in English and Portuguese
 
 ## API Endpoints
 
-### Core Endpoints
-- `GET /` - Main dashboard
-- `POST /api/upload` - Upload crime data files
-- `GET /api/crimes` - Retrieve filtered crime data
-- `GET /api/heatmap` - Get heatmap data
-- `GET /api/statistics` - Get location-based statistics
-- `GET /api/export` - Export analysis results
+Interactive documentation is available at `/api/docs`. The main endpoints are:
 
-### AI Chat Endpoints
-- `POST /api/chat` - Natural language query processing
+### Authentication (`/auth`)
 
-#### Chat API Usage
+- `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `POST /auth/forgot-password`
+- `GET /auth/validate`
+- `GET`, `PUT /auth/profile`
+- `POST /auth/change-password`
+- `GET`, `POST /auth/users`, and `PUT`, `DELETE /auth/users/<id>`
+- `GET /auth/activity-logs`
+
+### Crime Data (`/api`)
+
+- `GET`, `POST /api/crimes`, and `GET`, `PUT`, `DELETE /api/crimes/<id>`
+- `GET /api/crimes/types`
+- `POST /api/upload`, `GET /api/last-upload`
+- `GET /api/export?format=json|csv|excel`
+
+### Maps
+
+- `GET /api/heatmap`, `/api/heatmap/geojson`, `/api/heatmap/html`
+- `GET /api/crime-points`, `/api/density`, `/api/spatial`
+
+### Analysis
+
+- `GET /api/summary`, `/api/temporal`, `/api/semester-comparison`, `/api/incident-free-periods`
+- `GET /api/trends/year-over-year`, `/api/trends/growth-rates`, `/api/trends/moving-averages`, `/api/trends/weekly-moving-averages`, `/api/trends/forecast`
+- `GET /api/correlations/crime-demographics`, `/api/correlations/socioeconomic-crime/<indicator>`
+
+### Locations and Police Units
+
+- `GET /api/cities`, `/api/locations/cities`
+- `GET /api/police/unidades`, `/api/police/aisps`, `/api/police/risps`
+
+### IBGE Data
+
+- `GET /api/ibge/municipality/<code>`, and `/population`, `/demographics`, or `/socioeconomic` under the same path
+- `GET /api/ibge/sync/status`
+- `POST /api/ibge/sync/bahia`, `/api/ibge/sync/municipalities`, `/api/ibge/cleanup`, `/api/ibge/cache/clear`
+
+### System
+
+- `GET /api/health`, `/api/metrics`, `/api/cache/stats`
+- `POST /api/cache/clear`
+- `POST /api/system/clear-crime-data` deletes all crime records and cannot be undone. It requires the `admin` role.
+
+### Chat
+
+`POST /api/chat`
 
 ```javascript
-// Send natural language query
 const response = await fetch('/api/chat', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -159,146 +228,105 @@ const response = await fetch('/api/chat', {
 });
 
 const data = await response.json();
-console.log(data.response);     // AI analysis
-console.log(data.thinking);     // AI reasoning process
-console.log(data.chart_suggestion); // Recommended chart
+console.log(data.response);        // Generated answer
+console.log(data.thinking);        // Model reasoning, or null
+console.log(data.filters_applied); // Filters sent with the request
 ```
 
 ## Data Format
 
-CSV/Excel files should contain columns:
-- `crime_type` - Type of crime
-- `date_time` - Date and time of incident
-- `latitude` / `longitude` - Coordinates (or `address` for geocoding)
-- `address` - Location address
-- `severity` - Crime severity level
-- `description` - Additional details
+Upload files in CSV format, up to 16 MB. The importer tries UTF-8 and Latin-1 encodings automatically.
 
-## Environment Configuration
+| Field | Accepted columns |
+|-------|------------------|
+| Crime type | `DELITO`, `crime_type`, `type` |
+| Date | `DATA`, `date_time`, `datetime`, `date`, or `ANO` + `MES` + `DIA` |
+| Hour | `HORA`, `time` |
+| Latitude | `LATITUDE`, `latitude`, `lat` |
+| Longitude | `LONGITUDE`, `longitude`, `lng` |
+| Street | `LOGRADOURO`, `address`, `location` |
+| Neighborhood | `BAIRRO`, `neighborhood` |
+| City | `MUNICIPIO`, `city` |
+| Incident report number | `BO` |
+| Police station | `DELEGACIA`, `police_station` |
+| Victim gender | `SEXO`, `gender` |
+| Victim age | `IDADE`, `age` |
+| Police organization | `OPM`, `AISP`, `RISP` |
+| Region | `REGIAO`, `regiao`, `COORPIN 2026`, `COORPIN`, `coorpin` |
+| IBGE municipality code | `IDMUNICIPIO`, `ID_MUNICIPIO`, `id_municipio` |
 
-### Environment Files
+The importer does not geocode addresses. Rows are marked as not geocoded when the coordinates are pending or outside the state's bounding box.
 
-The application uses environment files for configuration:
+## Configuration
 
-- **`.env`** - Development environment (tracked in git with example values)
-- **`.env.production`** - Production environment (not tracked in git)
-- **`.env.example`** - Template file with all available variables
+`.env.example` lists the available variables. The `.env` and `.env.production` files are not tracked in Git.
 
-### Setup
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY`, `JWT_SECRET_KEY` | Flask and JWT signing keys. Always replace the defaults. |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Docker database credentials |
+| `VITE_API_BASE_URL` | Backend address for the Vite development proxy |
+| `DATA_DIR` | Upload directory. The default is `backend/data`. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth credentials (optional) |
 
-1. **For Development:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your development settings
-   ```
-
-2. **For Production:**
-   ```bash
-   cp .env.example .env.production
-   # Edit .env.production with your production settings
-   ```
-
-### Docker Environment Variables
-
-When using Docker, you can override environment variables:
-
-```bash
-# Use production environment file
-docker-compose --env-file .env.production up
-
-# Override specific variables
-docker-compose up -e SECRET_KEY=your-production-secret -e DATABASE_URL=postgresql://prod-db:5432/crime_analysis
-```
-
-### Key Environment Variables
-
-```
-# Flask
-FLASK_APP=app.py
-FLASK_ENV=development|production
-SECRET_KEY=your-secret-key
-
-# Database
-DATABASE_URL=postgresql://user:password@db:5432/crime_analysis
-
-# Redis
-REDIS_URL=redis://redis:6379/0
-
-# JWT
-JWT_SECRET_KEY=your-jwt-secret
-
-# Frontend
-VITE_API_BASE_URL=http://localhost:5001
-```
+Containers read their settings from `.env` through `env_file`. The `docker-compose --env-file .env.production up` command changes only Compose variable substitution, such as the `VITE_API_BASE_URL` build argument. It does not replace the values that containers load from `.env`.
 
 ## Development
 
 ### Running Tests
 
-```bash
-# Run all tests
-python -m pytest
-
-# Test NL parsing specifically
-python -m pytest tests/test_nl_parsing.py -v
-
-# Quick integration test
-python test_nl_integration.py
-```
-
-### Code Formatting
-```bash
-black .
-flake8 .
-```
-
-### Testing Natural Language Queries
-
-Use the provided integration test script:
+Install pytest, which is not in `requirements.txt`:
 
 ```bash
-python test_nl_integration.py
+pip install pytest
 ```
 
-This will test:
-- NL parsing prompt generation
-- Query extraction and filtering
-- Response generation
-- Chart recommendations
+Run the conversion and route tests from `backend/`:
+
+```bash
+cd backend
+python -m pytest tests/test_convert_crime_data.py tests/test_routes.py
+```
+
+Run the natural language parsing tests from the repository root, because they import the `backend` package:
+
+```bash
+python -m pytest backend/tests/test_nl_parsing.py
+```
+
+### Database Migrations
+
+Run these commands from `backend/`:
+
+```bash
+FLASK_APP=app flask db migrate -m "Description of changes"
+FLASK_APP=app flask db upgrade
+```
+
+### Linting
+
+```bash
+cd frontend
+npm run lint
+```
 
 ## Troubleshooting
 
-### AI Chat Issues
+**Chat answers are generic or low quality**
+- Install MLX-LM on Apple Silicon. Otherwise, the app uses `gpt2` or a template response.
+- The first query can be slow while the model downloads.
 
-**Problem**: "Model loading failed" or slow responses
-**Solution**:
-- Ensure MLX-LM is installed: `pip install mlx-lm`
-- The first query may be slow as the model downloads
-- Consider using a smaller model for faster responses
+**Chat answers lack retrieved context**
+- Confirm that Ollama is running and that `mxbai-embed-large` is downloaded.
 
-**Problem**: Inaccurate query parsing
-**Solution**:
-- Be specific in your questions
-- Include relevant keywords (crime types, dates, locations)
-- Use complete sentences rather than fragments
+**The Docker database never becomes healthy**
+- The healthcheck expects `POSTGRES_USER=user` and `POSTGRES_DB=crime_analysis`.
 
-**Problem**: No chart suggestions appearing
-**Solution**:
-- Ensure your query relates to visualizable data
-- Try queries about trends, distributions, or comparisons
-
-### Performance Optimization
-
-- **Large Datasets**: The app automatically limits results for performance
-- **Caching**: Responses are cached to improve speed
-- **Local Processing**: MLX models run locally for privacy and speed
-
-### Database Issues
-
-If you encounter database errors:
-1. Ensure your data follows the expected format (see Data Format section)
-2. Check that date fields are properly formatted
-3. Verify that required columns exist in your CSV uploads
+**Upload rows are rejected**
+- Compare your column names with the Data Format section.
+- Check that dates and coordinates are valid. The upload response reports why each row was rejected.
 
 ## License
 

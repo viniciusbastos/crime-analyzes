@@ -72,6 +72,10 @@ const UserManagement = () => {
     }));
   };
 
+  const handlePageChange = (page) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
+
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setFormLoading(true);
@@ -374,7 +378,7 @@ const UserManagement = () => {
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() =>
-                  handleFilterChange("page", Math.max(1, filters.page - 1))
+                  handlePageChange(Math.max(1, filters.page - 1))
                 }
                 disabled={!pagination.has_prev}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -382,7 +386,7 @@ const UserManagement = () => {
                 Previous
               </button>
               <button
-                onClick={() => handleFilterChange("page", filters.page + 1)}
+                onClick={() => handlePageChange(filters.page + 1)}
                 disabled={!pagination.has_next}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
@@ -411,7 +415,7 @@ const UserManagement = () => {
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                   <button
                     onClick={() =>
-                      handleFilterChange("page", Math.max(1, filters.page - 1))
+                      handlePageChange(Math.max(1, filters.page - 1))
                     }
                     disabled={!pagination.has_prev}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -429,7 +433,7 @@ const UserManagement = () => {
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => handleFilterChange("page", pageNum)}
+                          onClick={() => handlePageChange(pageNum)}
                           className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                             pageNum === filters.page
                               ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
@@ -442,7 +446,7 @@ const UserManagement = () => {
                     }
                   )}
                   <button
-                    onClick={() => handleFilterChange("page", filters.page + 1)}
+                    onClick={() => handlePageChange(filters.page + 1)}
                     disabled={!pagination.has_next}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
