@@ -3,7 +3,7 @@ from models.models import db, Crime, UploadLog, User
 from flask_jwt_extended import jwt_required
 from routes.auth import role_required
 import pandas as pd
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, or_
 from datetime import datetime, timedelta
 from utils import (
     perform_temporal_analysis,
@@ -53,6 +53,8 @@ def apply_enhanced_filters(query):
     crime_type = request.args.get('crime_type')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
+    severity = request.args.get('severity')
+    search = (request.args.get('search') or '').strip()
 
     # City filter
     city = request.args.get('city')
@@ -73,20 +75,46 @@ def apply_enhanced_filters(query):
     # Apply basic filters
     if crime_type:
         query = query.filter(Crime.crime_type == crime_type)
+    if severity:
+        query = query.filter(func.lower(Crime.severity) == severity.strip().lower())
+    if search:
+        pattern = f"%{search}%"
+        search_filters = [
+            Crime.crime_type.ilike(pattern),
+            Crime.city.ilike(pattern),
+            Crime.address.ilike(pattern),
+            Crime.description.ilike(pattern),
+            Crime.severity.ilike(pattern),
+            Crime.category_parent.ilike(pattern),
+            Crime.bo.ilike(pattern),
+            Crime.delegacia.ilike(pattern),
+            Crime.unidade.ilike(pattern),
+            Crime.risp.ilike(pattern),
+            Crime.aisp_name.ilike(pattern),
+            Crime.coorpin.ilike(pattern),
+            Crime.regiao.ilike(pattern),
+        ]
+        if search.isdigit():
+            numeric_val = int(search)
+            search_filters.append(Crime.id == numeric_val)
+            search_filters.append(Crime.aisp == numeric_val)
+        query = query.filter(or_(*search_filters))
     if start_date:
         try:
             # Validate that start_date is a valid date string
-            from datetime import datetime
-            datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-            query = query.filter(Crime.date_time >= start_date)
+            start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+            query = query.filter(Crime.date_time >= start_dt)
         except ValueError:
             pass  # Ignore invalid date strings
     if end_date:
         try:
             # Validate that end_date is a valid date string
-            from datetime import datetime
-            datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            query = query.filter(Crime.date_time <= end_date)
+            end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+            # Include the entire end day when a date-only string (YYYY-MM-DD) is passed
+            if len(end_date.strip()) == 10 and 'T' not in end_date and ' ' not in end_date:
+                query = query.filter(Crime.date_time < end_dt + timedelta(days=1))
+            else:
+                query = query.filter(Crime.date_time <= end_dt)
         except ValueError:
             pass  # Ignore invalid date strings
 
@@ -207,17 +235,53 @@ def process_crime_data(df):
     db.session.commit()
     return count
 
+def _parse_optional_float(value):
+    """Parse an optional float value, returning None for empty strings or None."""
+    if value is None or value == '':
+        return None
+    return float(value)
+
+
+def _serialize_crime(crime):
+    """Serialize a Crime record with all management and detail fields."""
+    return {
+        'id': crime.id,
+        'crime_type': crime.crime_type,
+        'date_time': crime.date_time.isoformat() if crime.date_time else None,
+        'latitude': crime.latitude,
+        'longitude': crime.longitude,
+        'address': crime.address,
+        'city': crime.city,
+        'severity': crime.severity,
+        'description': crime.description,
+        'category_parent': crime.category_parent,
+        'bo': crime.bo,
+        'delegacia': crime.delegacia,
+        'sexo': crime.sexo,
+        'idade': crime.idade,
+        'coorpin': crime.coorpin,
+        'regiao': crime.regiao,
+        'id_municipio': crime.id_municipio,
+        'geocoded': crime.geocoded,
+        'unidade': crime.unidade,
+        'aisp': crime.aisp,
+        'aisp_name': crime.aisp_name,
+        'risp': crime.risp,
+    }
+
+
 @api_bp.route('/crimes', methods=['GET'])
 # @jwt_required(optional=True)
 @cached_api_call(timeout=get_cache_timeout('crimes'))
 def get_crimes():
     # Add pagination support
-    page = request.args.get('page', type=int, default=1)
+    page = max(1, request.args.get('page', type=int, default=1))
     per_page = request.args.get('per_page', type=int, default=100)
     limit = request.args.get('limit', type=int)  # Override per_page if specified
 
     if limit:
         per_page = limit
+    per_page = max(1, min(per_page, 5000))
 
     query = Crime.query
     query = apply_user_unidade_filter(query)  # Apply user-based unidade filtering first
@@ -226,19 +290,15 @@ def get_crimes():
     # Get total count for pagination
     total = query.count()
 
-    # Apply pagination
-    crimes = query.offset((page - 1) * per_page).limit(per_page).all()
+    # Apply consistent newest-first ordering and pagination
+    crimes = (
+        query.order_by(Crime.date_time.desc(), Crime.id.desc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+        .all()
+    )
 
-    result = [{
-        'id': c.id,
-        'crime_type': c.crime_type,
-        'date_time': c.date_time.isoformat(),
-        'latitude': c.latitude,
-        'longitude': c.longitude,
-        'address': c.address,
-        'city': c.city,
-        'severity': c.severity
-    } for c in crimes]
+    result = [_serialize_crime(c) for c in crimes]
 
     return jsonify({
         'crimes': result,
@@ -1041,17 +1101,7 @@ def chat_with_crime_data():
 def get_crime(crime_id):
     """Get a specific crime by ID"""
     crime = Crime.query.get_or_404(crime_id)
-    return jsonify({
-        'id': crime.id,
-        'crime_type': crime.crime_type,
-        'date_time': crime.date_time.isoformat(),
-        'latitude': crime.latitude,
-        'longitude': crime.longitude,
-        'address': crime.address,
-        'city': crime.city,
-        'severity': crime.severity,
-        'description': crime.description
-    })
+    return jsonify(_serialize_crime(crime))
 
 @api_bp.route('/crimes', methods=['POST'])
 @role_required('admin')
@@ -1070,8 +1120,8 @@ def create_crime():
         crime = Crime(
             crime_type=data['crime_type'],
             date_time=datetime.fromisoformat(data['date_time'].replace('Z', '+00:00')),
-            latitude=data.get('latitude'),
-            longitude=data.get('longitude'),
+            latitude=_parse_optional_float(data.get('latitude')),
+            longitude=_parse_optional_float(data.get('longitude')),
             address=data.get('address'),
             city=data.get('city'),
             severity=data.get('severity'),
@@ -1107,9 +1157,9 @@ def update_crime(crime_id):
         if 'date_time' in data:
             crime.date_time = datetime.fromisoformat(data['date_time'].replace('Z', '+00:00'))
         if 'latitude' in data:
-            crime.latitude = data['latitude']
+            crime.latitude = _parse_optional_float(data['latitude'])
         if 'longitude' in data:
-            crime.longitude = data['longitude']
+            crime.longitude = _parse_optional_float(data['longitude'])
         if 'address' in data:
             crime.address = data['address']
         if 'city' in data:

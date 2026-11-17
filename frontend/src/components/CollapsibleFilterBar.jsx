@@ -232,6 +232,17 @@ const CollapsibleFilterBar = ({
                   {t("category")}: {filters.category_parent}
                 </span>
               )}
+              {filters.severity && (
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDark
+                      ? "bg-amber-900 text-amber-200"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {t("severity")}: {t(filters.severity.toLowerCase(), filters.severity)}
+                </span>
+              )}
               {filters.quick_date && (
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
